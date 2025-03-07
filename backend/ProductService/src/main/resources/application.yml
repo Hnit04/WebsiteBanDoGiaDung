@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ProductService
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/productdb
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: false # Thay đổi thành false để đăng ký bằng hostname
+    lease-renewal-interval-in-seconds: 30 # Tần suất làm mới (giây)
+    lease-expiration-duration-in-seconds: 90 # Thời gian hết hạn (giây)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Cho phép hiển thị tất cả các endpoint Actuator
+  endpoint:
+    info:
+      enabled: true # Bật endpoint /actuator/info
+  info:
+    env:
+      enabled: true # Bật thông tin môi trường

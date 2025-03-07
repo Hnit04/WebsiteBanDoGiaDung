@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    scroll-behavior: smooth;
+}
+
+.product-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border-radius: 8px; /* Thêm bo góc cho card */
+    overflow: hidden; /* Đảm bảo không có phần tử tràn ra ngoài */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+}
+
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 12px;
+    background-color: #FF6B6B;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+input, select, textarea {
+    font-size: 16px !important;
+    padding: 0.5em; /* Thêm padding cho các phần tử nhập */
+}
+
+.dark body {
+    background-color: #181818;
+    color: #F5F5F5;
+}
+
+.dark .card {
+    background-color: #2D2D2D;
+    border: 1px solid #444; /* Thêm viền cho card tối */
+}
+
+@media (max-width: 768px) {
+    .badge {
+        width: 18px; /* Giảm kích thước badge trên thiết bị di động */
+        height: 18px;
+        font-size: 10px; /* Giảm kích thước chữ trong badge */
+    }
+
+    input, select, textarea {
+        font-size: 14px; /* Giảm kích thước chữ cho các phần tử nhập trên di động */
+    }
+}

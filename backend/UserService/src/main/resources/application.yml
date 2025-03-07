@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: UserService
+
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=User;encrypt=false
+    username: sa
+    password: Tinh2004@
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30 # Tần suất làm mới (giây)
+    lease-expiration-duration-in-seconds: 90 # Thời gian hết hạn (giây)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health"

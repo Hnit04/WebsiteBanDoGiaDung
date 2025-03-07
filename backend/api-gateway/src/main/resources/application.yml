@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    user:
+      name: admin
+      password: 1234
+
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: product-service-route
+          uri: lb://PRODUCTSERVICE
+          predicates:
+            - Path=/api/products/**
+
+        - id: user-service-route
+          uri: lb://USERSERVICE
+          predicates:
+            - Path=/api/users/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    lease-renewal-interval-in-seconds: 50
+    lease-expiration-duration-in-seconds: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Hoặc "gateway,health,info,routes"
+  endpoint:
+    gateway:
+      enabled: true
