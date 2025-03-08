@@ -8,7 +8,8 @@ export const products = [
         rating: 4.5,
         reviewCount: 120,
         category: "kitchen",
-        icon: "rice-cooker"
+        icon: "rice-cooker",
+        image: "img/noicomdien.webp"
     },
     {
         id: 2,
@@ -18,7 +19,8 @@ export const products = [
         rating: 4.2,
         reviewCount: 85,
         category: "kitchen",
-        icon: "blender"
+        icon: "blender",
+        image: "img/mayxay.webp"
     },
     {
         id: 3,
@@ -28,7 +30,8 @@ export const products = [
         rating: 4.7,
         reviewCount: 210,
         category: "bedroom",
-        icon: "bed"
+        icon: "bed",
+        image: "img/bochangagoi.webp"
     },
     {
         id: 4,
@@ -38,7 +41,8 @@ export const products = [
         rating: 4.3,
         reviewCount: 68,
         category: "bedroom",
-        icon: "lamp"
+        icon: "lamp",
+        image: "img/denngu.jpg"
     },
     {
         id: 5,
@@ -48,7 +52,8 @@ export const products = [
         rating: 4.6,
         reviewCount: 95,
         category: "kitchen",
-        icon: "utensils"
+        icon: "utensils",
+        image: "img/bodao.webp"
     },
     {
         id: 6,
@@ -58,7 +63,8 @@ export const products = [
         rating: 4.4,
         reviewCount: 73,
         category: "bathroom",
-        icon: "mirror"
+        icon: "mirror",
+        image: "img/guongled.webp"
     },
     {
         id: 7,
@@ -68,7 +74,8 @@ export const products = [
         rating: 4.1,
         reviewCount: 52,
         category: "bathroom",
-        icon: "shower"
+        icon: "shower",
+        image: "img/noicomdien.webp"
     },
     {
         id: 8,
@@ -78,7 +85,8 @@ export const products = [
         rating: 4.8,
         reviewCount: 145,
         category: "livingroom",
-        icon: "couch"
+        icon: "couch",
+        image: "img/noicomdien.webp"
     },
     {
         id: 9,
@@ -88,7 +96,8 @@ export const products = [
         rating: 4.5,
         reviewCount: 87,
         category: "livingroom",
-        icon: "coffee"
+        icon: "coffee",
+        image: "img/noicomdien.webp"
     },
     {
         id: 10,
@@ -98,7 +107,8 @@ export const products = [
         rating: 4.3,
         reviewCount: 63,
         category: "kitchen",
-        icon: "pepper-hot"
+        icon: "pepper-hot",
+        image: "img/noicomdien.webp"
     },
     {
         id: 11,
@@ -108,7 +118,8 @@ export const products = [
         rating: 4.4,
         reviewCount: 91,
         category: "livingroom",
-        icon: "couch"
+        icon: "couch",
+        image: "img/noicomdien.webp"
     },
     {
         id: 12,
@@ -118,6 +129,7 @@ export const products = [
         rating: 4.2,
         reviewCount: 78,
         category: "livingroom",
-        icon: "window-maximize"
+        icon: "window-maximize",
+        image: "img/noicomdien.webp"
     }
 ];
