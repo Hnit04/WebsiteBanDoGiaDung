@@ -7,10 +7,11 @@ const ProductCard = ({ product, onClick }) => {
             className="card product-card overflow-hidden cursor-pointer"
             onClick={() => onClick(product)}
         >
-            <div className="bg-light h-48 d-flex align-items-center justify-content-center">
+            {/* <div className="bg-light h-48 d-flex align-items-center justify-content-center">
                 <i className={`${getProductIcon(product)} fs-3 text-secondary`}></i>
-            </div>
+            </div> */}
             <div className="card-body">
+                <div><img src={product.image}/></div>
                 <h3 className="card-title fw-medium">{product.name}</h3>
                 <div className="d-flex align-items-center mb-2">
                     <div
