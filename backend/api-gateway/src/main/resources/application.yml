@@ -14,28 +14,20 @@ spring:
     gateway:
       routes:
         - id: product-service-route
-          uri: lb://PRODUCTSERVICE
+          uri: http://localhost:8081  # ✅ Chuyển hướng đến ProductService
           predicates:
-            - Path=/api/products/**
+            - Path=/api/products/**, /api/categories/**  # ✅ Bổ sung /api/categories/**
 
         - id: user-service-route
-          uri: lb://USERSERVICE
+          uri: http://localhost:8082
           predicates:
             - Path=/api/users/**
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    lease-renewal-interval-in-seconds: 50
-    lease-expiration-duration-in-seconds: 100
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*" # Hoặc "gateway,health,info,routes"
+        include: "*"
   endpoint:
     gateway:
       enabled: true
