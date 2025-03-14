@@ -19,14 +19,6 @@ server:
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    lease-renewal-interval-in-seconds: 30 # Tần suất làm mới (giây)
-    lease-expiration-duration-in-seconds: 90 # Thời gian hết hạn (giây)
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "info,health"
+    enabled: false   # ✅ Tắt Eureka hoàn toàn
+    register-with-eureka: false
+    fetch-registry: false
