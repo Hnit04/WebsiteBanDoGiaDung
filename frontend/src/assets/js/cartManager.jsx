@@ -18,20 +18,16 @@ export function addToCart(product, quantity = 1) {
     if (existingItem) {
         existingItem.quantity += quantity;
     } else {
-        cart.push({
-            product: product,
-            quantity: quantity
-        });
+        cart.push({ product, quantity });
     }
 
     updateCartBadge();
     updateLocalStorage('cart', cart);
 
-    // Return the updated cart for React components
-    return [...cart];
+    return [...cart]; // Return updated cart
 }
 
-// Update cart badge
+// Update cart badge with Tailwind styles
 export function updateCartBadge() {
     const cartBadge = document.getElementById('cartBadge');
     if (!cartBadge) return;
@@ -41,6 +37,7 @@ export function updateCartBadge() {
     if (itemCount > 0) {
         cartBadge.textContent = itemCount > 99 ? '99+' : itemCount;
         cartBadge.classList.remove('hidden');
+        cartBadge.classList.add('bg-red-500', 'text-white', 'rounded-full', 'w-5', 'h-5', 'flex', 'items-center', 'justify-center', 'text-xs', 'absolute', '-top-2', '-right-2');
     } else {
         cartBadge.classList.add('hidden');
     }
@@ -53,12 +50,10 @@ export function removeFromCart(index) {
         updateCartBadge();
         updateLocalStorage('cart', cart);
     }
-
-    // Return the updated cart for React components
-    return [...cart];
+    return [...cart]; // Return updated cart
 }
 
-// Toggle cart sidebar (for non-React code)
+// Toggle cart sidebar using Tailwind
 export function toggleCartSidebar() {
     const cartSidebar = document.getElementById('cartSidebar');
     if (!cartSidebar) return;
@@ -66,9 +61,9 @@ export function toggleCartSidebar() {
     cartSidebar.classList.toggle('translate-x-full');
 
     if (!cartSidebar.classList.contains('translate-x-full')) {
-        document.body.style.overflow = 'hidden'; // Prevent body scrolling
+        document.body.classList.add('overflow-hidden'); // Prevent scrolling
     } else {
-        document.body.style.overflow = ''; // Re-enable body scrolling
+        document.body.classList.remove('overflow-hidden'); // Enable scrolling
     }
 }
 

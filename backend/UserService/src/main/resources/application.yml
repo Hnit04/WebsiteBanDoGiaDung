@@ -13,6 +13,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  basic:
+    enabled: false
 
 server:
   port: 8082
@@ -22,3 +24,9 @@ eureka:
     enabled: false   # ✅ Tắt Eureka hoàn toàn
     register-with-eureka: false
     fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health"

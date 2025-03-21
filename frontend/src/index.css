@@ -1,5 +1,5 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-
+/*import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');*/
+@import "tailwindcss";
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -124,7 +124,7 @@ footer .text-muted {
   color: white !important;
 }
 footer a {
-  color: #333 !important;
+  color: #ffffff !important;
   font-weight: 500 !important;
   text-decoration: none !important;
   transition: all 0.3s ease-in-out;
@@ -167,4 +167,58 @@ footer a {
   box-shadow: 10px 10px 40px rgba(225, 150, 150, 0.3); /* Hiệu ứng đổ bóng */
   border-radius: 15px;
   border: 2px solid #dcc9c9;
+}
+/* Ẩn mũi tên trên Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Ẩn trên Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.hero-section {
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: space-between; /* Chia đều hai bên */
+  padding: 0 10%; /* Khoảng cách hai bên */
+  min-height: 100vh; /* Đảm bảo chiều cao toàn màn hình */
+}
+
+.hero-text {
+  width: 40%;
+  text-align: left; /* Căn trái nội dung */
+}
+
+.hero-image {
+  width: 60%;
+  display: flex;
+  justify-content: flex-end; /* Đưa ảnh về bên phải */
+}
+
+.hero-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 15px; /* Bo góc ảnh */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Hiệu ứng bóng */
+}
+
+/* Responsive - Điều chỉnh trên màn hình nhỏ */
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-text, .hero-image {
+    width: 100%;
+  }
+
+  .hero-image {
+    justify-content: center;
+    margin-top: 20px;
+  }
 }
