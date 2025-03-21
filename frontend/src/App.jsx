@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import { setupDarkMode } from './assets/js/utils.jsx';
+import './index.css';
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -17,25 +18,29 @@ export default function App() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
 
-    useEffect(() => {
-        // Thiết lập dark mode khi component được mount
+    // Thiết lập dark mode khi ứng dụng mount lần đầu
+    useLayoutEffect(() => {
         setupDarkMode();
     }, []);
 
-    const handleProductClick = (product) => {
+    // Xử lý khi người dùng chọn một sản phẩm
+    const handleProductClick = useCallback((product) => {
         setCurrentProduct(product);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleCategorySelect = (category) => {
+    // Xử lý khi chọn danh mục
+    const handleCategorySelect = useCallback((category) => {
         setSelectedCategory(category);
-        // Scroll đến phần sản phẩm
-        document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-    };
+        requestAnimationFrame(() => {
+            document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+        });
+    }, []);
 
-    const toggleCart = () => {
-        setIsCartOpen(!isCartOpen);
-    };
+    // Bật/tắt sidebar giỏ hàng
+    const toggleCart = useCallback(() => {
+        setIsCartOpen((prev) => !prev);
+    }, []);
 
     return (
         <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">

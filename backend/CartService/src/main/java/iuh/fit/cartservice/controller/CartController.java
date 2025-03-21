@@ -1,6 +1,7 @@
 package iuh.fit.cartservice.controller;
 
-import iuh.fit.cartservice.model.Cart;
+import iuh.fit.cartservice.dto.CartItemRequest;
+import iuh.fit.cartservice.dto.CartResponse;
 import iuh.fit.cartservice.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,24 +13,24 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     private final CartService cartService;
 
-    // Lấy giỏ hàng theo userId
     @GetMapping("/{userId}")
-    public ResponseEntity<Cart> getCart(@PathVariable Long userId) {
-        return ResponseEntity.ok(cartService.getCartByUserId(userId));
+    public ResponseEntity<CartResponse> getCart(@PathVariable String userId) {
+        return ResponseEntity.ok(cartService.getCart(userId));
     }
 
-    // Thêm sản phẩm vào giỏ hàng
-    @PostMapping("/{userId}/add")
-    public ResponseEntity<Cart> addToCart(
-            @PathVariable Long userId,
-            @RequestParam Long productId,
-            @RequestParam int quantity) {
-        return ResponseEntity.ok(cartService.addToCart(userId, productId, quantity));
+    @PostMapping("/{userId}")
+    public ResponseEntity<CartResponse> addToCart(@PathVariable String userId, @RequestBody CartItemRequest request) {
+        return ResponseEntity.ok(cartService.addToCart(userId, request));
     }
 
-    // Xóa giỏ hàng của user
-    @DeleteMapping("/{userId}/clear")
-    public ResponseEntity<Void> clearCart(@PathVariable Long userId) {
+    @DeleteMapping("/{userId}/{productId}")
+    public ResponseEntity<Void> removeFromCart(@PathVariable String userId, @PathVariable String productId) {
+        cartService.removeFromCart(userId, productId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> clearCart(@PathVariable String userId) {
         cartService.clearCart(userId);
         return ResponseEntity.noContent().build();
     }

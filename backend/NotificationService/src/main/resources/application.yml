@@ -1,0 +1,14 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: trancongtinh20042004@gmail.com  # ? Thay b?ng email c?a b?n
+    password: Tinh2k4@  # ? Thay b?ng m?t kh?u ?ng d?ng c?a b?n
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+server:
+  port: 8089
