@@ -10,10 +10,5 @@
         <module name="CartService.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="NotificationService" target="21" />
-      <module name="NotificationService.main" target="21" />
-      <module name="NotificationService.test" target="21" />
-    </bytecodeTargetLevel>
   </component>
 </project>

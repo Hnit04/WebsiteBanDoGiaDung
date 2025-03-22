@@ -5,6 +5,7 @@
     <file type="web" url="file://$PROJECT_DIR$/backend/api-gateway" />
     <file type="web" url="file://$PROJECT_DIR$/backend/CartService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/demo" />
+    <file type="web" url="file://$PROJECT_DIR$/backend/OrderService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/ProductService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/UserService" />
   </component>
