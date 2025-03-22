@@ -1,31 +1,28 @@
-// Format price with Vietnamese currency
 export function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
 }
 
-// Generate star rating HTML
 export function generateRatingStars(rating) {
     let starsHtml = '';
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-        starsHtml += '<i class="fas fa-star"></i>';
+        starsHtml += '<i class="fas fa-star text-yellow-500"></i>'; // Đã là Tailwind CSS
     }
 
     if (hasHalfStar) {
-        starsHtml += '<i class="fas fa-star-half-alt"></i>';
+        starsHtml += '<i class="fas fa-star-half-alt text-yellow-500"></i>'; // Đã là Tailwind CSS
     }
 
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     for (let i = 0; i < emptyStars; i++) {
-        starsHtml += '<i class="far fa-star"></i>';
+        starsHtml += '<i class="far fa-star text-gray-400"></i>'; // Đã là Tailwind CSS
     }
 
     return starsHtml;
 }
 
-// Get icon for product
 export function getProductIcon(product) {
     // Map of product icons
     const iconMap = {

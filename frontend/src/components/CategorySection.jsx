@@ -9,7 +9,7 @@ const CategorySection = ({ onCategorySelect }) => {
     ];
 
     return (
-        <section id="categories" className="py-12 bg-white">
+        <section id="categories" className="py-12 text-black bg-white">
             <div className="container px-4">
                 <h2 className="text-center h2 mb-4">Danh mục sản phẩm</h2>
                 <div className="row row-cols-2 row-cols-md-4 g-4">

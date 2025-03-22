@@ -1,35 +1,38 @@
-import React from 'react';
-import { formatPrice, generateRatingStars, getProductIcon } from '../assets/js/utils.jsx';
+import React from "react";
+import { formatPrice, generateRatingStars } from "../assets/js/utils.jsx";
 
 const ProductCard = ({ product, onClick }) => {
     return (
         <div
-            className="card product-card overflow-hidden cursor-pointer"
+            className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition"
             onClick={() => onClick(product)}
         >
-            {/* <div className="bg-light h-48 d-flex align-items-center justify-content-center">
-                <i className={`${getProductIcon(product)} fs-3 text-secondary`}></i>
-            </div> */}
-            <div className="card-body">
-                <div><img src={product.image}/></div>
-                <h3 className="card-title fw-medium">{product.name}</h3>
-                <div className="d-flex align-items-center mb-2">
-                    <div
-                        className="text-warning me-2"
-                        dangerouslySetInnerHTML={{ __html: generateRatingStars(product.rating) }}
-                    ></div>
-                    <span className="text-muted small">({product.reviewCount})</span>
+            {/* Product Image */}
+            <div className="h-40 overflow-hidden">
+                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+            </div>
+
+            {/* Product Details */}
+            <div className="p-4">
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+
+                {/* Rating */}
+                <div className="flex items-center space-x-2 text-yellow-500 mt-2">
+                    <div dangerouslySetInnerHTML={{ __html: generateRatingStars(product.rating) }}></div>
+                    <span className="text-gray-500 text-sm">({product.reviewCount})</span>
                 </div>
-                <div className="d-flex align-items-center justify-content-between">
-                    <span className="fw-bold text-primary">{formatPrice(product.price)}</span>
+
+                {/* Price & View Button */}
+                <div className="flex items-center justify-between mt-4">
+                    <span className="text-xl font-bold text-blue-600">{formatPrice(product.price)}</span>
                     <button
-                        className="btn btn-sm btn-light rounded-circle"
+                        className="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition"
                         onClick={(e) => {
                             e.stopPropagation();
                             onClick(product);
                         }}
                     >
-                        <i className="fa fa-eye"></i>
+                        <i className="fa fa-eye text-gray-700"></i>
                     </button>
                 </div>
             </div>
