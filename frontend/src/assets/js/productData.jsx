@@ -32,6 +32,7 @@ export const products = [
         category: "bedroom",
         icon: "bed",
         image: "img/bochangagoi.webp"
+
     },
     {
         id: 4,
