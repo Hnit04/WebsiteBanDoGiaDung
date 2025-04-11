@@ -92,7 +92,9 @@ nav a {
   border-radius: 8px; /* Bo góc mềm mại hơn */
   display: inline-block; /* Đảm bảo padding có tác dụng */
 }
-
+.fa-shopping-cart {
+  color: white !important;
+}
 nav a:hover {
   background-color: #006db3 !important;
   color: white !important;
