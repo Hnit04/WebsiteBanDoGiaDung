@@ -1,23 +1,19 @@
 package iuh.fit.cartservice.model;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 
+
+import java.util.ArrayList;
 import java.util.List;
-
-@Entity
-@Table(name = "carts")
-@Getter
-@Setter
-@NoArgsConstructor
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document(collection = "cart")
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Cart {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private Long userId; // ID của người dùng sở hữu giỏ hàng
-
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CartItem> items; // Danh sách sản phẩm trong giỏ hàng
+    private String id; // ID giỏ hàng (User ID)
+    List<CartItem> items = new ArrayList<>();
 }

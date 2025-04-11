@@ -1,5 +1,4 @@
-import { setupDarkMode } from './assets/js/utils.js';
-import { toggleCartSidebar } from './assets/js/cartManager.jsx';
+import { useState, useEffect } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
@@ -10,88 +9,63 @@ import ProductModal from './components/ProductModal.jsx';
 import CartSidebar from './components/CartSidebar.jsx';
 import CategorySection from './components/CategorySection.jsx';
 import ChatPopup from './components/ChatPopup.jsx';
+import { setupDarkMode } from './assets/js/utils.js';
 
-class App {
-    constructor() {
-        this.productModal = new ProductModal();
-        this.productsPage = new ProductsPage(
-            (product) => this.productModal.open(product)
-        );
-        this.categorySection = new CategorySection(
-            (category) => this.productsPage.setCategoryFilter(category)
-        );
-        this.chatPopup = new ChatPopup();
-    }
+export default function App() {
+    const [currentProduct, setCurrentProduct] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('all');
 
-    init() {
-        // Setup dark mode
+    // Thiết lập Dark Mode khi ứng dụng được mount
+    useEffect(() => {
         setupDarkMode();
+    }, []);
 
-        // Render components
-        this.renderApp();
+    const handleProductClick = (product) => {
+        setCurrentProduct(product);
+        setIsModalOpen(true);
+    };
 
-        // Initialize event listeners
-        this.initEventListeners();
-    }
+    const handleCategorySelect = (category) => {
+        setSelectedCategory(category);
+        // Cuộn đến phần sản phẩm
+        document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+    };
 
-    renderApp() {
-        const appContainer = document.getElementById('app');
+    const toggleCart = () => {
+        setIsCartOpen(!isCartOpen);
+    };
 
-        // Create header
-        const header = new Header();
+    return (
+        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+            <Header onCartClick={toggleCart} />
 
-        // Create pages
-        const homePage = new HomePage();
+            <main>
+                <HomePage />
+                <CategorySection onCategorySelect={handleCategorySelect} />
+                <ProductsPage
+                    onProductClick={handleProductClick}
+                    selectedCategory={selectedCategory}
+                />
+                <AboutPage />
+            </main>
 
-        // Create footer
-        const footer = new Footer();
+            <Footer />
 
-        // Create cart sidebar
-        const cartSidebar = new CartSidebar();
+            {/* Modal và Sidebar */}
+            <ProductModal
+                product={currentProduct}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
 
-        // Render all components
-        appContainer.innerHTML = `
-            ${header.render()}
-            ${homePage.render()}
-            ${this.categorySection.render()}
-            ${this.productsPage.render()}
-            ${new AboutPage().render()}
-            ${footer.render()}
-            ${this.productModal.render()}
-            ${cartSidebar.render()}
-            ${this.chatPopup.render()}
-        `;
-    }
+            <CartSidebar
+                isOpen={isCartOpen}
+                onClose={() => setIsCartOpen(false)}
+            />
 
-    initEventListeners() {
-        // Initialize header events
-        const header = new Header();
-        header.initEventListeners();
-
-        // Initialize product modal events
-        this.productModal.initEventListeners();
-
-        // Initialize products page events
-        this.productsPage.initEventListeners();
-
-        // Initialize category section events
-        this.categorySection.initEventListeners();
-
-        // Initialize cart sidebar events
-        const cartSidebar = new CartSidebar();
-        cartSidebar.initEventListeners();
-
-        // Initialize chat popup events
-        this.chatPopup.initEventListeners();
-
-        // Cart button
-        const cartBtn = document.getElementById('cartBtn');
-        cartBtn.addEventListener('click', toggleCartSidebar);
-    }
+            <ChatPopup />
+        </div>
+    );
 }
-
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const app = new App();
-    app.init();
-});
