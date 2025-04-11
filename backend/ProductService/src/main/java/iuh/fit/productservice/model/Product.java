@@ -4,19 +4,17 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
-
-@Document(collection = "products")
+@Document(collection = "products") // Định nghĩa collection trong MongoDB
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Product {
     @Id
     private String id;
     private String name;
     private String description;
-    private BigDecimal price;
-    private int stock;
+    private double price;
+    private Category category; // Danh mục sản phẩm (nhúng trong product)
 }

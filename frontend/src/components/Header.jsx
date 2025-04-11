@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const Header = ({ onCartClick }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -8,50 +8,70 @@ const Header = ({ onCartClick }) => {
     };
 
     return (
-        <header className="bg-white shadow-sm sticky-top py-3">
-            <div className="container">
-                <div className="d-flex justify-content-between align-items-center">
-                    {/* Logo */}
-                    <div className="d-flex align-items-center">
-                        <i className="fa fa-home text-primary fs-3 me-2"></i>
-                        <h1 className="h4 text-primary fw-bold">HomeCraft</h1>
-                    </div>
+        <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+            <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                {/* Logo */}
+                <div className="flex items-center">
+                    <i className="fa fa-home text-blue-500 text-2xl mr-2"></i>
+                    <h1 className="text-lg font-bold text-blue-500">HomeCraft</h1>
+                </div>
 
-                    {/* Navigation */}
-                    <nav className="d-none d-md-flex align-items-center gap-4">
-                    <a href="#" className="text-dark hover-text-primary fw-medium">Trang chủ</a>
-                        <a href="#products" className="text-dark hover-text-primary fw-medium">Sản phẩm</a>
-                        <a href="#categories" className="text-dark hover-text-primary fw-medium">Danh mục</a>
-                        <a href="#about" className="text-dark hover-text-primary fw-medium">Giới thiệu</a>
-                    </nav>
+                {/* Navigation */}
+                <nav className="hidden md:flex items-center space-x-6">
+                    <a href="#" className="text-gray-700 hover:text-blue-500 font-medium">
+                        Trang chủ
+                    </a>
+                    <a href="#products" className="text-gray-700 hover:text-blue-500 font-medium">
+                        Sản phẩm
+                    </a>
+                    <a href="#categories" className="text-gray-700 hover:text-blue-500 font-medium">
+                        Danh mục
+                    </a>
+                    <a href="#about" className="text-gray-700 hover:text-blue-500 font-medium">
+                        Giới thiệu
+                    </a>
+                </nav>
 
-                    {/* Actions */}
-                    <div className="d-flex align-items-center gap-3">
-                        <div className="position-relative">
-                            <button
-                                onClick={onCartClick}
-                                className="text-dark hover-text-primary position-relative"
+                {/* Actions */}
+                <div className="flex items-center space-x-4">
+                    {/* Cart Button */}
+                    <div className="relative">
+                        <button onClick={onCartClick} className="text-gray-700 hover:text-blue-500 relative">
+                            <i className="fa fa-shopping-cart text-xl"></i>
+                            <span
+                                id="cartBadge"
+                                className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-xs rounded-full transform translate-x-1/2 -translate-y-1/2"
                             >
-                                <i className="fa fa-shopping-cart fs-4"></i>
-                                <span id="cartBadge" className="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle">0</span>
-                            </button>
-                        </div>
-                        <button
-                            onClick={toggleMobileMenu}
-                            className="d-md-none text-dark"
-                        >
-                            <i className="fa-solid fa-bars fs-4"></i>
+                0
+              </span>
                         </button>
                     </div>
-                </div>
 
-                {/* Mobile menu */}
-                <div className={`d-md-none ${isMobileMenuOpen ? 'd-block' : 'd-none'} py-3`}>
-                    <a href="#" className="d-block py-2 text-dark hover-text-primary fw-medium">Trang chủ</a>
-                    <a href="#products" className="d-block py-2 text-dark hover-text-primary fw-medium">Sản phẩm</a>
-                    <a href="#categories" className="d-block py-2 text-dark hover-text-primary fw-medium">Danh mục</a>
-                    <a href="#about" className="d-block py-2 text-dark hover-text-primary fw-medium">Giới thiệu</a>
+                    {/* Mobile Menu Button */}
+                    <button onClick={toggleMobileMenu} className="md:hidden text-gray-700">
+                        <i className="fa fa-bars text-xl"></i>
+                    </button>
                 </div>
+            </div>
+
+            {/* Mobile Menu */}
+            <div
+                className={`md:hidden absolute top-full left-0 w-full bg-white shadow-lg transition-all duration-300 ease-in-out ${
+                    isMobileMenuOpen ? "block" : "hidden"
+                }`}
+            >
+                <a href="#" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
+                    Trang chủ
+                </a>
+                <a href="#products" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
+                    Sản phẩm
+                </a>
+                <a href="#categories" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
+                    Danh mục
+                </a>
+                <a href="#about" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
+                    Giới thiệu
+                </a>
             </div>
         </header>
     );
