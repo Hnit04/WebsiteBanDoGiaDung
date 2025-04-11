@@ -1,33 +1,23 @@
-// Format price with Vietnamese currency
+// Format price to Vietnamese currency
 export function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
 }
 
 // Generate star rating HTML
 export function generateRatingStars(rating) {
-    let starsHtml = '';
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
-
-    for (let i = 0; i < fullStars; i++) {
-        starsHtml += '<i class="fas fa-star"></i>';
-    }
-
-    if (hasHalfStar) {
-        starsHtml += '<i class="fas fa-star-half-alt"></i>';
-    }
-
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    for (let i = 0; i < emptyStars; i++) {
-        starsHtml += '<i class="far fa-star"></i>';
-    }
 
-    return starsHtml;
+    return (
+        Array(fullStars).fill('<i class="fas fa-star"></i>').join('') +
+        (hasHalfStar ? '<i class="fas fa-star-half-alt"></i>' : '') +
+        Array(emptyStars).fill('<i class="far fa-star"></i>').join('')
+    );
 }
 
 // Get icon for product
 export function getProductIcon(product) {
-    // Map of product icons
     const iconMap = {
         "rice-cooker": "fa-solid fa-bowl-rice",
         "blender": "fa-solid fa-blender",
@@ -47,14 +37,14 @@ export function getProductIcon(product) {
 
 // Set up dark mode detection
 export function setupDarkMode() {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-    }
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        if (event.matches) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+    const setDarkMode = (isDark) => {
+        document.documentElement.classList.toggle('dark', isDark);
+    };
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setDarkMode(mediaQuery.matches);
+
+    mediaQuery.addEventListener('change', (event) => {
+        setDarkMode(event.matches);
     });
 }

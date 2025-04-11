@@ -1,57 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getCart } from '../assets/js/cartManager'; // Đường dẫn tùy chỉnh
 
 const Header = ({ onCartClick }) => {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [totalItems, setTotalItems] = useState(0);
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-    };
+    useEffect(() => {
+        const cart = getCart();
+        const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+        setTotalItems(itemCount);
+    }, []);
 
     return (
-        <header className="bg-white shadow-sm sticky-top py-3">
-            <div className="container">
-                <div className="d-flex justify-content-between align-items-center">
-                    {/* Logo */}
-                    <div className="d-flex align-items-center">
-                        <i className="fa fa-home text-primary fs-3 me-2"></i>
-                        <h1 className="h4 text-primary fw-bold">HomeCraft</h1>
-                    </div>
-
-                    {/* Navigation */}
-                    <nav className="d-none d-md-flex align-items-center gap-4">
-                    <a href="#" className="text-dark hover-text-primary fw-medium">Trang chủ</a>
-                        <a href="#products" className="text-dark hover-text-primary fw-medium">Sản phẩm</a>
-                        <a href="#categories" className="text-dark hover-text-primary fw-medium">Danh mục</a>
-                        <a href="#about" className="text-dark hover-text-primary fw-medium">Giới thiệu</a>
-                    </nav>
-
-                    {/* Actions */}
-                    <div className="d-flex align-items-center gap-3">
-                        <div className="position-relative">
-                            <button
-                                onClick={onCartClick}
-                                className="text-dark hover-text-primary position-relative"
-                            >
-                                <i className="fa fa-shopping-cart fs-4"></i>
-                                <span id="cartBadge" className="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle">0</span>
-                            </button>
-                        </div>
-                        <button
-                            onClick={toggleMobileMenu}
-                            className="d-md-none text-dark"
-                        >
-                            <i className="fa-solid fa-bars fs-4"></i>
-                        </button>
-                    </div>
+        <header className="bg-white shadow-sm sticky top-0 py-3">
+            <div className="container mx-auto flex items-center">
+                {/* Logo */}
+                <div className="flex items-center">
+                    <i className="fa fa-heart text-pink-600 text-3xl"></i>
+                    <h1 className="text-pink-600 text-lg font-bold ml-2">HomeCraft</h1>
                 </div>
 
-                {/* Mobile menu */}
-                <div className={`d-md-none ${isMobileMenuOpen ? 'd-block' : 'd-none'} py-3`}>
-                    <a href="#" className="d-block py-2 text-dark hover-text-primary fw-medium">Trang chủ</a>
-                    <a href="#products" className="d-block py-2 text-dark hover-text-primary fw-medium">Sản phẩm</a>
-                    <a href="#categories" className="d-block py-2 text-dark hover-text-primary fw-medium">Danh mục</a>
-                    <a href="#about" className="d-block py-2 text-dark hover-text-primary fw-medium">Giới thiệu</a>
+                {/* Search Bar */}
+                <div className="hidden md:flex flex-1 mx-4">
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        className="border border-gray-300 rounded-lg p-2 flex-1"
+                    />
                 </div>
+
+                {/* Navigation */}
+                <nav className="hidden md:flex items-center space-x-12">
+                    <a href="#recipes" className="text-gray-700 hover:text-pink-600">Recipes</a>
+                    <a href="#ingredients" className="text-gray-700 hover:text-pink-600">Ingredients</a>
+                    <a href="#categories" className="text-gray-700 hover:text-pink-600">Categories</a>
+                    <button onClick={onCartClick} className="text-gray-700 hover:text-pink-600 relative">
+                        <i className="fa fa-shopping-cart text-xl"></i>
+                        {totalItems > 0 && (
+                            <span className="absolute bottom-5 left-5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                                {totalItems > 99 ? '99+' : totalItems}
+                            </span>
+                        )}
+                    </button>
+                    <a href="#login" className="text-gray-700 hover:text-pink-600">Login</a>
+                    <button className="bg-pink-600 text-white rounded-lg px-4 py-2">Subscribe</button>
+                </nav>
             </div>
         </header>
     );

@@ -26,7 +26,6 @@ const ChatPopup = () => {
                 type: 'bot',
                 text: 'Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm nhất có thể!'
             }]);
-            // Scroll to bottom
             scrollToBottom();
         }, 1000);
     };
@@ -40,31 +39,30 @@ const ChatPopup = () => {
             {/* Fixed Chat Button */}
             <button
                 onClick={toggleChat}
-                className="btn btn-secondary position-fixed bottom-0 end-0 m-4 rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: '56px', height: '56px' }}
+                className="fixed bottom-4 right-4 w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center text-white shadow-lg"
             >
-                <i className="fa fa-comment-dots fs-3"></i>
+                <i className="fa fa-comment-dots text-2xl"></i>
             </button>
 
             {/* Chat Popup */}
             {isVisible && (
-                <div className="position-fixed bottom-0 end-0 m-4 w-80 bg-white rounded shadow">
-                    <div className="p-4 border-bottom d-flex justify-content-between align-items-center">
-                        <h3 className="fw-medium">Hỗ trợ trực tuyến</h3>
+                <div className="fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-lg">
+                    <div className="p-4 border-b flex justify-between items-center">
+                        <h3 className="text-lg font-semibold">Hỗ trợ trực tuyến</h3>
                         <button
                             onClick={toggleChat}
-                            className="text-secondary"
+                            className="text-gray-600"
                         >
                             <i className="fa fa-times"></i>
                         </button>
                     </div>
-                    <div className="p-4" style={{ height: '320px', overflowY: 'auto' }}>
+                    <div className="p-4 h-80 overflow-y-auto">
                         {messages.map((message, index) => (
-                            <div key={index} className={`d-flex ${message.type === 'user' ? 'justify-content-end' : ''} mb-4`}>
-                                <div className={`rounded p-3 ${
+                            <div key={index} className={`flex mb-4 ${message.type === 'user' ? 'justify-end' : ''}`}>
+                                <div className={`rounded-lg p-3 ${
                                     message.type === 'user'
-                                        ? 'bg-primary text-white'
-                                        : 'bg-light text-dark'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-black'
                                 }`} style={{ maxWidth: '80%' }}>
                                     <p>{message.text}</p>
                                 </div>
@@ -72,19 +70,19 @@ const ChatPopup = () => {
                         ))}
                         <div ref={messagesEndRef} />
                     </div>
-                    <div className="p-4 border-top">
-                        <div className="d-flex">
+                    <div className="p-4 border-t">
+                        <div className="flex">
                             <input
                                 type="text"
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                                 placeholder="Nhập tin nhắn..."
-                                className="form-control rounded-start border-0 bg-light text-dark"
+                                className="flex-grow rounded-l-lg border border-gray-300 bg-gray-100 text-black p-2"
                             />
                             <button
                                 onClick={sendMessage}
-                                className="btn btn-primary rounded-end"
+                                className="bg-blue-600 text-white rounded-r-lg p-2"
                             >
                                 <i className="fa fa-paper-plane"></i>
                             </button>

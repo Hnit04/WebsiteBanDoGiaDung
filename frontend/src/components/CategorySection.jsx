@@ -10,17 +10,17 @@ const CategorySection = ({ onCategorySelect }) => {
 
     return (
         <section id="categories" className="py-12 bg-white">
-            <div className="container px-4">
-                <h2 className="text-center h2 mb-4">Danh mục sản phẩm</h2>
-                <div className="row row-cols-2 row-cols-md-4 g-4">
+            <div className="container mx-auto px-4">
+                <h2 className="text-center text-3xl font-semibold mb-4">Danh mục sản phẩm</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {categories.map(category => (
                         <div
                             key={category.id}
-                            className="col category-card bg-light p-4 rounded text-center cursor-pointer"
+                            className="category-card bg-gray-100 p-6 rounded-lg text-center cursor-pointer transition-transform transform hover:scale-105"
                             onClick={() => onCategorySelect(category.id)}
                         >
-                            <i className={`${category.icon} fs-1 text-primary mb-4`}></i>
-                            <h3 className="fw-medium">{category.name}</h3>
+                            <i className={`${category.icon} text-4xl text-blue-500 mb-4`}></i>
+                            <h3 className="text-lg font-medium">{category.name}</h3>
                         </div>
                     ))}
                 </div>

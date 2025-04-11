@@ -4,33 +4,23 @@ import { formatPrice, generateRatingStars, getProductIcon } from '../assets/js/u
 const ProductCard = ({ product, onClick }) => {
     return (
         <div
-            className="card product-card overflow-hidden cursor-pointer"
-            onClick={() => onClick(product)}
+            className="product-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105"
+            onClick={() => onClick(product)} // Gọi hàm khi nhấp vào sản phẩm
         >
-            {/* <div className="bg-light h-48 d-flex align-items-center justify-content-center">
-                <i className={`${getProductIcon(product)} fs-3 text-secondary`}></i>
-            </div> */}
-            <div className="card-body">
-                <div><img src={product.image}/></div>
-                <h3 className="card-title fw-medium">{product.name}</h3>
-                <div className="d-flex align-items-center mb-2">
+            <div className="bg-gray-100 h-48 flex items-center justify-center">
+                <img src={product.image} alt={product.name} className="object-contain h-full" />
+            </div>
+            <div className="p-4">
+                <h3 className="text-lg font-medium">{product.name}</h3>
+                <div className="flex items-center mb-2">
                     <div
-                        className="text-warning me-2"
+                        className="text-yellow-500 mr-2"
                         dangerouslySetInnerHTML={{ __html: generateRatingStars(product.rating) }}
                     ></div>
-                    <span className="text-muted small">({product.reviewCount})</span>
+                    <span className="text-gray-500 text-sm">({product.reviewCount})</span>
                 </div>
-                <div className="d-flex align-items-center justify-content-between">
-                    <span className="fw-bold text-primary">{formatPrice(product.price)}</span>
-                    <button
-                        className="btn btn-sm btn-light rounded-circle"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onClick(product);
-                        }}
-                    >
-                        <i className="fa fa-eye"></i>
-                    </button>
+                <div className="flex items-center justify-between">
+                    <span className="font-bold text-blue-600">{formatPrice(product.price)}</span>
                 </div>
             </div>
         </div>

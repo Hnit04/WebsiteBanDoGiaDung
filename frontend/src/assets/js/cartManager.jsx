@@ -18,17 +18,13 @@ export function addToCart(product, quantity = 1) {
     if (existingItem) {
         existingItem.quantity += quantity;
     } else {
-        cart.push({
-            product: product,
-            quantity: quantity
-        });
+        cart.push({ product, quantity });
     }
 
     updateCartBadge();
     updateLocalStorage('cart', cart);
 
-    // Return the updated cart for React components
-    return [...cart];
+    return [...cart]; // Return a copy of the updated cart
 }
 
 // Update cart badge
@@ -37,13 +33,8 @@ export function updateCartBadge() {
     if (!cartBadge) return;
 
     const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
-
-    if (itemCount > 0) {
-        cartBadge.textContent = itemCount > 99 ? '99+' : itemCount;
-        cartBadge.classList.remove('hidden');
-    } else {
-        cartBadge.classList.add('hidden');
-    }
+    cartBadge.textContent = itemCount > 0 ? (itemCount > 99 ? '99+' : itemCount) : '';
+    cartBadge.classList.toggle('hidden', itemCount === 0);
 }
 
 // Remove item from cart
@@ -54,22 +45,16 @@ export function removeFromCart(index) {
         updateLocalStorage('cart', cart);
     }
 
-    // Return the updated cart for React components
-    return [...cart];
+    return [...cart]; // Return a copy of the updated cart
 }
 
-// Toggle cart sidebar (for non-React code)
+// Toggle cart sidebar
 export function toggleCartSidebar() {
     const cartSidebar = document.getElementById('cartSidebar');
     if (!cartSidebar) return;
 
     cartSidebar.classList.toggle('translate-x-full');
-
-    if (!cartSidebar.classList.contains('translate-x-full')) {
-        document.body.style.overflow = 'hidden'; // Prevent body scrolling
-    } else {
-        document.body.style.overflow = ''; // Re-enable body scrolling
-    }
+    document.body.style.overflow = cartSidebar.classList.contains('translate-x-full') ? '' : 'hidden';
 }
 
 // Get cart
@@ -82,7 +67,7 @@ export function clearCart() {
     cart = [];
     updateCartBadge();
     updateLocalStorage('cart', cart);
-    return [];
+    return []; // Return an empty array
 }
 
 // Initialize cart on load
