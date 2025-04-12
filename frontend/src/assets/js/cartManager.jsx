@@ -24,23 +24,17 @@ export function addToCart(product, quantity = 1) {
     updateCartBadge();
     updateLocalStorage('cart', cart);
 
-    return [...cart]; // Return updated cart
+    return [...cart]; // Return a copy of the updated cart
 }
 
-// Update cart badge with Tailwind styles
+// Update cart badge
 export function updateCartBadge() {
     const cartBadge = document.getElementById('cartBadge');
     if (!cartBadge) return;
 
     const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
-
-    if (itemCount > 0) {
-        cartBadge.textContent = itemCount > 99 ? '99+' : itemCount;
-        cartBadge.classList.remove('hidden');
-        cartBadge.classList.add('bg-red-500', 'text-white', 'rounded-full', 'w-5', 'h-5', 'flex', 'items-center', 'justify-center', 'text-xs', 'absolute', '-top-2', '-right-2');
-    } else {
-        cartBadge.classList.add('hidden');
-    }
+    cartBadge.textContent = itemCount > 0 ? (itemCount > 99 ? '99+' : itemCount) : '';
+    cartBadge.classList.toggle('hidden', itemCount === 0);
 }
 
 // Remove item from cart
@@ -50,21 +44,17 @@ export function removeFromCart(index) {
         updateCartBadge();
         updateLocalStorage('cart', cart);
     }
-    return [...cart]; // Return updated cart
+
+    return [...cart]; // Return a copy of the updated cart
 }
 
-// Toggle cart sidebar using Tailwind
+// Toggle cart sidebar
 export function toggleCartSidebar() {
     const cartSidebar = document.getElementById('cartSidebar');
     if (!cartSidebar) return;
 
     cartSidebar.classList.toggle('translate-x-full');
-
-    if (!cartSidebar.classList.contains('translate-x-full')) {
-        document.body.classList.add('overflow-hidden'); // Prevent scrolling
-    } else {
-        document.body.classList.remove('overflow-hidden'); // Enable scrolling
-    }
+    document.body.style.overflow = cartSidebar.classList.contains('translate-x-full') ? '' : 'hidden';
 }
 
 // Get cart
@@ -77,7 +67,7 @@ export function clearCart() {
     cart = [];
     updateCartBadge();
     updateLocalStorage('cart', cart);
-    return [];
+    return []; // Return an empty array
 }
 
 // Initialize cart on load
