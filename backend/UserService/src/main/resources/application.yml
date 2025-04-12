@@ -3,7 +3,7 @@ spring:
     name: UserService
 
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=User;encrypt=false
+    url: jdbc:sqlserver://host.docker.internal:1433;databaseName=User;encrypt=false
     username: sa
     password: Tinh2004@
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -13,6 +13,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
   basic:
     enabled: false
 
@@ -21,7 +22,7 @@ server:
 
 eureka:
   client:
-    enabled: false   # ✅ Tắt Eureka hoàn toàn
+    enabled: false
     register-with-eureka: false
     fetch-registry: false
 
