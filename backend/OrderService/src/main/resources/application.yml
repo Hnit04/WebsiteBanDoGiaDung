@@ -4,7 +4,19 @@ server:
 spring:
   application:
     name: OrderService
+
   data:
     mongodb:
-      uri: mongodb://localhost:27017/orderservice
+      uri: mongodb://mongo:27017/orderservice
 
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health"

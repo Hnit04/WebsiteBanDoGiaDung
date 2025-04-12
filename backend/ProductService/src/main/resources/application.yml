@@ -7,14 +7,13 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://localhost:27017/productdb
+      uri: ${MONGODB_URI:mongodb://mongo:27017/productdb}
 
 eureka:
   client:
-    enabled: false   # ✅ Tắt Eureka hoàn toàn
+    enabled: false
     register-with-eureka: false
     fetch-registry: false
-
 
 management:
   endpoints:
@@ -23,7 +22,7 @@ management:
         include:  "health,info,metrics"
   endpoint:
     info:
-      enabled: true # Bật endpoint /actuator/info
+      enabled: true
   info:
     env:
-      enabled: true # Bật thông tin môi trường
+      enabled: true
