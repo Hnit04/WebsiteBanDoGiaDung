@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { getCart } from '../assets/js/cartManager';
 import ModalLogin from './ModalLogin';
+import ModalSubscribe from './ModalSubscribe';
 
 const Header = ({ onCartClick }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showSubscribeModal, setShowSubscribeModal] = useState(false);
     const [username, setUsername] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -17,6 +19,11 @@ const Header = ({ onCartClick }) => {
     const handleLogin = (user) => {
         setUsername(user);
         setShowLoginModal(false);
+    };
+
+    const handleRegister = (user) => {
+        setUsername(user); // tự động đăng nhập
+        setShowSubscribeModal(false);
     };
 
     const handleLogout = () => {
@@ -65,7 +72,7 @@ const Header = ({ onCartClick }) => {
                         {!username ? (
                             <>
                                 <button onClick={() => setShowLoginModal(true)} className="text-gray-700 hover:text-pink-600">Login</button>
-                                <button className="bg-pink-600 text-white rounded-lg px-4 py-2">Subscribe</button>
+                                <button onClick={() => setShowSubscribeModal(true)} className="bg-pink-600 text-white rounded-lg px-4 py-2">Subscribe</button>
                             </>
                         ) : (
                             <div className="relative">
@@ -95,10 +102,19 @@ const Header = ({ onCartClick }) => {
                 </div>
             </header>
 
+            {/* Modal Login */}
             {showLoginModal && (
                 <ModalLogin
                     onClose={() => setShowLoginModal(false)}
                     onLogin={handleLogin}
+                />
+            )}
+
+            {/* Modal Subscribe */}
+            {showSubscribeModal && (
+                <ModalSubscribe
+                    onClose={() => setShowSubscribeModal(false)}
+                    onRegister={handleRegister}
                 />
             )}
         </>
