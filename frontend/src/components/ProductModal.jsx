@@ -77,7 +77,7 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
                                     <span className="text-gray-500 text-sm">({product.reviewCount} đánh giá)</span>
                                 </div>
                                 <h4 className="text-blue-600 font-bold text-2xl mb-3">{formatPrice(product.price)}</h4>
-                                <p className="text-gray-600 mb-4">{product.description}</p>
+                                <p className="text-gray-600 mb-4 text-justify">{product.description}</p>
                                 <div className="flex items-center mb-4">
                                     <label htmlFor="modalQuantity" className="mr-3 text-gray-600">Số lượng:</label>
                                     <div className="flex items-center border border-gray-300 rounded">
