@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://host.docker.internal:1433;databaseName=User;encrypt=false
     username: sa
-    password: Tinh2004@
+    password: sapassword
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:

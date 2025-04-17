@@ -20,7 +20,7 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=YourStrongPassword!123
     healthcheck:
-      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Tinh2004@", "-Q", "SELECT 1" ]
+      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "sapassword", "-Q", "SELECT 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
