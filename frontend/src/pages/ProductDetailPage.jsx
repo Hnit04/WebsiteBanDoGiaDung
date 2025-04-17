@@ -1,15 +1,138 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { products } from '../assets/js/productData';
+import { addToCart, clearCart, toggleCartSidebar } from '../assets/js/cartManager';
+import { formatPrice } from '../assets/js/utils';
 
-const ProductDetailPage = ({ match }) => {
-    const productId = match.params.id; // Lấy ID sản phẩm từ URL
+const ProductDetailPage = () => {
+    const { id } = useParams();
+    const productId = parseInt(id);
+    const product = products.find(p => p.id === productId);
 
-    // Logic để lấy thông tin sản phẩm dựa trên ID
-    // Ở đây bạn có thể gọi API hoặc sử dụng dữ liệu tĩnh
+    const [quantity, setQuantity] = useState(1);
+    const [addedToCart, setAddedToCart] = useState(false);
+
+    if (!product) {
+        return (
+            <div className="p-8 text-center text-gray-600">
+                <h2 className="text-2xl font-bold mb-4">Không tìm thấy sản phẩm</h2>
+                <p>Vui lòng kiểm tra lại liên kết hoặc quay lại <Link to="/" className="text-blue-600 hover:underline">trang chủ</Link>.</p>
+            </div>
+        );
+    }
+
+    const checkIfLoggedIn = () => {
+        return localStorage.getItem('isLoggedIn') === 'true';
+    };
+
+    const handleAddToCart = () => {
+        if (!checkIfLoggedIn()) {
+            alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+            return;
+        }
+
+        addToCart(product, quantity);
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 2000);
+    };
+
+    const handleBuyNow = () => {
+        if (!checkIfLoggedIn()) {
+            alert('Vui lòng đăng nhập để mua sản phẩm.');
+            return;
+        }
+
+        clearCart();
+        addToCart(product, quantity);
+        toggleCartSidebar();
+    };
+
+    const relatedProducts = products.filter(
+        p => p.category === product.category && p.id !== product.id
+    ).slice(0, 4); // Lấy tối đa 4 sản phẩm liên quan
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold">Chi tiết sản phẩm #{productId}</h1>
-            {/* Thêm thông tin sản phẩm ở đây */}
+        <div className="p-6 max-w-6xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded-lg">
+            {/* Breadcrumb */}
+            <nav className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                <Link to="/" className="hover:text-black">Trang chủ</Link>
+                <span className="mx-2">{'>'}</span>
+                <span>Chi tiết sản phẩm</span>
+            </nav>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full max-h-[400px] object-contain rounded shadow"
+                />
+                <div>
+                    <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-white">{product.name}</h1>
+                    <p className="text-lg text-gray-700 dark:text-gray-300 mb-4 text-justify">{product.description}</p>
+                    <p className="text-xl font-semibold text-green-600 dark:text-green-400 mb-2">
+                        Giá: {formatPrice(product.price)}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">Danh mục: {product.category}</p>
+
+                    <div className="flex items-center mb-4">
+                        <span className="mr-3 text-gray-600">Số lượng:</span>
+                        <div className="flex items-center border border-gray-300 rounded">
+                            <button
+                                className="bg-gray-200 px-3 py-1"
+                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            >-</button>
+                            <input
+                                type="text"
+                                min="1"
+                                value={quantity}
+                                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                className="text-center w-16 border-none focus:outline-none"
+                            />
+                            <button
+                                className="bg-gray-200 px-3 py-1"
+                                onClick={() => setQuantity(quantity + 1)}
+                            >+</button>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                        <button
+                            className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
+                            onClick={handleAddToCart}
+                        >
+                            {addedToCart ? (
+                                <><i className="fa fa-check mr-2"></i>Đã thêm</>
+                            ) : (
+                                <><i className="fa fa-cart-plus mr-2"></i>Thêm vào giỏ</>
+                            )}
+                        </button>
+                        <button
+                            className="bg-gray-700 text-white w-full py-2 rounded hover:bg-gray-800 transition"
+                            onClick={handleBuyNow}
+                        >
+                            Mua ngay
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Sản phẩm tương tự */}
+            {relatedProducts.length > 0 && (
+                <div className="mt-10">
+                    <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Sản phẩm tương tự</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        {relatedProducts.map((item) => (
+                            <Link to={`/product/${item.id}`} key={item.id} className="block bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden shadow hover:shadow-md transition">
+                                <img src={item.image} alt={item.name} className="w-full h-40 object-contain" />
+                                <div className="p-3">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{item.name}</h3>
+                                    <p className="text-sm text-gray-500">{formatPrice(item.price)}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

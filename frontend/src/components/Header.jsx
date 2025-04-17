@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios'; // Không cần thiết nữa nếu chỉ dùng dữ liệu mẫu
 import { getCart } from '../assets/js/cartManager';
 import ModalLogin from './ModalLogin';
 import ModalSubscribe from './ModalSubscribe';
+import { products } from '../assets/js/productData'; // Import dữ liệu sản phẩm mẫu
 
 const Header = ({ onCartClick }) => {
     const [totalItems, setTotalItems] = useState(0);
@@ -9,30 +11,60 @@ const Header = ({ onCartClick }) => {
     const [showSubscribeModal, setShowSubscribeModal] = useState(false);
     const [username, setUsername] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [searchInput, setSearchInput] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [allProducts, setAllProducts] = useState(products); // Sử dụng trực tiếp dữ liệu mẫu
 
     useEffect(() => {
         const cart = getCart();
         const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
         setTotalItems(itemCount);
+
+        const savedUsername = localStorage.getItem('username');
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (isLoggedIn && savedUsername) {
+            setUsername(savedUsername);
+        }
     }, []);
 
     const handleLogin = (user) => {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', user);
         setUsername(user);
         setShowLoginModal(false);
     };
 
     const handleRegister = (user) => {
-        setUsername(user); // tự động đăng nhập
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', user);
+        setUsername(user);
         setShowSubscribeModal(false);
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
         setUsername(null);
         setShowDropdown(false);
     };
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
+    };
+
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchInput(value);
+
+        if (value.trim() === '') {
+            setSearchResults([]);
+            return;
+        }
+
+        const filtered = allProducts.filter(product =>
+            product.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setSearchResults(filtered);
     };
 
     return (
@@ -46,12 +78,28 @@ const Header = ({ onCartClick }) => {
                     </div>
 
                     {/* Search */}
-                    <div className="hidden md:flex flex-1 mx-4">
+                    <div className="hidden md:flex flex-1 mx-4 relative">
                         <input
                             type="text"
+                            value={searchInput}
+                            onChange={handleSearchChange}
                             placeholder="Search..."
                             className="border border-gray-300 rounded-lg p-2 flex-1"
                         />
+                        {searchInput && searchResults.length > 0 && (
+                            <div className="absolute top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md w-full z-50 max-h-60 overflow-y-auto">
+                                {searchResults.map(product => (
+                                    <div
+                                        key={product.id}
+                                        className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+                                        onClick={() => window.location.href = `/product/${product.id}`}
+                                    >
+                                        <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                                        <span className="text-sm text-gray-700">{product.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Nav */}
@@ -102,7 +150,6 @@ const Header = ({ onCartClick }) => {
                 </div>
             </header>
 
-            {/* Modal Login */}
             {showLoginModal && (
                 <ModalLogin
                     onClose={() => setShowLoginModal(false)}
@@ -110,7 +157,6 @@ const Header = ({ onCartClick }) => {
                 />
             )}
 
-            {/* Modal Subscribe */}
             {showSubscribeModal && (
                 <ModalSubscribe
                     onClose={() => setShowSubscribeModal(false)}

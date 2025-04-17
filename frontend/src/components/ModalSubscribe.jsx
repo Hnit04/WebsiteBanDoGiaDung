@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import confetti from 'canvas-confetti';
+import confetti from 'canvas-confetti'; // import thư viện confetti
 
 const ModalSubscribe = ({ onClose, onLogin }) => {
     const [form, setForm] = useState({
@@ -82,19 +82,27 @@ const ModalSubscribe = ({ onClose, onLogin }) => {
                 return;
             }
 
-            await fetch('https://67ffd634b72e9cfaf7260bc4.mockapi.io/User', {
+            const postResult = await fetch('https://67ffd634b72e9cfaf7260bc4.mockapi.io/User', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
             });
 
-            setStep('success');
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            if (postResult.ok) {
+                setStep('success');
 
-            setTimeout(() => {
-                onLogin(form.username); // tự động đăng nhập
-                onClose(); // đóng modal
-            }, 3000);
+                // Tạo hiệu ứng pháo hoa sau khi đăng ký thành công
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
+                setTimeout(() => {
+                    onLogin(form.username); // tự động đăng nhập bằng username vừa đăng ký
+                    onClose(); // đóng modal
+                }, 2000); // Đổi thời gian chờ thành 2000ms (2 giây)
+            } else {
+                console.error('Lỗi khi đăng ký:', postResult.status);
+                alert('Đăng ký không thành công, vui lòng thử lại.');
+            }
+
         } catch (error) {
             console.error('Đăng ký thất bại:', error);
             alert('Có lỗi xảy ra, vui lòng thử lại.');
@@ -115,7 +123,7 @@ const ModalSubscribe = ({ onClose, onLogin }) => {
     }, []);
 
     return (
-        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
             <div ref={modalRef} className="bg-white p-6 rounded-xl shadow-xl w-200 max-w-full relative animate-fade-in">
                 <button onClick={onClose} className="absolute top-2 right-3 text-gray-400 hover:text-black text-lg">
                     &times;

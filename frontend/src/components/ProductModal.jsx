@@ -59,9 +59,9 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content bg-white rounded-lg shadow-lg" style={{ width: '500px', height: '500px' }}>
-                    <div className="modal-header">
+                    <div className="modal-header flex justify-between">
                         <h3 className="modal-title text-xl font-semibold">{product.name}</h3>
-                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+                        <button type="button" className="btn-close w-9 h-5 border border-gray-300 items-center" aria-label="Close" onClick={onClose}>X</button>
                     </div>
                     <div className="modal-body p-4 h-full flex flex-col">
                         <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">

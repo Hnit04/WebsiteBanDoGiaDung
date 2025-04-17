@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { products } from '../assets/js/productData.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 
-const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
+const ProductsPage = ({ selectedCategory = 'all' }) => {
     const [filteredProducts, setFilteredProducts] = useState(products);
     const [currentCategory, setCurrentCategory] = useState(selectedCategory);
     const [currentSort, setCurrentSort] = useState('default');
+    const navigate = useNavigate();
 
     useEffect(() => {
         setCurrentCategory(selectedCategory);
@@ -50,6 +52,10 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         setCurrentSort(e.target.value);
     };
 
+    const handleProductClick = (product) => {
+        navigate(`/product/${product.id}`);
+    };
+
     return (
         <section id="products" className="py-5 bg-gray-100">
             <div className="container mx-auto">
@@ -92,7 +98,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                             <div key={product.id} className="col">
                                 <ProductCard
                                     product={product}
-                                    onClick={onProductClick}
+                                    onClick={() => handleProductClick(product)}
                                 />
                             </div>
                         ))
