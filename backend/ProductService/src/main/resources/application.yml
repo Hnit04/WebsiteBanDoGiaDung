@@ -5,9 +5,15 @@ spring:
   application:
     name: ProductService
 
-  data:
-    mongodb:
-      uri: ${MONGODB_URI:mongodb://mongo:27017/productdb}
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+  cartservice:
+    build: .
+    depends_on:
+      - mongo
 
 eureka:
   client:

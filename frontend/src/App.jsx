@@ -16,7 +16,8 @@ import ProductDetailPage from './pages/ProductDetailPage.jsx';
 
 import { setupDarkMode } from './assets/js/utils.jsx';
 import { addToCart, getCart } from './assets/js/cartManager.jsx';
-
+import RecipesPage from "@/pages/RecipesPage.jsx";
+import RecipesDetailPage from './pages/RecipesDetailPage';
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,12 +76,14 @@ export default function App() {
                                         onProductClick={handleProductClick}
                                         selectedCategory={selectedCategory}
                                     />
-                                    <AboutPage />
                                 </main>
                             </>
                         }
                     />
                     <Route path="/product/:id" element={<ProductDetailPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/recipes" element={<RecipesPage />} />
+                    <Route path="/recipes/:id" element={<RecipesDetailPage />} />
                 </Routes>
 
                 <Footer />

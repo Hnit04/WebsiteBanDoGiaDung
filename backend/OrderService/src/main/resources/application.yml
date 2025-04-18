@@ -5,9 +5,15 @@ spring:
   application:
     name: OrderService
 
-  data:
-    mongodb:
-      uri: mongodb://mongo:27017/orderservice
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+  cartservice:
+    build: .
+    depends_on:
+      - mongo
 
 eureka:
   client:

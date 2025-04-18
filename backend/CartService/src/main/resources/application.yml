@@ -5,10 +5,15 @@ spring:
   application:
     name: CartService
 
-  data:
-    mongodb:
-      uri: ${MONGODB_URI:mongodb://mongo:27017/cartdb}
-
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+  cartservice:
+    build: .
+    depends_on:
+      - mongo
 eureka:
   client:
     enabled: false

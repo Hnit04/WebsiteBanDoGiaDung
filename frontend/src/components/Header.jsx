@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import axios from 'axios'; // Không cần thiết nữa nếu chỉ dùng dữ liệu mẫu
 import { getCart } from '../assets/js/cartManager';
 import ModalLogin from './ModalLogin';
@@ -73,8 +75,10 @@ const Header = ({ onCartClick }) => {
                 <div className="container mx-auto flex items-center justify-between">
                     {/* Logo */}
                     <div className="flex items-center">
-                        <i className="fa fa-heart text-pink-600 text-3xl"></i>
-                        <h1 className="text-pink-600 text-lg font-bold ml-2">HomeCraft</h1>
+
+                        <Link to="/" className=" text-pink-600 text-lg font-bold ml-2 items-center"><i
+                            className="fa fa-heart text-pink-600 text-3xl"></i> <span className="text-2xl font-bold">HomeCraft</span></Link>
+                        {/*<Link to="/" className=" text-pink-600 text-lg font-bold ml-2">HomeCraft</Link>*/}
                     </div>
 
                     {/* Search */}
@@ -104,14 +108,16 @@ const Header = ({ onCartClick }) => {
 
                     {/* Nav */}
                     <nav className="hidden md:flex items-center space-x-12 relative">
-                        <a href="#recipes" className="text-gray-700 hover:text-pink-600">Recipes</a>
-                        <a href="#ingredients" className="text-gray-700 hover:text-pink-600">Ingredients</a>
-                        <a href="#categories" className="text-gray-700 hover:text-pink-600">Categories</a>
+                        <Link to="/recipes" className="text-gray-700 hover:text-pink-600">Recipes</Link>
+                        <Link to="/ingredients" className="text-gray-700 hover:text-pink-600">Ingredients</Link>
+                        <Link to="/categories" className="text-gray-700 hover:text-pink-600">Categories</Link>
+                        <Link to="/about" className="text-gray-700 hover:text-pink-600">About</Link>
 
                         <button onClick={onCartClick} className="text-gray-700 hover:text-pink-600 relative">
                             <i className="fa fa-shopping-cart text-xl"></i>
                             {totalItems > 0 && (
-                                <span className="absolute bottom-5 left-5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                                <span
+                                    className="absolute bottom-5 left-5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
                                     {totalItems > 99 ? '99+' : totalItems}
                                 </span>
                             )}
@@ -119,12 +125,17 @@ const Header = ({ onCartClick }) => {
 
                         {!username ? (
                             <>
-                                <button onClick={() => setShowLoginModal(true)} className="text-gray-700 hover:text-pink-600">Login</button>
-                                <button onClick={() => setShowSubscribeModal(true)} className="bg-pink-600 text-white rounded-lg px-4 py-2">Subscribe</button>
+                                <button onClick={() => setShowLoginModal(true)}
+                                        className="text-gray-700 hover:text-pink-600">Login
+                                </button>
+                                <button onClick={() => setShowSubscribeModal(true)}
+                                        className="bg-pink-600 text-white rounded-lg px-4 py-2">Subscribe
+                                </button>
                             </>
                         ) : (
                             <div className="relative">
-                                <button onClick={toggleDropdown} className="text-gray-700 font-medium flex items-center space-x-2">
+                                <button onClick={toggleDropdown}
+                                        className="text-gray-700 font-medium flex items-center space-x-2">
                                     <span>Hi, {username}</span>
                                     <i className="fa fa-caret-down ml-1"></i>
                                 </button>
