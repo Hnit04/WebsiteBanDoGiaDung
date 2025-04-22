@@ -5,8 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/CartService" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/CartService" />
@@ -15,8 +14,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/NotificationService" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/NotificationService" />
@@ -25,8 +23,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/OrderService" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/OrderService" />
@@ -34,9 +31,17 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/PaymentService" />
+        <option name="gradleJvm" value="21" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/backend/PaymentService" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/ProductService" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/ProductService" />
@@ -44,9 +49,17 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/PromotionService" />
+        <option name="gradleJvm" value="21" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/backend/PromotionService" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/UserService" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/UserService" />
@@ -55,8 +68,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/api-gateway" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/api-gateway" />
@@ -65,8 +77,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/backend/demo" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../../Gradle/gradle-8.2/gradle-8.12.1" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/backend/demo" />

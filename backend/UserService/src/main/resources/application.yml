@@ -1,24 +1,25 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: UserService
 
-  datasource:
-    url: jdbc:sqlserver://host.docker.internal:1433;databaseName=User;encrypt=false
-    username: sa
-    password: Tinh2004@
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://mongo:27017/userdb}
 
-  jpa:
-    database-platform: org.hibernate.dialect.SQLServerDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-  basic:
-    enabled: false
-
-server:
-  port: 8082
+  rabbitmq:
+    host: rabbitmq  # Sử dụng tên service trong Docker
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 5000
+    template:
+      retry:
+        enabled: true
+        initial-interval: 2000ms
+        max-attempts: 3
 
 eureka:
   client:
@@ -30,4 +31,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: "info,health"
+        include: "health,info,metrics"
+  endpoint:
+    info:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+app:
+  security:
+    enabled: false

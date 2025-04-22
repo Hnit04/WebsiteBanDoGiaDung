@@ -1,20 +1,18 @@
 package iuh.fit.productservice.model;
 
-import lombok.*;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "products") // Định nghĩa collection trong MongoDB
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Document(collection = "products")
+@Data
 public class Product {
     @Id
-    private String id;
-    private String name;
+    private String productId;
+    private String productName;
     private String description;
-    private double price;
-    private Category category; // Danh mục sản phẩm (nhúng trong product)
+    private double originalPrice;
+    private int quantityInStock;
+    private double salePrice;
+    private String categoryId;
 }

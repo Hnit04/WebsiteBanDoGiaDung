@@ -1,41 +1,148 @@
 package iuh.fit.userservice.service;
 
+import iuh.fit.userservice.config.RabbitMQConfig;
+import iuh.fit.userservice.dto.NotificationMessage;
+import iuh.fit.userservice.dto.request.CreateUserRequest;
+import iuh.fit.userservice.dto.response.UserResponse;
+import iuh.fit.userservice.mapper.UserMapper;
 import iuh.fit.userservice.model.User;
 import iuh.fit.userservice.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository; // Không cần @Autowired khi dùng @RequiredArgsConstructor
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final RabbitTemplate rabbitTemplate;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserService(UserRepository userRepository,
+                       UserMapper userMapper,
+                       RabbitTemplate rabbitTemplate,
+                       PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.rabbitTemplate = rabbitTemplate;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    @Transactional
+    public UserResponse createUser(CreateUserRequest request) {
+        logger.info("Creating user with email: {}", request.getEmail());
+
+        // Validate email exists
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            logger.warn("Email already exists: {}", request.getEmail());
+            throw new RuntimeException("Email already exists");
+        }
+
+        // Create and save user
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
+        user.setRole(request.getRole());
+
+        User savedUser = userRepository.save(user);
+        logger.info("User created successfully with ID: {}", savedUser.getUserId());
+
+        // Send registration notification
+        sendWelcomeNotification(savedUser);
+
+        return userMapper.toUserResponse(savedUser);
     }
 
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public UserResponse getUserById(String userId) {
+        logger.debug("Fetching user by ID: {}", userId);
+        return userRepository.findById(userId)
+                .map(userMapper::toUserResponse)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    public List<UserResponse> getAllUsers() {
+        logger.debug("Fetching all users");
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::toUserResponse)
+                .toList();
     }
 
-    public User updateUser(Long id, User userDetails) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUsername(userDetails.getUsername());
-        user.setEmail(userDetails.getEmail());
-        return userRepository.save(user); // Thay update() bằng save()
+    @Transactional
+    public UserResponse updateUser(String userId, CreateUserRequest request) {
+        logger.info("Updating user with ID: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getUsername() != null) {
+            user.setUsername(request.getUsername());
+        }
+        if (request.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getRole() != null) {
+            user.setRole(request.getRole());
+        }
+
+        User updatedUser = userRepository.save(user);
+        logger.info("User updated successfully: {}", userId);
+
+        return userMapper.toUserResponse(updatedUser);
     }
 
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    @Transactional
+    public void deleteUser(String userId) {
+        logger.info("Deleting user with ID: {}", userId);
+        if (userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+            logger.info("User deleted successfully: {}", userId);
+        } else {
+            logger.warn("User not found for deletion: {}", userId);
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    private void sendWelcomeNotification(User user) {
+        try {
+            NotificationMessage message = new NotificationMessage();
+            message.setUserId(user.getUserId());
+            message.setMessage("Welcome " + user.getUsername() + " to our service!");
+            message.setType("WELCOME_MESSAGE");
+
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.NOTIFICATION_EXCHANGE,
+                    RabbitMQConfig.NOTIFICATION_ROUTING_KEY,
+                    message,
+                    m -> {
+                        m.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                        return m;
+                    }
+            );
+            logger.info("Sent welcome notification for user: {}", user.getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to send welcome notification: {}", e.getMessage());
+            // Continue without notification
+        }
     }
 }

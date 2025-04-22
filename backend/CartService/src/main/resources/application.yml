@@ -26,3 +26,6 @@ management:
   info:
     env:
       enabled: true
+app:
+  security:
+    enabled: false
