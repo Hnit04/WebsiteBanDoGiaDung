@@ -1,12 +1,12 @@
 package iuh.fit.cartservice.repository;
 
+import iuh.fit.cartservice.model.Cart;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import iuh.fit.cartservice.model.Cart;
+
+import java.util.Optional;
 
 @Repository
 public interface CartRepository extends MongoRepository<Cart, String> {
+    Optional<Cart> findByUserId(String userId);
 }
-
-
-

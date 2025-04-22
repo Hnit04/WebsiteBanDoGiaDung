@@ -3,15 +3,50 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: trancongtinh20042004@gmail.com
-    password: xcogqkuijoomybtp
+    password: oksvfmqnejhnogey
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+      mail:
+        debug: true
   rabbitmq:
     host: rabbitmq
     port: 5672
     username: guest
     password: guest
+    virtual-host: /
+    connection-timeout: 10000  # Tăng từ 5000ms lên 10000ms
+    template:
+      exchange: notification-exchange
+      routing-key: notification.routing.key
+      retry:
+        enabled: true
+        initial-interval: 3000ms  # Tăng từ 2000ms
+        max-attempts: 5          # Tăng từ 3 lần
+        multiplier: 1.5          # Thêm nhân tố tăng dần
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 1
+        concurrency: 1
+        max-concurrency: 5
+        auto-startup: true
+        startup-timeout: 30000ms  # Thêm timeout chờ
+        retry:
+          enabled: true
+          max-attempts: 5         # Tăng số lần thử
+          initial-interval: 5000ms # Tăng khoảng cách thử
+          max-interval: 15000ms    # Thêm max interval
+          multiplier: 2.0
+    cache:
+      channel:
+        size: 5
+        checkout-timeout: 10000    # Thêm timeout cho channel
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://mongo:27017/notificationdb}
+
 server:
   port: 8089
-

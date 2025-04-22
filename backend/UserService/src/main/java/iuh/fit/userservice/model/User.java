@@ -1,31 +1,18 @@
 package iuh.fit.userservice.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "Users") // Không cần [] quanh tên bảng
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Document(collection = "users")
+@Data
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+    private String userId;
     private String username;
-
-    @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false)
     private String email;
-
-    @Column(nullable = false)
-    private String fullName;
-
-
+    private String phone;
+    private String address;
+    private Role role;
 }
