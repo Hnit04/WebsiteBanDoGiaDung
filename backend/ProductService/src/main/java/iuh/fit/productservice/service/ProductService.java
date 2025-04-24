@@ -33,6 +33,12 @@ public class ProductService {
         return productMapper.toProductResponseList(products);
     }
 
+    public ProductResponse getProductById(String productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+        return productMapper.toProductResponse(product);
+    }
+
     public ProductResponse saveProduct(CreateProductRequest request) {
         Product product = new Product();
         product.setProductName(request.getProductName());

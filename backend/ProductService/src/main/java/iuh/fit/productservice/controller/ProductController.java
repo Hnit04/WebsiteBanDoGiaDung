@@ -28,6 +28,12 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable String productId) {
+        ProductResponse product = productService.getProductById(productId);
+        return ResponseEntity.ok(product);
+    }
+
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) {
         ProductResponse product = productService.saveProduct(request);
