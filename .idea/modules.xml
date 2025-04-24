@@ -3,15 +3,25 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/CartService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/CartService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CartService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/CartService.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/NotificationService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/NotificationService.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/NotificationService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/NotificationService.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/OrderService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/OrderService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/OrderService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/OrderService.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/PaymentService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/PaymentService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/PaymentService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/PaymentService.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ProductService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ProductService.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ProductService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ProductService.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/PromotionService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/PromotionService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/PromotionService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/PromotionService.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/UserService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/UserService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/UserService.test.iml" filepath="$PROJECT_DIR$/.idea/modules/UserService.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/WebsiteBanDoGiaDung.iml" filepath="$PROJECT_DIR$/.idea/WebsiteBanDoGiaDung.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/api-gateway.main.iml" filepath="$PROJECT_DIR$/.idea/modules/api-gateway.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/api-gateway.test.iml" filepath="$PROJECT_DIR$/.idea/modules/api-gateway.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo.main.iml" filepath="$PROJECT_DIR$/.idea/modules/demo.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo.test.iml" filepath="$PROJECT_DIR$/.idea/modules/demo.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/iuh.fit.PromotionService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/iuh.fit.PromotionService.main.iml" />
     </modules>
   </component>
 </project>

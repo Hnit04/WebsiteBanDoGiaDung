@@ -5,7 +5,12 @@ import iuh.fit.productservice.dto.request.CreateProductRequest;
 import iuh.fit.productservice.dto.response.ProductResponse;
 import iuh.fit.productservice.dto.response.ReviewResponse;
 import iuh.fit.productservice.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,32 +28,34 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable String productId) {
-        ProductResponse product = productService.getProductById(productId);
-        return ResponseEntity.ok(product);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable String id) {
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) {
-        ProductResponse product = productService.saveProduct(request);
-        return ResponseEntity.status(201).body(product);
+    public ResponseEntity<ProductResponse> saveProduct(
+            @Valid @RequestBody CreateProductRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productService.saveProduct(request));
     }
 
-    @GetMapping("/{productId}/reviews")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByProductId(@PathVariable String productId) {
-        List<ReviewResponse> reviews = productService.getReviewsByProductId(productId);
-        return ResponseEntity.ok(reviews);
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<Page<ReviewResponse>> getReviewsByProductId(
+            @PathVariable String id,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(productService.getReviewsByProductId(id, pageable));
     }
 
     @PostMapping("/reviews")
-    public ResponseEntity<ReviewResponse> addReview(@RequestBody AddReviewRequest request) {
-        ReviewResponse review = productService.addReview(request);
-        return ResponseEntity.status(201).body(review);
+    public ResponseEntity<ReviewResponse> addReview(
+            @Valid @RequestBody AddReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productService.addReview(request));
     }
 }
