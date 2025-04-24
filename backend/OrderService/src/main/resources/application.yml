@@ -8,6 +8,7 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://mongo:27017/orderdb}
+
 eureka:
   client:
     enabled: false

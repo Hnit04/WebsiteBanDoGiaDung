@@ -12,5 +12,9 @@
         <module name="NotificationService.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ProductService" target="21" />
+      <module name="ProductService.test" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>

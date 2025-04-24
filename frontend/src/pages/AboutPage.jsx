@@ -11,8 +11,10 @@ const AboutPage = () => {
                     <div>
                         <h3 className="text-xl font-semibold text-gray-700 mb-4">Câu chuyện của chúng tôi</h3>
                         <p className="text-gray-600 mb-3">
-                            HomeCraft được thành lập vào năm 2020 với sứ mệnh mang đến những sản phẩm gia dụng chất lượng cao, thiết kế hiện đại và thân thiện với môi trường.
-                            Chúng tôi tin rằng mỗi ngôi nhà xứng đáng có những sản phẩm tốt nhất, giúp cuộc sống hàng ngày trở nên dễ dàng và thú vị hơn.
+                            HomeCraft được thành lập vào năm 2025 với sứ mệnh mang đến những sản phẩm gia dụng chất lượng cao,
+                            thiết kế hiện đại và thân thiện với môi trường. Chúng tôi tin rằng mỗi ngôi nhà xứng đáng có những
+                            sản phẩm tốt nhất, giúp cuộc sống hàng ngày trở nên dễ dàng và thú vị hơn.
+
                         </p>
                         <p className="text-gray-600">
                             Với đội ngũ chuyên gia thiết kế và kiểm soát chất lượng, chúng tôi cam kết mang đến những sản phẩm gia dụng không chỉ đẹp mắt mà còn bền bỉ, an toàn và thân thiện với môi trường.

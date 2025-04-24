@@ -1,25 +1,51 @@
-import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import CategorySection from './components/CategorySection.jsx';
 import ProductModal from './components/ProductModal.jsx';
 import CartSidebar from './components/CartSidebar.jsx';
 import ChatPopup from './components/ChatPopup.jsx';
+
 import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
-import { setupDarkMode } from './assets/js/utils.jsx';
-import './index.css';
+import ProductDetailPage from './pages/ProductDetailPage.jsx';
 
+import { setupDarkMode } from './assets/js/utils.jsx';
+import { addToCart, getCart } from './assets/js/cartManager.jsx';
+import RecipesPage from "@/pages/RecipesPage.jsx";
+import RecipesDetailPage from './pages/RecipesDetailPage';
+import ProductListPage from "@/pages/ProductListPage.jsx";
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [totalItems, setTotalItems] = useState(0);
 
-    // Thiết lập dark mode khi ứng dụng mount lần đầu
-    useLayoutEffect(() => {
+    useEffect(() => {
+        const updateTotalItems = () => {
+            const cart = getCart();
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            setTotalItems(itemCount);
+        };
+
+        updateTotalItems();
+        window.addEventListener('storage', updateTotalItems);
+        return () => window.removeEventListener('storage', updateTotalItems);
+    }, []);
+
+    const handleAddToCart = () => {
+        const cart = getCart();
+        const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+        setTotalItems(itemCount);
+    };
+
+    useEffect(() => {
+
         setupDarkMode();
     }, []);
 
@@ -27,50 +53,56 @@ export default function App() {
     const handleProductClick = useCallback((product) => {
         setCurrentProduct(product);
         setIsModalOpen(true);
-    }, []);
+    };
 
-    // Xử lý khi chọn danh mục
-    const handleCategorySelect = useCallback((category) => {
+    const handleCategorySelect = (category) => {
         setSelectedCategory(category);
-        requestAnimationFrame(() => {
-            document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-        });
-    }, []);
+        document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+    };
 
-    // Bật/tắt sidebar giỏ hàng
-    const toggleCart = useCallback(() => {
-        setIsCartOpen((prev) => !prev);
-    }, []);
+    const toggleCart = () => setIsCartOpen(prev => !prev);
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-            <Header onCartClick={toggleCart} />
+        <Router>
+            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+                <Header onCartClick={toggleCart} totalItems={totalItems} />
 
-            <main>
-                <HomePage />
-                <CategorySection onCategorySelect={handleCategorySelect} />
-                <ProductsPage
-                    onProductClick={handleProductClick}
-                    selectedCategory={selectedCategory}
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
+                            <>
+                                <main>
+                                    <HomePage />
+                                    <CategorySection onCategorySelect={handleCategorySelect} />
+                                    <ProductsPage
+                                        onProductClick={handleProductClick}
+                                        selectedCategory={selectedCategory}
+                                    />
+                                </main>
+                            </>
+                        }
+                    />
+                    <Route path="/product/:id" element={<ProductDetailPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/recipes" element={<RecipesPage />} />
+                    <Route path="/recipes/:id" element={<RecipesDetailPage />} />
+                    <Route path="/admin/products" element={<ProductListPage />} />
+                </Routes>
+
+                <Footer />
+
+                {/* Modal and popup components */}
+                <ProductModal
+                    product={currentProduct}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    updateTotalItems={handleAddToCart}
                 />
-                <AboutPage />
-            </main>
+                <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+                <ChatPopup />
+            </div>
+        </Router>
 
-            <Footer />
-
-            {/* Các component modal và popup */}
-            <ProductModal
-                product={currentProduct}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-            />
-
-            <CartSidebar
-                isOpen={isCartOpen}
-                onClose={() => setIsCartOpen(false)}
-            />
-
-            <ChatPopup />
-        </div>
     );
 }
