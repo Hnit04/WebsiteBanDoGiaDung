@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { formatPrice, generateRatingStars, getProductIcon } from '../assets/js/utils.jsx';
-import { addToCart } from '../assets/js/cartManager.jsx';
+import React, { useState, useEffect } from "react";
+import { formatPrice, generateRatingStars } from "../assets/js/utils.jsx";
+import { addToCart } from "../assets/js/cartManager.jsx";
 
-const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
+const ProductModal = ({ product, isOpen, onClose }) => {
     const [quantity, setQuantity] = useState(1);
     const [addedToCart, setAddedToCart] = useState(false);
 
@@ -18,50 +18,22 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
     const handleAddToCart = () => {
         addToCart(product, quantity);
         setAddedToCart(true);
-        onAddToCart(); // Gọi hàm cập nhật số lượng từ component cha
+
         setTimeout(() => {
             setAddedToCart(false);
         }, 2000);
     };
 
-    const handleBuyNow = () => {
-        import('../assets/js/cartManager.jsx').then(({ clearCart, addToCart, toggleCartSidebar }) => {
-            clearCart();
-            addToCart(product, quantity);
-            onClose();
-            toggleCartSidebar();
-        });
-    };
-
-    const handleOverlayClick = (e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
-
     return (
         <div
-            className="modal fade show d-block"
-            tabIndex="-1"
-            style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 1050,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}
-            onClick={handleOverlayClick}
+            className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn"
+            onClick={onClose} // Click ngoài modal để đóng
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content bg-white rounded-lg shadow-lg" style={{ width: '500px', height: '500px' }}>
-                    <div className="modal-header">
+                    <div className="modal-header flex justify-between">
                         <h3 className="modal-title text-xl font-semibold">{product.name}</h3>
-                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+                        <button type="button" className="btn-close w-9 h-5 border border-gray-300 items-center" aria-label="Close" onClick={onClose}>X</button>
                     </div>
                     <div className="modal-body p-4 h-full flex flex-col">
                         <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,7 +49,7 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
                                     <span className="text-gray-500 text-sm">({product.reviewCount} đánh giá)</span>
                                 </div>
                                 <h4 className="text-blue-600 font-bold text-2xl mb-3">{formatPrice(product.price)}</h4>
-                                <p className="text-gray-600 mb-4">{product.description}</p>
+                                <p className="text-gray-600 mb-4 text-justify">{product.description}</p>
                                 <div className="flex items-center mb-4">
                                     <label htmlFor="modalQuantity" className="mr-3 text-gray-600">Số lượng:</label>
                                     <div className="flex items-center border border-gray-300 rounded">
@@ -116,7 +88,27 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
                                         Mua ngay
                                     </button>
                                 </div>
+
                             </div>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                className={`w-full py-2 rounded-xl flex items-center justify-center transition shadow-md ${
+                                    addedToCart ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"
+                                }`}
+                                onClick={handleAddToCart}
+                            >
+                                <i className={`fa ${addedToCart ? "fa-check" : "fa-cart-plus"} mr-2`}></i>
+                                {addedToCart ? "Đã thêm" : "Thêm vào giỏ"}
+                            </button>
+                            <button
+                                className="w-full py-2 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition shadow-md"
+                                onClick={onClose}
+                            >
+                                Mua ngay
+                            </button>
                         </div>
                     </div>
                 </div>
