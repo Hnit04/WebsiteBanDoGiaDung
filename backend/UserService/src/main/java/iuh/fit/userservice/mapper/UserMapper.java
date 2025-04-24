@@ -1,20 +1,18 @@
 package iuh.fit.userservice.mapper;
 
 import iuh.fit.userservice.dto.response.UserResponse;
+import iuh.fit.userservice.model.Role;
 import iuh.fit.userservice.model.User;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public UserResponse toUserResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setUserId(user.getUserId());
-        response.setUsername(user.getUsername());
-        response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
-        response.setAddress(user.getAddress());
-        response.setRole(user.getRole());
-        return response;
+    @Mapping(source = "role", target = "role", resultType = String.class)
+    UserResponse toUserResponse(User user);
+
+    default String mapRoleToString(Role role) {
+        return role != null ? role.name() : null;
     }
 }
