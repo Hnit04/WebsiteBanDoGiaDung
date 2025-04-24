@@ -13,15 +13,17 @@ const ProductsPage = ({ selectedCategory = 'all' }) => {
         setCurrentCategory(selectedCategory);
     }, [selectedCategory]);
 
-    const filteredProducts = useMemo(() => {
+    useEffect(() => {
+        filterProducts();
+    }, [currentCategory, currentSort]);
+
+    const filterProducts = () => {
         let result = [...products];
 
-        // Lọc theo danh mục
         if (currentCategory !== 'all') {
             result = result.filter(product => product.category === currentCategory);
         }
 
-        // Sắp xếp sản phẩm
         switch (currentSort) {
             case 'priceLow':
                 result.sort((a, b) => a.price - b.price);
@@ -39,26 +41,31 @@ const ProductsPage = ({ selectedCategory = 'all' }) => {
                 break;
         }
 
-        return result;
-    }, [currentCategory, currentSort]);
+        setFilteredProducts(result);
+    };
+
+    const handleCategoryChange = (e) => {
+        setCurrentCategory(e.target.value);
+    };
+
+    const handleSortChange = (e) => {
+        setCurrentSort(e.target.value);
+    };
 
     const handleProductClick = (product) => {
         navigate(`/product/${product.id}`);
     };
 
     return (
-        <section id="products" className="py-8 bg-gray-50">
-            <div className="container mx-auto px-4">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-                    <h2 className="text-xl font-semibold mb-4 md:mb-0">Sản phẩm nổi bật</h2>
-
-                    <div className="flex flex-col md:flex-row gap-3">
-                        {/* Bộ lọc danh mục */}
+        <section id="products" className="py-5 bg-gray-100">
+            <div className="container mx-auto">
+                <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold mb-3 md:mb-0">Sản phẩm nổi bật</h2>
+                    <div className="flex flex-col md:flex-row gap-2">
                         <select
                             value={currentCategory}
-                            onChange={(e) => setCurrentCategory(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            onChange={handleCategoryChange}
+                            className="form-select border border-gray-300 rounded-md p-2"
                         >
                             <option value="all">Tất cả danh mục</option>
                             <option value="kitchen">Nhà bếp</option>
@@ -66,12 +73,10 @@ const ProductsPage = ({ selectedCategory = 'all' }) => {
                             <option value="bedroom">Phòng ngủ</option>
                             <option value="livingroom">Phòng khách</option>
                         </select>
-
-                        {/* Bộ lọc sắp xếp */}
                         <select
                             value={currentSort}
-                            onChange={(e) => setCurrentSort(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            onChange={handleSortChange}
+                            className="form-select border border-gray-300 rounded-md p-2"
                         >
                             <option value="default">Sắp xếp</option>
                             <option value="priceLow">Giá: Thấp đến cao</option>
@@ -82,11 +87,10 @@ const ProductsPage = ({ selectedCategory = 'all' }) => {
                     </div>
                 </div>
 
-                {/* Danh sách sản phẩm */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredProducts.length === 0 ? (
-                        <div className="col-span-full text-center text-gray-500 py-12">
-                            <i className="fas fa-search text-4xl mb-4"></i>
+                        <div className="col-span-full text-center py-8 text-gray-500">
+                            <i className="fa fa-search text-5xl mb-4"></i>
                             <p>Không tìm thấy sản phẩm phù hợp.</p>
                         </div>
                     ) : (
@@ -97,7 +101,6 @@ const ProductsPage = ({ selectedCategory = 'all' }) => {
                                     onClick={() => handleProductClick(product)}
                                 />
                             </div>
-
                         ))
                     )}
                 </div>

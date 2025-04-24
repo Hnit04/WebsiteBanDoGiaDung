@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import Header from './components/Header.jsx';
@@ -53,7 +53,7 @@ export default function App() {
     const handleProductClick = useCallback((product) => {
         setCurrentProduct(product);
         setIsModalOpen(true);
-    };
+    })
 
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
