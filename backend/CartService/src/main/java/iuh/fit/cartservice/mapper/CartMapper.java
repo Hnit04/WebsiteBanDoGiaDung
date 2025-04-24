@@ -28,6 +28,7 @@ public class CartMapper {
         response.setCartItemId(cartItem.getCartItemId());
         response.setCartId(cartItem.getCartId());
         response.setProductId(cartItem.getProductId());
+        response.setProductName(cartItem.getProductName()); // Ánh xạ productName
         response.setQuantity(cartItem.getQuantity());
         response.setSubtotal(cartItem.getSubtotal());
         return response;
