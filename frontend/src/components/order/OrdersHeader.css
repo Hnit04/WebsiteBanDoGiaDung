@@ -1,0 +1,56 @@
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff; 
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; 
+}
+
+.order-title {
+    font-size: 24px;
+    margin: 0; 
+}
+
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-total p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+.filter {
+    display: flex;
+    gap: 15px; /* Thêm khoảng cách giữa các phần tử trong filter */
+    align-items: center;
+}
+
+.sort,
+.choose-directory,
+.search-order {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    width: 150px; /* Đặt chiều rộng cố định cho các phần tử select */
+}
+
+.sort:hover,
+.choose-directory:hover,
+.search-order:hover {
+    border-color: #aaa;
+}
+
+.search-order {
+    width: 200px; /* Chiều rộng lớn hơn cho ô tìm kiếm */
+}

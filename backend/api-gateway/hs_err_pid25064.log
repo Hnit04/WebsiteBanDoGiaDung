@@ -1,0 +1,730 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 2327136 bytes for Chunk::new
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+#   JVM is running with Unscaled Compressed Oops mode in which the Java heap is
+#     placed in the first 4GB address space. The Java Heap base address is the
+#     maximum limit for the native heap growth. Please use -XX:HeapBaseMinAddress
+#     to set the Java Heap base and to place the Java Heap above 4GB virtual address.
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (arena.cpp:168), pid=25064, tid=27344
+#
+# JRE version: Java(TM) SE Runtime Environment (21.0.6+8) (build 21.0.6+8-LTS-188)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (21.0.6+8-LTS-188, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, g1 gc, windows-amd64)
+# No core dump will be written. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -Dorg.gradle.internal.worker.tmpdir=C:\Users\Lenovo\IdeaProjects\WebsiteBanDoGiaDung\backend\api-gateway\build\tmp\test\work -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 2'
+
+Host: AMD Ryzen 7 5800H with Radeon Graphics         , 16 cores, 5G,  Windows 11 , 64 bit Build 26100 (10.0.26100.3775)
+Time: Wed Apr 16 19:12:44 2025 SE Asia Standard Time elapsed time: 14.934011 seconds (0d 0h 0m 14s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000001c4ff80e720):  JavaThread "C2 CompilerThread0" daemon [_thread_in_native, id=27344, stack(0x0000000d48100000,0x0000000d48200000) (1024K)]
+
+
+Current CompileTask:
+C2:  14934 5693   !   4       org.springframework.boot.context.properties.source.SpringConfigurationPropertySource::getConfigurationProperty (119 bytes)
+
+Stack: [0x0000000d48100000,0x0000000d48200000]
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x6ca6d9]
+V  [jvm.dll+0x854f51]
+V  [jvm.dll+0x85747e]
+V  [jvm.dll+0x857b53]
+V  [jvm.dll+0x27dcc6]
+V  [jvm.dll+0xc4c2d]
+V  [jvm.dll+0xc5163]
+V  [jvm.dll+0x2f0fbd]
+V  [jvm.dll+0x5f546a]
+V  [jvm.dll+0x24f8a2]
+V  [jvm.dll+0x24fc5f]
+V  [jvm.dll+0x248764]
+V  [jvm.dll+0x245df4]
+V  [jvm.dll+0x1c6d2e]
+V  [jvm.dll+0x2554f9]
+V  [jvm.dll+0x253a8a]
+V  [jvm.dll+0x3ee576]
+V  [jvm.dll+0x7ff2fb]
+V  [jvm.dll+0x6c8dbd]
+C  [ucrtbase.dll+0x37b0]
+C  [KERNEL32.DLL+0x2e8d7]
+C  [ntdll.dll+0xb14fc]
+
+
+---------------  P R O C E S S  ---------------
+
+Threads class SMR info:
+_java_thread_list=0x000001c4d6081720, length=16, elements={
+0x000001c4f0e2d2b0, 0x000001c4ff7f0000, 0x000001c4ff7f1970, 0x000001c4ff7f7f80,
+0x000001c4ff7f89d0, 0x000001c4ff7fc150, 0x000001c4ff7fe580, 0x000001c4ff80e720,
+0x000001c4ff810d30, 0x000001c4ffc15800, 0x000001c4ffb11ea0, 0x000001c4d4960c20,
+0x000001c4d49c6890, 0x000001c4d49c7f00, 0x000001c4d4bd5be0, 0x000001c4d52ce050
+}
+
+Java Threads: ( => current thread )
+  0x000001c4f0e2d2b0 JavaThread "Test worker"                       [_thread_in_Java, id=9104, stack(0x0000000d47300000,0x0000000d47400000) (1024K)]
+  0x000001c4ff7f0000 JavaThread "Reference Handler"          daemon [_thread_blocked, id=28924, stack(0x0000000d47b00000,0x0000000d47c00000) (1024K)]
+  0x000001c4ff7f1970 JavaThread "Finalizer"                  daemon [_thread_blocked, id=29068, stack(0x0000000d47c00000,0x0000000d47d00000) (1024K)]
+  0x000001c4ff7f7f80 JavaThread "Signal Dispatcher"          daemon [_thread_blocked, id=28152, stack(0x0000000d47d00000,0x0000000d47e00000) (1024K)]
+  0x000001c4ff7f89d0 JavaThread "Attach Listener"            daemon [_thread_blocked, id=31420, stack(0x0000000d47e00000,0x0000000d47f00000) (1024K)]
+  0x000001c4ff7fc150 JavaThread "Service Thread"             daemon [_thread_blocked, id=27996, stack(0x0000000d47f00000,0x0000000d48000000) (1024K)]
+  0x000001c4ff7fe580 JavaThread "Monitor Deflation Thread"   daemon [_thread_blocked, id=26456, stack(0x0000000d48000000,0x0000000d48100000) (1024K)]
+=>0x000001c4ff80e720 JavaThread "C2 CompilerThread0"         daemon [_thread_in_native, id=27344, stack(0x0000000d48100000,0x0000000d48200000) (1024K)]
+  0x000001c4ff810d30 JavaThread "C1 CompilerThread0"         daemon [_thread_blocked, id=9328, stack(0x0000000d48200000,0x0000000d48300000) (1024K)]
+  0x000001c4ffc15800 JavaThread "Notification Thread"        daemon [_thread_blocked, id=21392, stack(0x0000000d48700000,0x0000000d48800000) (1024K)]
+  0x000001c4ffb11ea0 JavaThread "Common-Cleaner"             daemon [_thread_blocked, id=8664, stack(0x0000000d48800000,0x0000000d48900000) (1024K)]
+  0x000001c4d4960c20 JavaThread "/127.0.0.1:50586 to /127.0.0.1:50584 workers"        [_thread_blocked, id=14468, stack(0x0000000d48a00000,0x0000000d48b00000) (1024K)]
+  0x000001c4d49c6890 JavaThread "/127.0.0.1:50586 to /127.0.0.1:50584 workers Thread 2"        [_thread_blocked, id=26784, stack(0x0000000d49300000,0x0000000d49400000) (1024K)]
+  0x000001c4d49c7f00 JavaThread "/127.0.0.1:50586 to /127.0.0.1:50584 workers Thread 3"        [_thread_in_native, id=23084, stack(0x0000000d49400000,0x0000000d49500000) (1024K)]
+  0x000001c4d4bd5be0 JavaThread "boundedElastic-evictor-1"   daemon [_thread_blocked, id=17992, stack(0x0000000d49900000,0x0000000d49a00000) (1024K)]
+  0x000001c4d52ce050 JavaThread "spring.cloud.inetutils"     daemon [_thread_in_native, id=29548, stack(0x0000000d49500000,0x0000000d49600000) (1024K)]
+Total: 16
+
+Other Threads:
+  0x000001c4ff7dc6b0 VMThread "VM Thread"                           [id=23364, stack(0x0000000d47a00000,0x0000000d47b00000) (1024K)]
+  0x000001c4ff7ca260 WatcherThread "VM Periodic Task Thread"        [id=21588, stack(0x0000000d47900000,0x0000000d47a00000) (1024K)]
+  0x000001c4f31d44e0 WorkerThread "GC Thread#0"                     [id=1792, stack(0x0000000d47400000,0x0000000d47500000) (1024K)]
+  0x000001c4d47fea90 WorkerThread "GC Thread#1"                     [id=7596, stack(0x0000000d48b00000,0x0000000d48c00000) (1024K)]
+  0x000001c4d4930370 WorkerThread "GC Thread#2"                     [id=10772, stack(0x0000000d48c00000,0x0000000d48d00000) (1024K)]
+  0x000001c4d4930920 WorkerThread "GC Thread#3"                     [id=3836, stack(0x0000000d48d00000,0x0000000d48e00000) (1024K)]
+  0x000001c4d4a044c0 WorkerThread "GC Thread#4"                     [id=5048, stack(0x0000000d48e00000,0x0000000d48f00000) (1024K)]
+  0x000001c4d4a05870 WorkerThread "GC Thread#5"                     [id=30676, stack(0x0000000d48f00000,0x0000000d49000000) (1024K)]
+  0x000001c4d4a05c10 WorkerThread "GC Thread#6"                     [id=2364, stack(0x0000000d49000000,0x0000000d49100000) (1024K)]
+  0x000001c4d4a263d0 WorkerThread "GC Thread#7"                     [id=15612, stack(0x0000000d49100000,0x0000000d49200000) (1024K)]
+  0x000001c4d4a3b020 WorkerThread "GC Thread#8"                     [id=10960, stack(0x0000000d49200000,0x0000000d49300000) (1024K)]
+  0x000001c4d4a3b3c0 WorkerThread "GC Thread#9"                     [id=22448, stack(0x0000000d49600000,0x0000000d49700000) (1024K)]
+  0x000001c4d4a3a1a0 WorkerThread "GC Thread#10"                    [id=14428, stack(0x0000000d49700000,0x0000000d49800000) (1024K)]
+  0x000001c4d4a3a540 WorkerThread "GC Thread#11"                    [id=25356, stack(0x0000000d49800000,0x0000000d49900000) (1024K)]
+  0x000001c4d4a3ac80 WorkerThread "GC Thread#12"                    [id=12776, stack(0x0000000d48400000,0x0000000d48500000) (1024K)]
+  0x000001c4f31dcaf0 ConcurrentGCThread "G1 Main Marker"            [id=25900, stack(0x0000000d47500000,0x0000000d47600000) (1024K)]
+  0x000001c4f31dd5f0 WorkerThread "G1 Conc#0"                       [id=11920, stack(0x0000000d47600000,0x0000000d47700000) (1024K)]
+  0x000001c4d4a3b760 WorkerThread "G1 Conc#1"                       [id=2272, stack(0x0000000d48500000,0x0000000d48600000) (1024K)]
+  0x000001c4ffb3e850 WorkerThread "G1 Conc#2"                       [id=16784, stack(0x0000000d48600000,0x0000000d48700000) (1024K)]
+  0x000001c4f325dff0 ConcurrentGCThread "G1 Refine#0"               [id=8392, stack(0x0000000d47700000,0x0000000d47800000) (1024K)]
+  0x000001c4f325ea00 ConcurrentGCThread "G1 Service"                [id=29032, stack(0x0000000d47800000,0x0000000d47900000) (1024K)]
+Total: 21
+
+Threads with active compile tasks:
+C2 CompilerThread0    14975 5693   !   4       org.springframework.boot.context.properties.source.SpringConfigurationPropertySource::getConfigurationProperty (119 bytes)
+Total: 1
+
+VM state: not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap address: 0x00000000e0000000, size: 512 MB, Compressed Oops mode: 32-bit
+
+CDS archive(s) mapped at: [0x000001c48f000000-0x000001c48fc90000-0x000001c48fc90000), size 13172736, SharedBaseAddress: 0x000001c48f000000, ArchiveRelocationMode: 1.
+Compressed class space mapped at: 0x000001c490000000-0x000001c4d0000000, reserved size: 1073741824
+Narrow klass base: 0x000001c48f000000, Narrow klass shift: 0, Narrow klass range: 0x100000000
+
+GC Precious Log:
+ CardTable entry size: 512
+ Card Set container configuration: InlinePtr #cards 5 size 8 Array Of Cards #cards 12 size 40 Howl #buckets 4 coarsen threshold 1843 Howl Bitmap #cards 512 size 80 coarsen threshold 460 Card regions per heap region 1 cards per card region 2048
+ CPUs: 16 total, 16 available
+ Memory: 5996M
+ Large Page Support: Disabled
+ NUMA Support: Disabled
+ Compressed Oops: Enabled (32-bit)
+ Heap Region Size: 1M
+ Heap Min Capacity: 8M
+ Heap Initial Capacity: 94M
+ Heap Max Capacity: 512M
+ Pre-touch: Disabled
+ Parallel Workers: 13
+ Concurrent Workers: 3
+ Concurrent Refinement Workers: 13
+ Periodic GC: Disabled
+
+Heap:
+ garbage-first heap   total 58368K, used 36160K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 14 young (14336K), 4 survivors (4096K)
+ Metaspace       used 43583K, committed 44224K, reserved 1114112K
+  class space    used 5898K, committed 6208K, reserved 1048576K
+
+Heap Regions: E=young(eden), S=young(survivor), O=old, HS=humongous(starts), HC=humongous(continues), CS=collection set, F=free, TAMS=top-at-mark-start, PB=parsable bottom
+|   0|0x00000000e0000000, 0x00000000e0100000, 0x00000000e0100000|100%|HS|  |TAMS 0x00000000e0000000| PB 0x00000000e0000000| Complete 
+|   1|0x00000000e0100000, 0x00000000e0200000, 0x00000000e0200000|100%| O|  |TAMS 0x00000000e0100000| PB 0x00000000e0100000| Untracked 
+|   2|0x00000000e0200000, 0x00000000e0300000, 0x00000000e0300000|100%| O|  |TAMS 0x00000000e0200000| PB 0x00000000e0200000| Untracked 
+|   3|0x00000000e0300000, 0x00000000e0400000, 0x00000000e0400000|100%| O|  |TAMS 0x00000000e0300000| PB 0x00000000e0300000| Untracked 
+|   4|0x00000000e0400000, 0x00000000e0500000, 0x00000000e0500000|100%| O|  |TAMS 0x00000000e0400000| PB 0x00000000e0400000| Untracked 
+|   5|0x00000000e0500000, 0x00000000e0600000, 0x00000000e0600000|100%| O|  |TAMS 0x00000000e0500000| PB 0x00000000e0500000| Untracked 
+|   6|0x00000000e0600000, 0x00000000e0700000, 0x00000000e0700000|100%| O|  |TAMS 0x00000000e0600000| PB 0x00000000e0600000| Untracked 
+|   7|0x00000000e0700000, 0x00000000e0800000, 0x00000000e0800000|100%| O|  |TAMS 0x00000000e0700000| PB 0x00000000e0700000| Untracked 
+|   8|0x00000000e0800000, 0x00000000e0900000, 0x00000000e0900000|100%| O|  |TAMS 0x00000000e0800000| PB 0x00000000e0800000| Untracked 
+|   9|0x00000000e0900000, 0x00000000e0a00000, 0x00000000e0a00000|100%| O|  |TAMS 0x00000000e0900000| PB 0x00000000e0900000| Untracked 
+|  10|0x00000000e0a00000, 0x00000000e0b00000, 0x00000000e0b00000|100%| O|  |TAMS 0x00000000e0a00000| PB 0x00000000e0a00000| Untracked 
+|  11|0x00000000e0b00000, 0x00000000e0c00000, 0x00000000e0c00000|100%| O|  |TAMS 0x00000000e0b00000| PB 0x00000000e0b00000| Untracked 
+|  12|0x00000000e0c00000, 0x00000000e0d00000, 0x00000000e0d00000|100%| O|  |TAMS 0x00000000e0c00000| PB 0x00000000e0c00000| Untracked 
+|  13|0x00000000e0d00000, 0x00000000e0e00000, 0x00000000e0e00000|100%| O|  |TAMS 0x00000000e0d00000| PB 0x00000000e0d00000| Untracked 
+|  14|0x00000000e0e00000, 0x00000000e0f00000, 0x00000000e0f00000|100%| O|  |TAMS 0x00000000e0e00000| PB 0x00000000e0e00000| Untracked 
+|  15|0x00000000e0f00000, 0x00000000e1000000, 0x00000000e1000000|100%| O|  |TAMS 0x00000000e0f00000| PB 0x00000000e0f00000| Untracked 
+|  16|0x00000000e1000000, 0x00000000e1100000, 0x00000000e1100000|100%| O|  |TAMS 0x00000000e1000000| PB 0x00000000e1000000| Untracked 
+|  17|0x00000000e1100000, 0x00000000e1100000, 0x00000000e1200000|  0%| F|  |TAMS 0x00000000e1100000| PB 0x00000000e1100000| Untracked 
+|  18|0x00000000e1200000, 0x00000000e1300000, 0x00000000e1300000|100%| O|  |TAMS 0x00000000e1200000| PB 0x00000000e1200000| Untracked 
+|  19|0x00000000e1300000, 0x00000000e1400000, 0x00000000e1400000|100%| O|  |TAMS 0x00000000e1300000| PB 0x00000000e1300000| Untracked 
+|  20|0x00000000e1400000, 0x00000000e1500000, 0x00000000e1500000|100%| O|  |TAMS 0x00000000e1400000| PB 0x00000000e1400000| Untracked 
+|  21|0x00000000e1500000, 0x00000000e1600000, 0x00000000e1600000|100%| O|  |TAMS 0x00000000e1500000| PB 0x00000000e1500000| Untracked 
+|  22|0x00000000e1600000, 0x00000000e1700000, 0x00000000e1700000|100%| O|  |TAMS 0x00000000e1600000| PB 0x00000000e1600000| Untracked 
+|  23|0x00000000e1700000, 0x00000000e17502c0, 0x00000000e1800000| 31%| O|  |TAMS 0x00000000e1700000| PB 0x00000000e1700000| Untracked 
+|  24|0x00000000e1800000, 0x00000000e1800000, 0x00000000e1900000|  0%| F|  |TAMS 0x00000000e1800000| PB 0x00000000e1800000| Untracked 
+|  25|0x00000000e1900000, 0x00000000e1900000, 0x00000000e1a00000|  0%| F|  |TAMS 0x00000000e1900000| PB 0x00000000e1900000| Untracked 
+|  26|0x00000000e1a00000, 0x00000000e1a00000, 0x00000000e1b00000|  0%| F|  |TAMS 0x00000000e1a00000| PB 0x00000000e1a00000| Untracked 
+|  27|0x00000000e1b00000, 0x00000000e1b00000, 0x00000000e1c00000|  0%| F|  |TAMS 0x00000000e1b00000| PB 0x00000000e1b00000| Untracked 
+|  28|0x00000000e1c00000, 0x00000000e1c00000, 0x00000000e1d00000|  0%| F|  |TAMS 0x00000000e1c00000| PB 0x00000000e1c00000| Untracked 
+|  29|0x00000000e1d00000, 0x00000000e1e00000, 0x00000000e1e00000|100%| S|CS|TAMS 0x00000000e1d00000| PB 0x00000000e1d00000| Complete 
+|  30|0x00000000e1e00000, 0x00000000e1f00000, 0x00000000e1f00000|100%| S|CS|TAMS 0x00000000e1e00000| PB 0x00000000e1e00000| Complete 
+|  31|0x00000000e1f00000, 0x00000000e1f00000, 0x00000000e2000000|  0%| F|  |TAMS 0x00000000e1f00000| PB 0x00000000e1f00000| Untracked 
+|  32|0x00000000e2000000, 0x00000000e2100000, 0x00000000e2100000|100%| S|CS|TAMS 0x00000000e2000000| PB 0x00000000e2000000| Complete 
+|  33|0x00000000e2100000, 0x00000000e2200000, 0x00000000e2200000|100%| S|CS|TAMS 0x00000000e2100000| PB 0x00000000e2100000| Complete 
+|  34|0x00000000e2200000, 0x00000000e2200000, 0x00000000e2300000|  0%| F|  |TAMS 0x00000000e2200000| PB 0x00000000e2200000| Untracked 
+|  35|0x00000000e2300000, 0x00000000e2300000, 0x00000000e2400000|  0%| F|  |TAMS 0x00000000e2300000| PB 0x00000000e2300000| Untracked 
+|  36|0x00000000e2400000, 0x00000000e2400000, 0x00000000e2500000|  0%| F|  |TAMS 0x00000000e2400000| PB 0x00000000e2400000| Untracked 
+|  37|0x00000000e2500000, 0x00000000e2500000, 0x00000000e2600000|  0%| F|  |TAMS 0x00000000e2500000| PB 0x00000000e2500000| Untracked 
+|  38|0x00000000e2600000, 0x00000000e2600000, 0x00000000e2700000|  0%| F|  |TAMS 0x00000000e2600000| PB 0x00000000e2600000| Untracked 
+|  39|0x00000000e2700000, 0x00000000e2700000, 0x00000000e2800000|  0%| F|  |TAMS 0x00000000e2700000| PB 0x00000000e2700000| Untracked 
+|  40|0x00000000e2800000, 0x00000000e2800000, 0x00000000e2900000|  0%| F|  |TAMS 0x00000000e2800000| PB 0x00000000e2800000| Untracked 
+|  41|0x00000000e2900000, 0x00000000e2900000, 0x00000000e2a00000|  0%| F|  |TAMS 0x00000000e2900000| PB 0x00000000e2900000| Untracked 
+|  42|0x00000000e2a00000, 0x00000000e2a00000, 0x00000000e2b00000|  0%| F|  |TAMS 0x00000000e2a00000| PB 0x00000000e2a00000| Untracked 
+|  43|0x00000000e2b00000, 0x00000000e2b00000, 0x00000000e2c00000|  0%| F|  |TAMS 0x00000000e2b00000| PB 0x00000000e2b00000| Untracked 
+|  44|0x00000000e2c00000, 0x00000000e2c00000, 0x00000000e2d00000|  0%| F|  |TAMS 0x00000000e2c00000| PB 0x00000000e2c00000| Untracked 
+|  45|0x00000000e2d00000, 0x00000000e2d00000, 0x00000000e2e00000|  0%| F|  |TAMS 0x00000000e2d00000| PB 0x00000000e2d00000| Untracked 
+|  46|0x00000000e2e00000, 0x00000000e2e00000, 0x00000000e2f00000|  0%| F|  |TAMS 0x00000000e2e00000| PB 0x00000000e2e00000| Untracked 
+|  47|0x00000000e2f00000, 0x00000000e2f6c358, 0x00000000e3000000| 42%| E|  |TAMS 0x00000000e2f00000| PB 0x00000000e2f00000| Complete 
+|  48|0x00000000e3000000, 0x00000000e3100000, 0x00000000e3100000|100%| E|CS|TAMS 0x00000000e3000000| PB 0x00000000e3000000| Complete 
+|  49|0x00000000e3100000, 0x00000000e3200000, 0x00000000e3200000|100%| E|CS|TAMS 0x00000000e3100000| PB 0x00000000e3100000| Complete 
+|  50|0x00000000e3200000, 0x00000000e3300000, 0x00000000e3300000|100%| E|CS|TAMS 0x00000000e3200000| PB 0x00000000e3200000| Complete 
+|  51|0x00000000e3300000, 0x00000000e3400000, 0x00000000e3400000|100%| E|CS|TAMS 0x00000000e3300000| PB 0x00000000e3300000| Complete 
+|  79|0x00000000e4f00000, 0x00000000e5000000, 0x00000000e5000000|100%| E|CS|TAMS 0x00000000e4f00000| PB 0x00000000e4f00000| Complete 
+|  80|0x00000000e5000000, 0x00000000e5100000, 0x00000000e5100000|100%| E|CS|TAMS 0x00000000e5000000| PB 0x00000000e5000000| Complete 
+|  81|0x00000000e5100000, 0x00000000e5200000, 0x00000000e5200000|100%| E|CS|TAMS 0x00000000e5100000| PB 0x00000000e5100000| Complete 
+|  82|0x00000000e5200000, 0x00000000e5300000, 0x00000000e5300000|100%| E|CS|TAMS 0x00000000e5200000| PB 0x00000000e5200000| Complete 
+|  93|0x00000000e5d00000, 0x00000000e5e00000, 0x00000000e5e00000|100%| E|CS|TAMS 0x00000000e5d00000| PB 0x00000000e5d00000| Complete 
+
+Card table byte_map: [0x000001c4fbfb0000,0x000001c4fc0b0000] _byte_map_base: 0x000001c4fb8b0000
+
+Marking Bits: (CMBitMap*) 0x000001c4f31d4be0
+ Bits: [0x000001c4fc0b0000, 0x000001c4fc8b0000)
+
+Polling page: 0x000001c4f10d0000
+
+Metaspace:
+
+Usage:
+  Non-class:     36.81 MB used.
+      Class:      5.76 MB used.
+       Both:     42.57 MB used.
+
+Virtual space:
+  Non-class space:       64.00 MB reserved,      37.12 MB ( 58%) committed,  1 nodes.
+      Class space:        1.00 GB reserved,       6.06 MB ( <1%) committed,  1 nodes.
+             Both:        1.06 GB reserved,      43.19 MB (  4%) committed. 
+
+Chunk freelists:
+   Non-Class:  10.47 MB
+       Class:  9.98 MB
+        Both:  20.45 MB
+
+MaxMetaspaceSize: unlimited
+CompressedClassSpaceSize: 1.00 GB
+Initial GC threshold: 21.00 MB
+Current GC threshold: 58.69 MB
+CDS: on
+ - commit_granule_bytes: 65536.
+ - commit_granule_words: 8192.
+ - virtual_space_node_default_size: 8388608.
+ - enlarge_chunks_in_place: 1.
+ - use_allocation_guard: 0.
+
+
+Internal statistics:
+
+num_allocs_failed_limit: 6.
+num_arena_births: 880.
+num_arena_deaths: 0.
+num_vsnodes_births: 2.
+num_vsnodes_deaths: 0.
+num_space_committed: 691.
+num_space_uncommitted: 0.
+num_chunks_returned_to_freelist: 6.
+num_chunks_taken_from_freelist: 2554.
+num_chunk_merges: 6.
+num_chunk_splits: 1734.
+num_chunks_enlarged: 1247.
+num_inconsistent_stats: 0.
+
+CodeHeap 'non-profiled nmethods': size=119168Kb used=2671Kb max_used=2671Kb free=116496Kb
+ bounds [0x000001c487ba0000, 0x000001c487e40000, 0x000001c48f000000]
+CodeHeap 'profiled nmethods': size=119104Kb used=11547Kb max_used=11547Kb free=107556Kb
+ bounds [0x000001c480000000, 0x000001c480b50000, 0x000001c487450000]
+CodeHeap 'non-nmethods': size=7488Kb used=1488Kb max_used=3173Kb free=5999Kb
+ bounds [0x000001c487450000, 0x000001c487770000, 0x000001c487ba0000]
+ total_blobs=5850 nmethods=5283 adapters=471
+ compilation: enabled
+              stopped_count=0, restarted_count=0
+ full_count=0
+
+Compilation events (20 events):
+Event: 13.588 Thread 0x000001c4ff80e720 nmethod 5677 0x000001c487e3a510 code [0x000001c487e3a700, 0x000001c487e3b560]
+Event: 13.589 Thread 0x000001c4ff80e720 5693   !   4       org.springframework.boot.context.properties.source.SpringConfigurationPropertySource::getConfigurationProperty (119 bytes)
+Event: 13.592 Thread 0x000001c4ff810d30 5709       3       org.springframework.util.CollectionUtils::newLinkedHashMap (14 bytes)
+Event: 13.592 Thread 0x000001c4ff810d30 nmethod 5709 0x000001c480b3bc10 code [0x000001c480b3be20, 0x000001c480b3c148]
+Event: 13.592 Thread 0x000001c4ff810d30 5710       3       java.util.AbstractList::listIterator (6 bytes)
+Event: 13.593 Thread 0x000001c4ff810d30 nmethod 5710 0x000001c480b3c310 code [0x000001c480b3c4c0, 0x000001c480b3c698]
+Event: 13.594 Thread 0x000001c4ff810d30 5711   !   3       org.springframework.beans.factory.support.FactoryBeanRegistrySupport::getTypeForFactoryBean (22 bytes)
+Event: 13.594 Thread 0x000001c4ff810d30 nmethod 5711 0x000001c480b3c710 code [0x000001c480b3c8e0, 0x000001c480b3cbf8]
+Event: 13.595 Thread 0x000001c4ff810d30 5712       3       org.springframework.core.convert.TypeDescriptor::getObjectType (8 bytes)
+Event: 13.595 Thread 0x000001c4ff810d30 nmethod 5712 0x000001c480b3cd10 code [0x000001c480b3cec0, 0x000001c480b3d090]
+Event: 13.602 Thread 0x000001c4ff810d30 5713       1       java.net.NetworkInterface::getIndex (5 bytes)
+Event: 13.603 Thread 0x000001c4ff810d30 nmethod 5713 0x000001c487e3b990 code [0x000001c487e3bb20, 0x000001c487e3bbe8]
+Event: 13.604 Thread 0x000001c4ff810d30 5714       3       java.net.NetworkInterface$1::hasMoreElements (18 bytes)
+Event: 13.604 Thread 0x000001c4ff810d30 nmethod 5714 0x000001c480b3d190 code [0x000001c480b3d340, 0x000001c480b3d4b0]
+Event: 14.624 Thread 0x000001c4ff810d30 5715       3       jdk.internal.misc.Unsafe::checkNativeAddress (28 bytes)
+Event: 14.625 Thread 0x000001c4ff810d30 nmethod 5715 0x000001c480b3d590 code [0x000001c480b3d720, 0x000001c480b3d838]
+Event: 14.625 Thread 0x000001c4ff810d30 5716       3       org.springframework.core.annotation.AnnotationsScanner::getBaseTypeMethods (123 bytes)
+Event: 14.627 Thread 0x000001c4ff810d30 nmethod 5716 0x000001c480b3d910 code [0x000001c480b3dba0, 0x000001c480b3e760]
+Event: 14.637 Thread 0x000001c4ff810d30 5718       3       java.util.HashSet::<init> (17 bytes)
+Event: 14.637 Thread 0x000001c4ff810d30 nmethod 5718 0x000001c480b3eb10 code [0x000001c480b3ed00, 0x000001c480b3f098]
+
+GC Heap History (20 events):
+Event: 2.554 GC heap before
+{Heap before GC invocations=0 (full 0):
+ garbage-first heap   total 96256K, used 24576K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 23 young (23552K), 0 survivors (0K)
+ Metaspace       used 5351K, committed 5568K, reserved 1114112K
+  class space    used 650K, committed 768K, reserved 1048576K
+}
+Event: 2.568 GC heap after
+{Heap after GC invocations=1 (full 0):
+ garbage-first heap   total 96256K, used 10500K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 3 young (3072K), 3 survivors (3072K)
+ Metaspace       used 5351K, committed 5568K, reserved 1114112K
+  class space    used 650K, committed 768K, reserved 1048576K
+}
+Event: 3.625 GC heap before
+{Heap before GC invocations=1 (full 0):
+ garbage-first heap   total 96256K, used 30980K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 24 young (24576K), 3 survivors (3072K)
+ Metaspace       used 10804K, committed 11200K, reserved 1114112K
+  class space    used 1392K, committed 1600K, reserved 1048576K
+}
+Event: 3.630 GC heap after
+{Heap after GC invocations=2 (full 0):
+ garbage-first heap   total 96256K, used 12133K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 2 young (2048K), 2 survivors (2048K)
+ Metaspace       used 10804K, committed 11200K, reserved 1114112K
+  class space    used 1392K, committed 1600K, reserved 1048576K
+}
+Event: 6.315 GC heap before
+{Heap before GC invocations=2 (full 0):
+ garbage-first heap   total 96256K, used 50021K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 40 young (40960K), 2 survivors (2048K)
+ Metaspace       used 19322K, committed 19648K, reserved 1114112K
+  class space    used 2581K, committed 2752K, reserved 1048576K
+}
+Event: 6.321 GC heap after
+{Heap after GC invocations=3 (full 0):
+ garbage-first heap   total 96256K, used 14727K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 5 young (5120K), 5 survivors (5120K)
+ Metaspace       used 19322K, committed 19648K, reserved 1114112K
+  class space    used 2581K, committed 2752K, reserved 1048576K
+}
+Event: 6.555 GC heap before
+{Heap before GC invocations=3 (full 0):
+ garbage-first heap   total 96256K, used 24967K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 16 young (16384K), 5 survivors (5120K)
+ Metaspace       used 21116K, committed 21504K, reserved 1114112K
+  class space    used 2910K, committed 3136K, reserved 1048576K
+}
+Event: 6.578 GC heap after
+{Heap after GC invocations=4 (full 0):
+ garbage-first heap   total 96256K, used 15394K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 4 young (4096K), 4 survivors (4096K)
+ Metaspace       used 21116K, committed 21504K, reserved 1114112K
+  class space    used 2910K, committed 3136K, reserved 1048576K
+}
+Event: 7.046 GC heap before
+{Heap before GC invocations=5 (full 0):
+ garbage-first heap   total 58368K, used 45090K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 34 young (34816K), 4 survivors (4096K)
+ Metaspace       used 26563K, committed 26944K, reserved 1114112K
+  class space    used 3477K, committed 3648K, reserved 1048576K
+}
+Event: 7.052 GC heap after
+{Heap after GC invocations=6 (full 0):
+ garbage-first heap   total 58368K, used 17977K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 4 young (4096K), 4 survivors (4096K)
+ Metaspace       used 26563K, committed 26944K, reserved 1114112K
+  class space    used 3477K, committed 3648K, reserved 1048576K
+}
+Event: 7.801 GC heap before
+{Heap before GC invocations=6 (full 0):
+ garbage-first heap   total 58368K, used 44601K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 30 young (30720K), 4 survivors (4096K)
+ Metaspace       used 28316K, committed 28736K, reserved 1114112K
+  class space    used 3721K, committed 3904K, reserved 1048576K
+}
+Event: 7.807 GC heap after
+{Heap after GC invocations=7 (full 0):
+ garbage-first heap   total 58368K, used 18883K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 2 young (2048K), 2 survivors (2048K)
+ Metaspace       used 28316K, committed 28736K, reserved 1114112K
+  class space    used 3721K, committed 3904K, reserved 1048576K
+}
+Event: 8.797 GC heap before
+{Heap before GC invocations=7 (full 0):
+ garbage-first heap   total 58368K, used 46531K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 29 young (29696K), 2 survivors (2048K)
+ Metaspace       used 30900K, committed 31296K, reserved 1114112K
+  class space    used 4114K, committed 4288K, reserved 1048576K
+}
+Event: 8.801 GC heap after
+{Heap after GC invocations=8 (full 0):
+ garbage-first heap   total 58368K, used 20931K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 4 young (4096K), 4 survivors (4096K)
+ Metaspace       used 30900K, committed 31296K, reserved 1114112K
+  class space    used 4114K, committed 4288K, reserved 1048576K
+}
+Event: 9.854 GC heap before
+{Heap before GC invocations=8 (full 0):
+ garbage-first heap   total 58368K, used 46531K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 30 young (30720K), 4 survivors (4096K)
+ Metaspace       used 35442K, committed 35968K, reserved 1114112K
+  class space    used 4831K, committed 5120K, reserved 1048576K
+}
+Event: 9.860 GC heap after
+{Heap after GC invocations=9 (full 0):
+ garbage-first heap   total 58368K, used 22880K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 4 young (4096K), 4 survivors (4096K)
+ Metaspace       used 35442K, committed 35968K, reserved 1114112K
+  class space    used 4831K, committed 5120K, reserved 1048576K
+}
+Event: 11.713 GC heap before
+{Heap before GC invocations=10 (full 0):
+ garbage-first heap   total 58368K, used 48480K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 29 young (29696K), 4 survivors (4096K)
+ Metaspace       used 39326K, committed 39872K, reserved 1114112K
+  class space    used 5350K, committed 5632K, reserved 1048576K
+}
+Event: 11.721 GC heap after
+{Heap after GC invocations=11 (full 0):
+ garbage-first heap   total 58368K, used 25320K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 3 young (3072K), 3 survivors (3072K)
+ Metaspace       used 39326K, committed 39872K, reserved 1114112K
+  class space    used 5350K, committed 5632K, reserved 1048576K
+}
+Event: 12.343 GC heap before
+{Heap before GC invocations=11 (full 0):
+ garbage-first heap   total 58368K, used 48872K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 26 young (26624K), 3 survivors (3072K)
+ Metaspace       used 42620K, committed 43264K, reserved 1114112K
+  class space    used 5750K, committed 6016K, reserved 1048576K
+}
+Event: 12.347 GC heap after
+{Heap after GC invocations=12 (full 0):
+ garbage-first heap   total 58368K, used 26944K [0x00000000e0000000, 0x0000000100000000)
+  region size 1024K, 4 young (4096K), 4 survivors (4096K)
+ Metaspace       used 42620K, committed 43264K, reserved 1114112K
+  class space    used 5750K, committed 6016K, reserved 1048576K
+}
+
+Dll operation events (9 events):
+Event: 0.033 Loaded shared library C:\Program Files\Java\jdk-21\bin\java.dll
+Event: 0.222 Loaded shared library C:\Program Files\Java\jdk-21\bin\jsvml.dll
+Event: 0.404 Loaded shared library C:\Program Files\Java\jdk-21\bin\net.dll
+Event: 0.410 Loaded shared library C:\Program Files\Java\jdk-21\bin\nio.dll
+Event: 0.416 Loaded shared library C:\Program Files\Java\jdk-21\bin\zip.dll
+Event: 0.529 Loaded shared library C:\Program Files\Java\jdk-21\bin\verify.dll
+Event: 0.539 Loaded shared library C:\Program Files\Java\jdk-21\bin\jimage.dll
+Event: 1.236 Loaded shared library C:\Program Files\Java\jdk-21\bin\extnet.dll
+Event: 2.033 Loaded shared library C:\Program Files\Java\jdk-21\bin\sunmscapi.dll
+
+Deoptimization events (20 events):
+Event: 13.560 Thread 0x000001c4f0e2d2b0 Uncommon trap: trap_request=0xffffff45 fr.pc=0x000001c487c83c40 relative=0x00000000000000a0
+Event: 13.560 Thread 0x000001c4f0e2d2b0 Uncommon trap: reason=unstable_if action=reinterpret pc=0x000001c487c83c40 method=sun.net.util.IPAddressUtil.scan(Ljava/lang/String;JJ[C)I @ 14 c2
+Event: 13.560 Thread 0x000001c4f0e2d2b0 DEOPT PACKING pc=0x000001c487c83c40 sp=0x0000000d473f5370
+Event: 13.560 Thread 0x000001c4f0e2d2b0 DEOPT UNPACKING pc=0x000001c4874a46a2 sp=0x0000000d473f51e8 mode 2
+Event: 13.560 Thread 0x000001c4f0e2d2b0 Uncommon trap: trap_request=0xffffff45 fr.pc=0x000001c487c84140 relative=0x00000000000000a0
+Event: 13.560 Thread 0x000001c4f0e2d2b0 Uncommon trap: reason=unstable_if action=reinterpret pc=0x000001c487c84140 method=sun.net.util.IPAddressUtil.scan(Ljava/lang/String;JJ[C)I @ 14 c2
+Event: 13.560 Thread 0x000001c4f0e2d2b0 DEOPT PACKING pc=0x000001c487c84140 sp=0x0000000d473f5000
+Event: 13.560 Thread 0x000001c4f0e2d2b0 DEOPT UNPACKING pc=0x000001c4874a46a2 sp=0x0000000d473f4ee8 mode 2
+Event: 13.560 Thread 0x000001c4f0e2d2b0 Uncommon trap: trap_request=0xffffff45 fr.pc=0x000001c487c84904 relative=0x0000000000000064
+Event: 13.560 Thread 0x000001c4f0e2d2b0 Uncommon trap: reason=unstable_if action=reinterpret pc=0x000001c487c84904 method=sun.net.util.IPAddressUtil.scan(Ljava/lang/String;JJ[C)I @ 14 c2
+Event: 13.560 Thread 0x000001c4f0e2d2b0 DEOPT PACKING pc=0x000001c487c84904 sp=0x0000000d473f5260
+Event: 13.560 Thread 0x000001c4f0e2d2b0 DEOPT UNPACKING pc=0x000001c4874a46a2 sp=0x0000000d473f51e8 mode 2
+Event: 13.577 Thread 0x000001c4f0e2d2b0 Uncommon trap: trap_request=0xffffffde fr.pc=0x000001c487ca52c4 relative=0x0000000000000164
+Event: 13.577 Thread 0x000001c4f0e2d2b0 Uncommon trap: reason=class_check action=maybe_recompile pc=0x000001c487ca52c4 method=org.springframework.boot.context.properties.source.ConfigurationPropertyName$Elements.charAt(II)C @ 43 c2
+Event: 13.577 Thread 0x000001c4f0e2d2b0 DEOPT PACKING pc=0x000001c487ca52c4 sp=0x0000000d473f4a00
+Event: 13.577 Thread 0x000001c4f0e2d2b0 DEOPT UNPACKING pc=0x000001c4874a46a2 sp=0x0000000d473f4978 mode 2
+Event: 13.577 Thread 0x000001c4f0e2d2b0 Uncommon trap: trap_request=0xffffffde fr.pc=0x000001c487ca52c4 relative=0x0000000000000164
+Event: 13.577 Thread 0x000001c4f0e2d2b0 Uncommon trap: reason=class_check action=maybe_recompile pc=0x000001c487ca52c4 method=org.springframework.boot.context.properties.source.ConfigurationPropertyName$Elements.charAt(II)C @ 43 c2
+Event: 13.577 Thread 0x000001c4f0e2d2b0 DEOPT PACKING pc=0x000001c487ca52c4 sp=0x0000000d473f4a00
+Event: 13.577 Thread 0x000001c4f0e2d2b0 DEOPT UNPACKING pc=0x000001c4874a46a2 sp=0x0000000d473f4978 mode 2
+
+Classes loaded (20 events):
+Event: 12.057 Loading class java/util/HashMap$EntrySpliterator
+Event: 12.058 Loading class java/util/HashMap$EntrySpliterator done
+Event: 12.161 Loading class java/util/zip/GZIPInputStream
+Event: 12.161 Loading class java/util/zip/GZIPInputStream done
+Event: 12.161 Loading class java/util/zip/GZIPOutputStream
+Event: 12.162 Loading class java/util/zip/DeflaterOutputStream
+Event: 12.162 Loading class java/util/zip/DeflaterOutputStream done
+Event: 12.162 Loading class java/util/zip/GZIPOutputStream done
+Event: 12.208 Loading class java/util/regex/Pattern$LookBehindEndNode
+Event: 12.208 Loading class java/util/regex/Pattern$LookBehindEndNode done
+Event: 12.208 Loading class java/util/regex/Pattern$Behind
+Event: 12.208 Loading class java/util/regex/Pattern$Behind done
+Event: 12.365 Loading class java/time/Instant$1
+Event: 12.365 Loading class java/time/Instant$1 done
+Event: 12.397 Loading class java/util/stream/ReduceOps$2
+Event: 12.397 Loading class java/util/stream/ReduceOps$2 done
+Event: 12.397 Loading class java/util/stream/ReduceOps$2ReducingSink
+Event: 12.397 Loading class java/util/stream/ReduceOps$2ReducingSink done
+Event: 13.595 Loading class sun/reflect/annotation/AnnotationInvocationHandler$1
+Event: 13.595 Loading class sun/reflect/annotation/AnnotationInvocationHandler$1 done
+
+Classes unloaded (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (20 events):
+Event: 10.035 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e33b7a40}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeVirtual(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e33b7a40) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.063 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e3265e40}: 'void java.lang.invoke.DirectMethodHandle$Holder.invokeSpecial(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e3265e40) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.074 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e32c6b48}: 'void java.lang.invoke.DirectMethodHandle$Holder.invokeInterface(java.lang.Object, java.lang.Object, int)'> (0x00000000e32c6b48) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.076 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/IncompatibleClassChangeError'{0x00000000e32e52d8}: Found class java.lang.Object, but interface was expected> (0x00000000e32e52d8) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 840]
+Event: 10.150 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2fc1618}: 'void java.lang.invoke.DirectMethodHandle$Holder.invokeInterface(java.lang.Object, java.lang.Object, int, java.lang.Object)'> (0x00000000e2fc1618) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.151 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2fc57b8}: 'void java.lang.invoke.DelegatingMethodHandle$Holder.reinvoke_L(java.lang.Object, java.lang.Object, int, java.lang.Object)'> (0x00000000e2fc57b8) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.174 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2ec1c78}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeStatic(java.lang.Object, java.lang.Object, int, java.lang.Object)'> (0x00000000e2ec1c78) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.367 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2855c48}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeStaticInit(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e2855c48) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.464 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2609648}: 'void java.lang.invoke.DirectMethodHandle$Holder.invokeVirtual(java.lang.Object, java.lang.Object, long)'> (0x00000000e2609648) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.474 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2671bd0}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeVirtual(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e2671bd0) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 10.534 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e248a3e0}: 'void java.lang.invoke.Invokers$Holder.invokeExact_MT(java.lang.Object, java.lang.Object, int, java.lang.Object)'> (0x00000000e248a3e0) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 11.745 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e5db4e20}: 'long java.lang.invoke.DelegatingMethodHandle$Holder.reinvoke_L(java.lang.Object, java.lang.Object)'> (0x00000000e5db4e20) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 11.842 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e5065758}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeVirtual(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e5065758) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 11.860 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e4f0c090}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeStaticInit(java.lang.Object, java.lang.Object, int)'> (0x00000000e4f0c090) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 12.055 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e2c2c0c0}: 'int java.lang.invoke.DirectMethodHandle$Holder.invokeStatic(java.lang.Object, int, java.lang.Object)'> (0x00000000e2c2c0c0) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 12.144 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/IncompatibleClassChangeError'{0x00000000e291ed20}: Found class java.lang.Object, but interface was expected> (0x00000000e291ed20) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 840]
+Event: 12.282 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e240bb08}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.invokeVirtual(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e240bb08) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+Event: 12.355 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/IncompatibleClassChangeError'{0x00000000e5d364e8}: Found class java.lang.Object, but interface was expected> (0x00000000e5d364e8) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 840]
+Event: 12.396 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/IncompatibleClassChangeError'{0x00000000e5261b98}: Found class java.lang.Object, but interface was expected> (0x00000000e5261b98) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 840]
+Event: 12.482 Thread 0x000001c4f0e2d2b0 Exception <a 'java/lang/NoSuchMethodError'{0x00000000e5070908}: 'java.lang.Object java.lang.invoke.DirectMethodHandle$Holder.newInvokeSpecial(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)'> (0x00000000e5070908) 
+thrown [s\open\src\hotspot\share\interpreter\linkResolver.cpp, line 773]
+
+ZGC Phase Switch (0 events):
+No events
+
+VM Operations (20 events):
+Event: 9.898 Executing VM operation: HandshakeAllThreads (Deoptimize)
+Event: 9.898 Executing VM operation: HandshakeAllThreads (Deoptimize) done
+Event: 9.922 Executing VM operation: HandshakeAllThreads (Deoptimize)
+Event: 9.922 Executing VM operation: HandshakeAllThreads (Deoptimize) done
+Event: 9.988 Executing VM operation: HandshakeAllThreads (Deoptimize)
+Event: 9.988 Executing VM operation: HandshakeAllThreads (Deoptimize) done
+Event: 11.000 Executing VM operation: Cleanup
+Event: 11.000 Executing VM operation: Cleanup done
+Event: 11.713 Executing VM operation: G1CollectForAllocation (G1 Evacuation Pause)
+Event: 11.721 Executing VM operation: G1CollectForAllocation (G1 Evacuation Pause) done
+Event: 11.840 Executing VM operation: HandshakeAllThreads (Deoptimize)
+Event: 11.840 Executing VM operation: HandshakeAllThreads (Deoptimize) done
+Event: 12.052 Executing VM operation: ICBufferFull
+Event: 12.052 Executing VM operation: ICBufferFull done
+Event: 12.343 Executing VM operation: G1CollectForAllocation (G1 Evacuation Pause)
+Event: 12.347 Executing VM operation: G1CollectForAllocation (G1 Evacuation Pause) done
+Event: 13.351 Executing VM operation: Cleanup
+Event: 13.351 Executing VM operation: Cleanup done
+Event: 14.353 Executing VM operation: Cleanup
+Event: 14.354 Executing VM operation: Cleanup done
+
+Events (20 events):
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c480165190
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4801f7c10
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4801f8390
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4801f9d90
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4801fb590
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4801fcf10
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4801fe010
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c48029e090
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4802a2f90
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4802ec310
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c480398a10
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c480427890
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4804acf90
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4804ad310
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4804ad990
+Event: 9.874 Thread 0x000001c4ff7dc6b0 flushing nmethod 0x000001c4804ae010
+Event: 9.930 Thread 0x000001c4d4bd5be0 Thread added: 0x000001c4d4bd5be0
+Event: 10.085 Thread 0x000001c4d52ce050 Thread exited: 0x000001c4d52ce050
+Event: 10.550 Thread 0x000001c4d52ce050 Thread added: 0x000001c4d52ce050
+Event: 11.564 Thread 0x000001c4d63844b0 Thread exited: 0x000001c4d63844b0
+
+
+Dynamic libraries:
+0x00007ff6900e0000 - 0x00007ff6900f0000 	C:\Program Files\Java\jdk-21\bin\java.exe
+0x00007ffb566a0000 - 0x00007ffb56900000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007ffb55f60000 - 0x00007ffb56027000 	C:\WINDOWS\System32\KERNEL32.DLL
+0x00007ffb53e10000 - 0x00007ffb541da000 	C:\WINDOWS\System32\KERNELBASE.dll
+0x00007ffb53ac0000 - 0x00007ffb53c0b000 	C:\WINDOWS\System32\ucrtbase.dll
+0x00007ffb40550000 - 0x00007ffb40569000 	C:\Program Files\Java\jdk-21\bin\jli.dll
+0x00007ffb40510000 - 0x00007ffb4052b000 	C:\Program Files\Java\jdk-21\bin\VCRUNTIME140.dll
+0x00007ffb54cf0000 - 0x00007ffb54da2000 	C:\WINDOWS\System32\ADVAPI32.dll
+0x00007ffb56030000 - 0x00007ffb560d9000 	C:\WINDOWS\System32\msvcrt.dll
+0x00007ffb565a0000 - 0x00007ffb56646000 	C:\WINDOWS\System32\sechost.dll
+0x00007ffb55920000 - 0x00007ffb55a36000 	C:\WINDOWS\System32\RPCRT4.dll
+0x00007ffb56340000 - 0x00007ffb5650c000 	C:\WINDOWS\System32\USER32.dll
+0x00007ffb539d0000 - 0x00007ffb539f7000 	C:\WINDOWS\System32\win32u.dll
+0x00007ffb3ce80000 - 0x00007ffb3d117000 	C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.26100.3624_none_3e086962e3345f24\COMCTL32.dll
+0x00007ffb55d40000 - 0x00007ffb55d6a000 	C:\WINDOWS\System32\GDI32.dll
+0x00007ffb541e0000 - 0x00007ffb54311000 	C:\WINDOWS\System32\gdi32full.dll
+0x00007ffb53880000 - 0x00007ffb53923000 	C:\WINDOWS\System32\msvcp_win.dll
+0x00007ffb4b440000 - 0x00007ffb4b44b000 	C:\WINDOWS\SYSTEM32\VERSION.dll
+0x00007ffb54ea0000 - 0x00007ffb54ecf000 	C:\WINDOWS\System32\IMM32.DLL
+0x00007ffb4de40000 - 0x00007ffb4de4c000 	C:\Program Files\Java\jdk-21\bin\vcruntime140_1.dll
+0x00007ffae70c0000 - 0x00007ffae714e000 	C:\Program Files\Java\jdk-21\bin\msvcp140.dll
+0x00007ffabec00000 - 0x00007ffabf91a000 	C:\Program Files\Java\jdk-21\bin\server\jvm.dll
+0x00007ffb54ee0000 - 0x00007ffb54f54000 	C:\WINDOWS\System32\WS2_32.dll
+0x00007ffb524d0000 - 0x00007ffb5252e000 	C:\WINDOWS\SYSTEM32\POWRPROF.dll
+0x00007ffb4b400000 - 0x00007ffb4b436000 	C:\WINDOWS\SYSTEM32\WINMM.dll
+0x00007ffb524b0000 - 0x00007ffb524c4000 	C:\WINDOWS\SYSTEM32\UMPDC.dll
+0x00007ffb52790000 - 0x00007ffb527aa000 	C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+0x00007ffb45670000 - 0x00007ffb4567a000 	C:\Program Files\Java\jdk-21\bin\jimage.dll
+0x00007ffb50f50000 - 0x00007ffb51191000 	C:\WINDOWS\SYSTEM32\DBGHELP.DLL
+0x00007ffb54960000 - 0x00007ffb54ce2000 	C:\WINDOWS\System32\combase.dll
+0x00007ffb54db0000 - 0x00007ffb54e86000 	C:\WINDOWS\System32\OLEAUT32.dll
+0x00007ffb39910000 - 0x00007ffb39949000 	C:\WINDOWS\SYSTEM32\dbgcore.DLL
+0x00007ffb53930000 - 0x00007ffb539c9000 	C:\WINDOWS\System32\bcryptPrimitives.dll
+0x00007ffb404f0000 - 0x00007ffb4050f000 	C:\Program Files\Java\jdk-21\bin\java.dll
+0x00007ffb54fb0000 - 0x00007ffb556d9000 	C:\WINDOWS\System32\SHELL32.dll
+0x00007ffb53ca0000 - 0x00007ffb53e08000 	C:\WINDOWS\System32\wintypes.dll
+0x00007ffb51520000 - 0x00007ffb51d72000 	C:\WINDOWS\SYSTEM32\windows.storage.dll
+0x00007ffb56180000 - 0x00007ffb5626d000 	C:\WINDOWS\System32\SHCORE.dll
+0x00007ffb55ef0000 - 0x00007ffb55f54000 	C:\WINDOWS\System32\shlwapi.dll
+0x00007ffb53790000 - 0x00007ffb537bf000 	C:\WINDOWS\SYSTEM32\profapi.dll
+0x00007ffae6ee0000 - 0x00007ffae6fb7000 	C:\Program Files\Java\jdk-21\bin\jsvml.dll
+0x00007ffb40540000 - 0x00007ffb40550000 	C:\Program Files\Java\jdk-21\bin\net.dll
+0x00007ffb4c600000 - 0x00007ffb4c71d000 	C:\WINDOWS\SYSTEM32\WINHTTP.dll
+0x00007ffb52cd0000 - 0x00007ffb52d3a000 	C:\WINDOWS\system32\mswsock.dll
+0x00007ffb404d0000 - 0x00007ffb404e6000 	C:\Program Files\Java\jdk-21\bin\nio.dll
+0x00007ffb40470000 - 0x00007ffb40488000 	C:\Program Files\Java\jdk-21\bin\zip.dll
+0x00007ffb404c0000 - 0x00007ffb404d0000 	C:\Program Files\Java\jdk-21\bin\verify.dll
+0x00007ffb401e0000 - 0x00007ffb401e9000 	C:\Program Files\Java\jdk-21\bin\extnet.dll
+0x00007ffb401d0000 - 0x00007ffb401de000 	C:\Program Files\Java\jdk-21\bin\sunmscapi.dll
+0x00007ffb54320000 - 0x00007ffb54497000 	C:\WINDOWS\System32\CRYPT32.dll
+0x00007ffb53170000 - 0x00007ffb531a0000 	C:\WINDOWS\SYSTEM32\ncrypt.dll
+0x00007ffb53120000 - 0x00007ffb5315f000 	C:\WINDOWS\SYSTEM32\NTASN1.dll
+0x00007ffb4dad0000 - 0x00007ffb4dad8000 	C:\WINDOWS\system32\wshunix.dll
+0x00007ffb52f70000 - 0x00007ffb52f8c000 	C:\WINDOWS\SYSTEM32\CRYPTSP.dll
+0x00007ffb526f0000 - 0x00007ffb5272a000 	C:\WINDOWS\system32\rsaenh.dll
+0x00007ffb52d70000 - 0x00007ffb52d9b000 	C:\WINDOWS\SYSTEM32\USERENV.dll
+0x00007ffb53760000 - 0x00007ffb53786000 	C:\WINDOWS\SYSTEM32\bcrypt.dll
+0x00007ffb52f90000 - 0x00007ffb52f9c000 	C:\WINDOWS\SYSTEM32\CRYPTBASE.dll
+0x00007ffb52150000 - 0x00007ffb52183000 	C:\WINDOWS\SYSTEM32\IPHLPAPI.DLL
+0x00007ffb56170000 - 0x00007ffb5617a000 	C:\WINDOWS\System32\NSI.dll
+0x00007ffb521f0000 - 0x00007ffb52315000 	C:\WINDOWS\SYSTEM32\DNSAPI.dll
+0x00007ffb484a0000 - 0x00007ffb484ab000 	C:\Windows\System32\rasadhlp.dll
+0x00007ffb4b610000 - 0x00007ffb4b695000 	C:\WINDOWS\System32\fwpuclnt.dll
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;C:\Program Files\Java\jdk-21\bin;C:\WINDOWS\SYSTEM32;C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.26100.3624_none_3e086962e3345f24;C:\Program Files\Java\jdk-21\bin\server
+
+VM Arguments:
+jvm_args: -Dorg.gradle.internal.worker.tmpdir=C:\Users\Lenovo\IdeaProjects\WebsiteBanDoGiaDung\backend\api-gateway\build\tmp\test\work -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -ea 
+java_command: worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 2'
+java_class_path (initial): C:\\Users\\Lenovo\\.gradle\\caches\\8.12.1\\workerMain\\gradle-worker.jar;C:\\Users\\Lenovo\\IdeaProjects\\WebsiteBanDoGiaDung\\backend\\api-gateway\\build\\classes\\java\\test;C:\\Users\\Lenovo\\IdeaProjects\\WebsiteBanDoGiaDung\\backend\\api-gateway\\build\\classes\\java\\main;C:\\Users\\Lenovo\\IdeaProjects\\WebsiteBanDoGiaDung\\backend\\api-gateway\\build\\resources\\main;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-actuator\\3.2.2\\bb329cb8813ad75e76baad30658b756f57c8f6fb\\spring-boot-starter-actuator-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-starter-gateway\\4.1.2\\471592049116946c77f021c29f3d8b3d26ab060d\\spring-cloud-starter-gateway-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-security\\3.2.2\\79676d6fe68878890e26be10ecab126f472d7c0f\\spring-boot-starter-security-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-webflux\\3.2.2\\25ae11864604f8f7b504b9feae710b859aed6464\\spring-boot-starter-webflux-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-starter-netflix-eureka-client\\4.1.1\\9548b9b7bfed0108b2fc34982752ff312f08bcaa\\spring-cloud-starter-netflix-eureka-client-4.1.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.micrometer\\micrometer-registry-prometheus\\1.12.2\\3a54b3009f1772a48742019882fe7ce2f4fad7c0\\micrometer-registry-prometheus-1.12.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-oauth2-client\\3.2.2\\cce33514a28968b4f6203cdcce700192d19b1ef0\\spring-boot-starter-oauth2-client-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-test\\3.2.2\\8785ad456a809e3eec319d7bbb36c3e971abd00f\\spring-boot-starter-test-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.projectreactor\\reactor-test\\3.6.2\\b746faf36adf3f17db5edb0ee4fd1cc04a8b9e78\\reactor-test-3.6.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-test\\6.2.1\\5e88b6a8c51a56dfe2756ac7143f04c07553de03\\spring-security-test-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.jupiter\\junit-jupiter\\5.10.1\\6e5c7dd668d6349cb99e52ab8321e73479a309bc\\junit-jupiter-5.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.jupiter\\junit-jupiter-engine\\5.10.1\\6c9ff773f9aa842b91d1f2fe4658973252ce2428\\junit-jupiter-engine-5.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.platform\\junit-platform-engine\\1.10.1\\f32ae4af74fde68414b8a3d2b7cf1fb43824a83a\\junit-platform-engine-1.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.mockito\\mockito-junit-jupiter\\5.7.0\\ac2d6a3431747a7986b8f4abef465f72bf3a21ae\\mockito-junit-jupiter-5.7.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.jupiter\\junit-jupiter-params\\5.10.1\\c8f15d4e99940c4564098af78c10809c00fdca06\\junit-jupiter-params-5.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.jupiter\\junit-jupiter-api\\5.10.1\\eb90c7d8bfaae8fdc97b225733fcb595ddd72843\\junit-jupiter-api-5.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.platform\\junit-platform-commons\\1.10.1\\2bfcd4a4e38b10c671b6916d7e543c20afe25579\\junit-platform-commons-1.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.junit.platform\\junit-platform-launcher\\1.10.1\\ce85bf5e38bee0989ded9bd468dd4ff78dc0cfa8\\junit-platform-launcher-1.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-starter-loadbalancer\\4.1.2\\b7bde750ff9bf9678dc1156060a8bff556114ccf\\spring-cloud-starter-loadbalancer-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-starter\\4.1.2\\757a6f0ecdb191fb04c0aed2055e91f50f89231d\\spring-cloud-starter-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-gateway-server\\4.1.2\\c5d06565120aec3e46a79f3f3e7f11044a5cd2ab\\spring-cloud-gateway-server-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-json\\3.2.2\\328f5ce9e10d5f90520e72a3ff8a2586b9e46b37\\spring-boot-starter-json-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-validation\\3.2.2\\faedd363ffbafde6a23bc7183ce79de11a96e780\\spring-boot-starter-validation-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-cache\\3.2.2\\a9ca63a53a92a4aabebc06ede56d23e849487253\\spring-boot-starter-cache-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter\\3.2.2\\dc04714f9295297f92fa8099eb51edc54dbe67db\\spring-boot-starter-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-actuator-autoconfigure\\3.2.2\\c2ecd7cb4880408ba131c14fe6521c8c28790bb6\\spring-boot-actuator-autoconfigure-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.micrometer\\micrometer-jakarta9\\1.12.2\\381f991e01c257c0c49bf48ea75db759bcd3689a\\micrometer-jakarta9-1.12.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-oauth2-client\\6.2.1\\1e78c49fa10f72acb7f40e34e9ced1216753792c\\spring-security-oauth2-client-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-web\\6.2.1\\4b486977ab1bcdd5dcc6aa5d8a367f1c0814bf56\\spring-security-web-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-webflux\\6.1.3\\426447b8e64765db5c2901f2b33cdb691b845f34\\spring-webflux-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-oauth2-jose\\6.2.1\\9bb10fe87a2dfff27075dd09586075645907b44d\\spring-security-oauth2-jose-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-oauth2-core\\6.2.1\\1927cdcddce10f1f852e25ed3445e1f1b96c17ad\\spring-security-oauth2-core-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-web\\6.1.3\\cc3459b4abd436331608ddb6424886875f7086ab\\spring-web-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.micrometer\\micrometer-core\\1.12.2\\ad701a658e92a3122ee4b2418261daa6821e5b9d\\micrometer-core-1.12.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-config\\6.2.1\\119953fd2980d50e1119b913a8596e5e6bdc1295\\spring-security-config-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-core\\6.2.1\\b4014a04f217f0f48d15bc7d53906b6911ad855f\\spring-security-core-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-test-autoconfigure\\3.2.2\\3413e663b2e3e005db07a60883ac6cd01b0dc0c\\spring-boot-test-autoconfigure-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-test\\3.2.2\\9e76de9c9f520865c5d62588323f018a9d4e9077\\spring-boot-test-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-autoconfigure\\3.2.2\\5c407409f8d260a4bc6e173d16fc3b36e6adec21\\spring-boot-autoconfigure-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-actuator\\3.2.2\\6acab5967fca41db8c4caaed26af733f713a8d43\\spring-boot-actuator-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot\\3.2.2\\9f274d1bd822c4c57bb5b37ecae2380b980f567\\spring-boot-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-context-support\\6.1.3\\55ff73910c4851c37f6919a071453ddc40f7dc38\\spring-context-support-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-context\\6.1.3\\c63f038933701058fd7578460c66dbe2d424915\\spring-context-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.micrometer\\micrometer-observation\\1.12.2\\e082b05a2527fc24ea6fbe4c4b7ae34653aace81\\micrometer-observation-1.12.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-aop\\6.1.3\\4d9bd4bd9b8bedf9ef151b45c79766b336117b9a\\spring-aop-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-reactor-netty\\3.2.2\\cf32e5dc15e455a17aa833eeefb9d0f0eb9f6c4e\\spring-boot-starter-reactor-netty-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-netflix-eureka-client\\4.1.1\\2772ed17229a52f71a5fb18f87551c42371e62ad\\spring-cloud-netflix-eureka-client-4.1.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.netflix.eureka\\eureka-core\\2.0.2\\32733c1f139ed8e63ff95d079726e6536b1292e0\\eureka-core-2.0.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.netflix.eureka\\eureka-client\\2.0.2\\74459b89111e886ff091b6b9595ac411deef7ab8\\eureka-client-2.0.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.prometheus\\simpleclient_common\\0.16.0\\a09a8c790a20309b942a9fdbfe77da22407096e6\\simpleclient_common-0.16.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.jayway.jsonpath\\json-path\\2.8.0\\b4ab3b7a9e425655a0ca65487bbbd6d7ddb75160\\json-path-2.8.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\jakarta.xml.bind\\jakarta.xml.bind-api\\4.0.1\\ca2330866cbc624c7e5ce982e121db1125d23e15\\jakarta.xml.bind-api-4.0.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.nimbusds\\oauth2-oidc-sdk\\9.43.3\\31709dab9f6531cc5c8f0d7e50ed5ccf10127877\\oauth2-oidc-sdk-9.43.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\net.minidev\\json-smart\\2.5.0\\57a64f421b472849c40e77d2e7cce3a141b41e99\\json-smart-2.5.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.assertj\\assertj-core\\3.24.2\\ebbf338e33f893139459ce5df023115971c2786f\\assertj-core-3.24.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.awaitility\\awaitility\\4.2.0\\2c39784846001a9cffd6c6b89c78de62c0d80fb8\\awaitility-4.2.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.hamcrest\\hamcrest\\2.2\\1820c0968dba3a11a1b30669bb1f01978a91dedc\\hamcrest-2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.mockito\\mockito-core\\5.7.0\\a1c258331ab91d66863c983aff7136357e9de056\\mockito-core-5.7.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.skyscreamer\\jsonassert\\1.5.1\\6d842d0faf4cf6725c509a5e5347d319ee0431c3\\jsonassert-1.5.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-test\\6.1.3\\193a0c6c53a4eed98a1d7567e952647a92cf53aa\\spring-test-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-beans\\6.1.3\\c2df4210e796d3a27efc1f22621aa4e2c6cd985f\\spring-beans-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-expression\\6.1.3\\7c35fc3d7525a024fdde8a5d7597a6a8a4e59d7\\spring-expression-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-core\\6.1.3\\a002e96e780954cc3ac4cd70fd3bb16accdc47ed\\spring-core-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.xmlunit\\xmlunit-core\\2.9.1\\e5833662d9a1279a37da3ef6f62a1da29fcd68c4\\xmlunit-core-2.9.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-loadbalancer\\4.1.2\\343e7fc3eac57c1505fd60705becadaa100f1446\\spring-cloud-loadbalancer-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.projectreactor.addons\\reactor-extra\\3.5.1\\227cd47421ca0571c662f67428903c5c54777ef1\\reactor-extra-3.5.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.projectreactor.netty\\reactor-netty-http\\1.1.15\\c79756fa2dfc28ac81fc9d23a14b17c656c3e560\\reactor-netty-http-1.1.15.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.projectreactor.netty\\reactor-netty-core\\1.1.15\\3221d405ad55a573cf29875a8244a4217cf07185\\reactor-netty-core-1.1.15.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.projectreactor\\reactor-core\\3.6.2\\679ac38d031c154374182748491a177a76c890e1\\reactor-core-3.6.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.boot\\spring-boot-starter-logging\\3.2.2\\3347c3b1cec6cf2d5fa186d1e49d2f378a6b7cae\\spring-boot-starter-logging-3.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\jakarta.annotation\\jakarta.annotation-api\\2.1.1\\48b9bda22b091b1f48b13af03fe36db3be6e1ae3\\jakarta.annotation-api-2.1.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.yaml\\snakeyaml\\2.2\\3af797a25458550a16bf89acc8e4ab2b7f2bfce0\\snakeyaml-2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.datatype\\jackson-datatype-jdk8\\2.15.3\\80158cb020c7bd4e4ba94d8d752a65729dc943b2\\jackson-datatype-jdk8-2.15.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.module\\jackson-module-parameter-names\\2.15.3\\8d251b90c5358677e7d8161e0c2488e6f84f49da\\jackson-module-parameter-names-2.15.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.core\\jackson-annotations\\2.15.3\\79baf4e605eb3bbb60b1c475d44a7aecceea1d60\\jackson-annotations-2.15.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.core\\jackson-core\\2.15.3\\60d600567c1862840397bf9ff5a92398edc5797b\\jackson-core-2.15.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.datatype\\jackson-datatype-jsr310\\2.15.3\\4a20a0e104931bfa72f24ef358c2eb63f1ef2aaf\\jackson-datatype-jsr310-2.15.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.core\\jackson-databind\\2.15.3\\a734bc2c47a9453c4efa772461a3aeb273c010d9\\jackson-databind-2.15.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.micrometer\\micrometer-commons\\1.12.2\\b44127d8ec7b3ef11a01912d1e6474e1167f3929\\micrometer-commons-1.12.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-context\\4.1.2\\69d9edfe8c4b4037653d28b29f3184afc573603\\spring-cloud-context-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.cloud\\spring-cloud-commons\\4.1.2\\84377482af72a3ef008b6c981e77897a04ae20aa\\spring-cloud-commons-4.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-rsa\\1.1.2\\ca388d615a60199186ec248ac2a9806a76db4014\\spring-security-rsa-1.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.httpcomponents.client5\\httpclient5\\5.2.3\\5d753a99d299756998a08c488f2efdf9cf26198e\\httpclient5-5.2.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.netflix.netflix-commons\\netflix-eventbus\\0.3.0\\3f864adbe81f0849729fcbba3fe693c32be739ea\\netflix-eventbus-0.3.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.thoughtworks.xstream\\xstream\\1.4.19\\e0e581d812aa92ae12f07234f3398e06af74b112\\xstream-1.4.19.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\jakarta.ws.rs\\jakarta.ws.rs-api\\3.1.0\\15ce10d249a38865b58fc39521f10f29ab0e3363\\jakarta.ws.rs-api-3.1.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\jakarta.inject\\jakarta.inject-api\\2.0.1\\4c28afe1991a941d7702fe1362c365f0a8641d1e\\jakarta.inject-api-2.0.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.netflix.servo\\servo-core\\0.12.21\\f56c3bf161217be98fbe4135adf8480590db9c37\\servo-core-0.12.21.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.httpcomponents\\httpclient\\4.5.3\\d1577ae15f01ef5438c5afc62162457c00a34713\\httpclient-4.5.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\commons-configuration\\commons-configuration\\1.10\\2b36e4adfb66d966c5aef2d73deb6be716389dc9\\commons-configuration-1.10.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.codehaus.jettison\\jettison\\1.5.4\\174ca56c411b05aec323d8f53e66709c0d28b337\\jettison-1.5.4.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.woodstox\\woodstox-core\\6.2.1\\1600925b1ec7c7a3403c8f068ad62feead13132f\\woodstox-core-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.stoyanr\\evictor\\1.0.0\\d4615a8516dc28cb958e723f1a0902faa8732217\\evictor-1.0.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.hdrhistogram\\HdrHistogram\\2.1.12\\6eb7552156e0d517ae80cc2247be1427c8d90452\\HdrHistogram-2.1.12.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.latencyutils\\LatencyUtils\\2.0.3\\769c0b82cb2421c8256300e907298a9410a2a3d3\\LatencyUtils-2.0.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.prometheus\\simpleclient\\0.16.0\\28b0eaf7c500c506976da8d0fc9cad6c278e8d87\\simpleclient-0.16.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework.security\\spring-security-crypto\\6.2.1\\d7c4f4e8fe5ae84dd1da76094ee8a0a7e214923d\\spring-security-crypto-6.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.nimbusds\\nimbus-jose-jwt\\9.24.4\\29a1f6a00a4daa3e1873f6bf4f16ddf4d6fd6d37\\nimbus-jose-jwt-9.24.4.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\ch.qos.logback\\logback-classic\\1.4.14\\d98bc162275134cdf1518774da4a2a17ef6fb94d\\logback-classic-1.4.14.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.logging.log4j\\log4j-to-slf4j\\2.21.1\\d77b2ba81711ed596cd797cc2b5b5bd7409d841c\\log4j-to-slf4j-2.21.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\jul-to-slf4j\\2.0.11\\279356f8e873b1a26badd8bbb3284b5c3b22c770\\jul-to-slf4j-2.0.11.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.netflix.netflix-commons\\netflix-infix\\0.3.0\\acc65969f7367ddd2f1265e0cd7330509ed530dc\\netflix-infix-0.3.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\slf4j-api\\2.0.11\\ad96c3f8cf895e696dd35c2bc8e8ebe710be9e6d\\slf4j-api-2.0.11.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\jakarta.activation\\jakarta.activation-api\\2.1.2\\640c0d5aff45dbff1e1a1bc09673ff3a02b1ba12\\jakarta.activation-api-2.1.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\net.minidev\\accessors-smart\\2.5.0\\aca011492dfe9c26f4e0659028a4fe0970829dd8\\accessors-smart-2.5.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\net.bytebuddy\\byte-buddy\\1.14.11\\725602eb7c8c56b51b9c21f273f9df5c909d9e7d\\byte-buddy-1.14.11.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\net.bytebuddy\\byte-buddy-agent\\1.14.11\\f9cb566608fbac6bc7bf54901a7aa11543a989ee\\byte-buddy-agent-1.14.11.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.objenesis\\objenesis\\3.3\\1049c09f1de4331e8193e579448d0916d75b7631\\objenesis-3.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.vaadin.external.google\\android-json\\0.0.20131108.vaadin1\\fa26d351fe62a6a17f5cda1287c1c6110dec413f\\android-json-0.0.20131108.vaadin1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.springframework\\spring-jcl\\6.1.3\\a715e091ee86243ee94534a03f3c26b4e48de31e\\spring-jcl-6.1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.reactivestreams\\reactive-streams\\1.0.4\\3864a1320d97d7b045f729a326e1e077661f31b7\\reactive-streams-1.0.4.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.opentest4j\\opentest4j\\1.3.0\\152ea56b3a72f655d4fd677fc0ef2596c3dd5e6e\\opentest4j-1.3.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.bouncycastle\\bcprov-jdk18on\\1.77\\2cc971b6c20949c1ff98d1a4bc741ee848a09523\\bcprov-jdk18on-1.77.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.tomcat.embed\\tomcat-embed-el\\10.1.18\\b2c4dc05abd363c63b245523bb071727aa2f1046\\tomcat-embed-el-10.1.18.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.hibernate.validator\\hibernate-validator\\8.0.1.Final\\e49e116b3d3928060599b176b3538bb848718e95\\hibernate-validator-8.0.1.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-codec-http2\\4.1.105.Final\\7c558b1ea68a2385b250191ad5ecb0f4afb2d866\\netty-codec-http2-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-handler-proxy\\4.1.105.Final\\19a5b78164c6a5a0464586c1e1ac5695cc79844c\\netty-handler-proxy-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-codec-http\\4.1.105.Final\\bc8bc7b5384fb3dcb467d2a44159282935328779\\netty-codec-http-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-resolver-dns-native-macos\\4.1.105.Final\\1c3b820b9f44c26a65dec438a731f8c9bf64004\\netty-resolver-dns-native-macos-4.1.105.Final-osx-x86_64.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-resolver-dns-classes-macos\\4.1.105.Final\\91c67d50bad110e1430b9dbda0f10a7768e2e13c\\netty-resolver-dns-classes-macos-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-resolver-dns\\4.1.105.Final\\719fa5bccd87bd3286fc0655a6c3b61cb539e334\\netty-resolver-dns-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-transport-native-epoll\\4.1.105.Final\\8d20e17cff9ec1aaa3bb133ae7cb339c991bc105\\netty-transport-native-epoll-4.1.105.Final-linux-x86_64.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.httpcomponents.core5\\httpcore5-h2\\5.2.4\\2872764df7b4857549e2880dd32a6f9009166289\\httpcore5-h2-5.2.4.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.httpcomponents.core5\\httpcore5\\5.2.4\\34d8332b975f9e9a8298efe4c883ec43d45b7059\\httpcore5-5.2.4.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.commons\\commons-math\\2.2\\4877b85d388275f994a5cfc7eceb73a8045d3006\\commons-math-2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.github.x-stream\\mxparser\\1.2.2\\476fb3b3bb3716cad797cd054ce45f89445794e9\\mxparser-1.2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.google.guava\\guava\\19.0\\6ce200f6b23222af3d8abb6b6459e6c44f4bb0e9\\guava-19.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.httpcomponents\\httpcore\\4.4.16\\51cf043c87253c9f58b539c9f7e44c8894223850\\httpcore-4.4.16.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\commons-codec\\commons-codec\\1.16.0\\4e3eb3d79888d76b54e28b350915b5dc3919c9de\\commons-codec-1.16.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\commons-lang\\commons-lang\\2.6\\ce1edb914c94ebc388f086c6827e8bdeec71ac2\\commons-lang-2.6.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.codehaus.woodstox\\stax2-api\\4.2.1\\a3f7325c52240418c2ba257b103c3c550e140c83\\stax2-api-4.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.prometheus\\simpleclient_tracer_otel\\0.16.0\\cc3d2b7b7cb6f077e3b1ee1d3e99eb54fddfa151\\simpleclient_tracer_otel-0.16.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.prometheus\\simpleclient_tracer_otel_agent\\0.16.0\\9d724771e339ff7ec6cd7c0cc170d3470904c5\\simpleclient_tracer_otel_agent-0.16.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.github.stephenc.jcip\\jcip-annotations\\1.0-1\\ef31541dd28ae2cefdd17c7ebf352d93e9058c63\\jcip-annotations-1.0-1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.nimbusds\\content-type\\2.2\\9a894bce7646dd4086652d85b88013229f23724b\\content-type-2.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.nimbusds\\lang-tag\\1.7\\97c73ecd70bc7e8eefb26c5eea84f251a63f1031\\lang-tag-1.7.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm\\9.3\\8e6300ef51c1d801a7ed62d07cd221aca3a90640\\asm-9.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\ch.qos.logback\\logback-core\\1.4.14\\4d3c2248219ac0effeb380ed4c5280a80bf395e8\\logback-core-1.4.14.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.apache.logging.log4j\\log4j-api\\2.21.1\\74c65e87b9ce1694a01524e192d7be989ba70486\\log4j-api-2.21.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\jakarta.validation\\jakarta.validation-api\\3.0.2\\92b6631659ba35ca09e44874d3eb936edfeee532\\jakarta.validation-api-3.0.2.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.jboss.logging\\jboss-logging\\3.5.3.Final\\c88fc1d8a96d4c3491f55d4317458ccad53ca663\\jboss-logging-3.5.3.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml\\classmate\\1.6.0\\91affab6f84a2182fce5dd72a8d01bc14346dddd\\classmate-1.6.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-handler\\4.1.105.Final\\7e997e63d0a445c4b352bcd38474d50f06f2eaf1\\netty-handler-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-codec-dns\\4.1.105.Final\\81a24958441b3f27c3404706202388202690416d\\netty-codec-dns-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-codec-socks\\4.1.105.Final\\47570154d4cf9d8d9569a25ec1929d8ad1b0fa68\\netty-codec-socks-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-codec\\4.1.105.Final\\4733830b4b2b9111e9bf8136691d07b20027cd51\\netty-codec-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-transport-classes-epoll\\4.1.105.Final\\e006d3b0cfd5b8133c9fcebfa05d9ae80a721e80\\netty-transport-classes-epoll-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-transport-native-unix-common\\4.1.105.Final\\8bb8ab3a8f1e730c6e7d1d1cf8fc24221eacc6cd\\netty-transport-native-unix-common-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-transport\\4.1.105.Final\\5184e1308ed7d853d7061b4e21e47e8de43a28df\\netty-transport-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-buffer\\4.1.105.Final\\c1c1b4d2c89d2f74c80a2701c124ecfde1ecf067\\netty-buffer-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-resolver\\4.1.105.Final\\e69687e013ded60f3f9054164e121c2702200711\\netty-resolver-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.netty\\netty-common\\4.1.105.Final\\8438fc1de4c10301bb53ceb49ed8db74bd40cc2c\\netty-common-4.1.105.Final.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\commons-jxpath\\commons-jxpath\\1.3\\c22d7d0f0f40eb7059a23cfa61773a416768b137\\commons-jxpath-1.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\joda-time\\joda-time\\2.3\\56498efd17752898cfcc3868c1b6211a07b12b8f\\joda-time-2.3.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.antlr\\antlr-runtime\\3.4\\8f011408269a8e42b8548687e137d8eeb56df4b4\\antlr-runtime-3.4.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\com.google.code.gson\\gson\\2.10.1\\b3add478d4382b78ea20b1671390a858002feb6c\\gson-2.10.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\xmlpull\\xmlpull\\1.1.3.1\\2b8e230d2ab644e4ecaa94db7cdedbc40c805dfa\\xmlpull-1.1.3.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\io.prometheus\\simpleclient_tracer_common\\0.16.0\\dec00ef7c6155c4ca1109ec8248f7ff58d8f6cd3\\simpleclient_tracer_common-0.16.0.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\org.antlr\\stringtemplate\\3.2.1\\59ec8083721eae215c6f3caee944c410d2be34de\\stringtemplate-3.2.1.jar;C:\\Users\\Lenovo\\.gradle\\caches\\modules-2\\files-2.1\\antlr\\antlr\\2.7.7\\83cd2cd674a217ade95a4bb83a8a14f351f48bd0\\antlr-2.7.7.jar
+Launcher Type: SUN_STANDARD
+
+[Global flags]
+     intx CICompilerCount                          = 12                                        {product} {ergonomic}
+     uint ConcGCThreads                            = 3                                         {product} {ergonomic}
+     uint G1ConcRefinementThreads                  = 13                                        {product} {ergonomic}
+   size_t G1HeapRegionSize                         = 1048576                                   {product} {ergonomic}
+    uintx GCDrainStackTargetSize                   = 64                                        {product} {ergonomic}
+   size_t InitialHeapSize                          = 98566144                                  {product} {ergonomic}
+   size_t MarkStackSize                            = 4194304                                   {product} {ergonomic}
+   size_t MaxHeapSize                              = 536870912                                 {product} {command line}
+   size_t MaxNewSize                               = 321912832                                 {product} {ergonomic}
+   size_t MinHeapDeltaBytes                        = 1048576                                   {product} {ergonomic}
+   size_t MinHeapSize                              = 8388608                                   {product} {ergonomic}
+    uintx NonNMethodCodeHeapSize                   = 7602480                                {pd product} {ergonomic}
+    uintx NonProfiledCodeHeapSize                  = 122027880                              {pd product} {ergonomic}
+    uintx ProfiledCodeHeapSize                     = 122027880                              {pd product} {ergonomic}
+    uintx ReservedCodeCacheSize                    = 251658240                              {pd product} {ergonomic}
+     bool SegmentedCodeCache                       = true                                      {product} {ergonomic}
+   size_t SoftMaxHeapSize                          = 536870912                              {manageable} {ergonomic}
+     bool UseCompressedOops                        = true                           {product lp64_product} {ergonomic}
+     bool UseG1GC                                  = true                                      {product} {ergonomic}
+     bool UseLargePagesIndividualAllocation        = false                                  {pd product} {ergonomic}
+
+Logging:
+Log output configuration:
+ #0: stdout all=warning uptime,level,tags foldmultilines=false
+ #1: stderr all=off uptime,level,tags foldmultilines=false
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk-21
+PATH=C:\Program Files\Common Files\Oracle\Java\javapath;C:\MinGW\bin;C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Git\cmd;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\dotnet\;C:\Program Files (x86)\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\Tools\Binn\;C:\Program Files\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files\Azure Data Studio\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\MinGW\mingw32;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\nodejs\;C:\Program Files\Apache\apache-maven-3.9.9\bin;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\Java\jdk-21\bin;C:\Program Files\Java\jdk-21\bin;C:\Users\Lenovo\AppData\Local\Microsoft\WindowsApps;C:\Users\Lenovo\AppData\Local\GitHubDesktop\bin;C:\Users\Lenovo\.dotnet\tools;C:\Program Files\Azure Data Studio\bin;C:\Users\Lenovo\AppData\Roaming\npm;C:\Program Files\Java\jdk-21\bin;
+USERNAME=Lenovo
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD
+TMP=C:\Users\Lenovo\AppData\Local\Temp
+TEMP=C:\Users\Lenovo\AppData\Local\Temp
+
+
+
+
+Periodic native trim disabled
+
+---------------  S Y S T E M  ---------------
+
+OS:
+ Windows 11 , 64 bit Build 26100 (10.0.26100.3775)
+OS uptime: 0 days 5:09 hours
+Hyper-V role detected
+
+CPU: total 16 (initial active 16) (16 cores per cpu, 2 threads per core) family 25 model 80 stepping 0 microcode 0xa50000f, cx8, cmov, fxsr, ht, mmx, 3dnowpref, sse, sse2, sse3, ssse3, sse4a, sse4.1, sse4.2, popcnt, lzcnt, tsc, tscinvbit, avx, avx2, aes, erms, clmul, bmi1, bmi2, adx, sha, fma, vzeroupper, clflush, clflushopt, hv, rdtscp, rdpid, fsrm, f16c, cet_ss
+Processor Information for all 16 processors :
+  Max Mhz: 3201, Current Mhz: 3201, Mhz Limit: 3201
+
+Memory: 4k page, system-wide physical 5996M (61M free)
+TotalPageFile size 24428M (AvailPageFile size 9M)
+current process WorkingSet (physical memory assigned to process): 190M, peak: 195M
+current process commit charge ("private bytes"): 266M, peak: 268M
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (21.0.6+8-LTS-188) for windows-amd64 JRE (21.0.6+8-LTS-188), built on 2024-12-03T10:50:54Z by "mach5one" with MS VC++ 17.6 (VS2022)
+
+END.

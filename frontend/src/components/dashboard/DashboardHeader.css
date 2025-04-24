@@ -1,0 +1,54 @@
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff; 
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; 
+}
+
+.dashboard-title {
+    font-size: 24px;
+    margin: 0; 
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.reload-button {
+    background-color: #cbcbcb; 
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-right: 20px; 
+    transition: background-color 0.3s; 
+
+
+}
+
+.reload-button:hover {
+    background-color: #16a085; 
+}
+
+.time-selector {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da; 
+
+    margin-right: 5px;
+
+
+}
+.specific-date-picker {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+
+
+}

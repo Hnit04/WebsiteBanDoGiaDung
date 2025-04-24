@@ -1,0 +1,242 @@
+html {
+  scroll-behavior: smooth;
+}
+
+#header .logo {
+  width: 50px;
+  height: auto;
+}
+
+button.normal {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 15px 30px;
+  color: #000;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: 0.2s;
+}
+
+button.white {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 18px;
+  color: #ddd;
+  background-color: transparent;
+  cursor: pointer;
+  border: 1px solid #fff;
+  outline: none;
+  transition: 0.2s;
+}
+
+body {
+  width: 100%;
+}
+
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 80px;
+  background: #fff;
+  box-shadow: 0 15px 12px rgb(0, 0, 0, 0.06);
+  z-index: 999;
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+
+#navbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#navbar li {
+  list-style: none;
+  padding: 0 20px;
+  position: relative;
+}
+
+#navbar li a {
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  transition: background-color 0.3s ease;
+}
+
+#navbar li .avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+#navbar li a:hover,
+#navbar li a.active {
+  color: #088178;
+}
+
+#navbar li a.active::after,
+#navbar li a:hover::after {
+  content: "";
+  width: 50%;
+  height: 2px;
+  background-color: #088178;
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+button.normal {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 15px 30px;
+  color: #000;
+  background-color: #fff;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  transition: 0.2s;
+}
+
+button.white {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 18px;
+  color: #fff;
+  background-color: transparent;
+  border: 1px solid #fff;
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s;
+}
+
+.cart-badge {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 13px;
+  position: absolute;
+  top: -9px;
+  right: -7px;
+}
+
+.search-icon {
+  width: 20px;
+  cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  #header {
+    padding: 20px 40px;
+  }
+
+  #navbar li {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  #header {
+    padding: 15px 20px;
+  }
+
+  #navbar {
+    flex-direction: column;
+    background: #e3e6f3;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    justify-content: flex-start;
+    align-items: center;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  #navbar.active {
+    transform: translateY(0);
+  }
+
+  #navbar li {
+    padding: 15px 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  #navbar li a {
+    font-size: 18px;
+  }
+
+  #navbar li .avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  #mobile {
+    display: flex;
+    align-items: center;
+  }
+
+  #bar {
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 20px;
+    color: #1a1a1a;
+  }
+
+  #close {
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #1a1a1a;
+  }
+}
+
+/* Very Small Screens */
+@media (max-width: 480px) {
+  #header {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .logo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  #navbar li {
+    padding: 10px 0;
+  }
+
+  #navbar li a {
+    font-size: 16px;
+  }
+}
+
+/* Cart Badge */
+.cart-badge {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 13px;
+  position: absolute;
+  top: -9px;
+  right: -7px;
+}
