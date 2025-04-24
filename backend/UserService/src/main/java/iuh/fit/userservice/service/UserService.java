@@ -5,6 +5,7 @@ import iuh.fit.userservice.dto.NotificationMessage;
 import iuh.fit.userservice.dto.request.CreateUserRequest;
 import iuh.fit.userservice.dto.response.UserResponse;
 import iuh.fit.userservice.mapper.UserMapper;
+import iuh.fit.userservice.model.Role;
 import iuh.fit.userservice.model.User;
 import iuh.fit.userservice.repository.UserRepository;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -46,25 +46,37 @@ public class UserService {
         // Validate email exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             logger.warn("Email already exists: {}", request.getEmail());
-            throw new RuntimeException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
         }
 
-        // Create and save user
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setPhone(request.getPhone());
-        user.setAddress(request.getAddress());
-        user.setRole(request.getRole());
+        // Validate password strength
+        validatePassword(request.getPassword());
 
-        User savedUser = userRepository.save(user);
-        logger.info("User created successfully with ID: {}", savedUser.getUserId());
+        try {
+            User user = new User();
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setPhone(request.getPhone());
+            user.setAddress(request.getAddress());
 
-        // Send registration notification
-        sendWelcomeNotification(savedUser);
+            // Map String role to Role enum
+            if (request.getRole() != null) {
+                user.setRole(Role.valueOf(request.getRole()));
+            }
 
-        return userMapper.toUserResponse(savedUser);
+            User savedUser = userRepository.save(user);
+            logger.info("User created successfully with ID: {}", savedUser.getUserId());
+
+            sendWelcomeNotification(savedUser);
+            return userMapper.toUserResponse(savedUser);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            logger.warn("Email already exists: {}", request.getEmail());
+            throw new IllegalArgumentException("Email already exists");
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid role value: {}", request.getRole());
+            throw new IllegalArgumentException("Invalid role value: " + request.getRole());
+        }
     }
 
     public UserResponse getUserById(String userId) {
@@ -93,6 +105,7 @@ public class UserService {
             user.setUsername(request.getUsername());
         }
         if (request.getPassword() != null) {
+            validatePassword(request.getPassword());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         if (request.getPhone() != null) {
@@ -102,7 +115,12 @@ public class UserService {
             user.setAddress(request.getAddress());
         }
         if (request.getRole() != null) {
-            user.setRole(request.getRole());
+            try {
+                user.setRole(Role.valueOf(request.getRole()));
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid role value: {}", request.getRole());
+                throw new IllegalArgumentException("Invalid role value: " + request.getRole());
+            }
         }
 
         User updatedUser = userRepository.save(user);
@@ -143,6 +161,13 @@ public class UserService {
         } catch (Exception e) {
             logger.error("Failed to send welcome notification: {}", e.getMessage());
             // Continue without notification
+        }
+    }
+
+    private void validatePassword(String password) {
+        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
         }
     }
 }
