@@ -40,13 +40,15 @@ const ModalLogin = ({ onClose, onLogin }) => {
             const users = await res.json();
 
             const user = users.find(u => u.username === form.username && u.password === form.password);
+            let userRole = 'customer'; // Giá trị mặc định
 
             if (user) {
-                onLogin(form.username);
+                userRole = user.role; // Lấy role từ dữ liệu người dùng API
+                onLogin(form.username, userRole); // Truyền role chính xác
                 setStep('success');
-                confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });// Chuyển sang bước 'success' khi đăng nhập thành công
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
                 setTimeout(() => {
-                    onClose(); // Đóng modal sau 3 giây
+                    onClose();
                 }, 3000);
             } else {
                 setErrors({ username: 'Thông tin đăng nhập không chính xác' });

@@ -1,5 +1,4 @@
-// Sample product data - would normally come from an API
-export const products = [
+export let products = [
     {
         id: 1,
         name: "Nồi cơm điện thông minh",
@@ -9,7 +8,8 @@ export const products = [
         reviewCount: 120,
         category: "kitchen",
         icon: "rice-cooker",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     },
     {
         id: 2,
@@ -20,7 +20,8 @@ export const products = [
         reviewCount: 85,
         category: "kitchen",
         icon: "blender",
-        image: "/img/mayxay.webp"
+        image: "/img/mayxay.webp",
+        status: "Đang bán"
     },
     {
         id: 3,
@@ -31,7 +32,8 @@ export const products = [
         reviewCount: 210,
         category: "bedroom",
         icon: "bed",
-        image: "/img/bochangagoi.webp"
+        image: "/img/bochangagoi.webp",
+        status: "Đang bán"
     },
     {
         id: 4,
@@ -42,7 +44,8 @@ export const products = [
         reviewCount: 68,
         category: "bedroom",
         icon: "lamp",
-        image: "/img/denngu.jpg"
+        image: "/img/denngu.jpg",
+        status: "Đang bán"
     },
     {
         id: 5,
@@ -53,7 +56,8 @@ export const products = [
         reviewCount: 95,
         category: "kitchen",
         icon: "utensils",
-        image: "/img/bodao.webp"
+        image: "/img/bodao.webp",
+        status: "Đang bán"
     },
     {
         id: 6,
@@ -64,7 +68,8 @@ export const products = [
         reviewCount: 73,
         category: "bathroom",
         icon: "mirror",
-        image: "/img/guongled.webp"
+        image: "/img/guongled.webp",
+        status: "Đang bán"
     },
     {
         id: 7,
@@ -75,7 +80,8 @@ export const products = [
         reviewCount: 52,
         category: "bathroom",
         icon: "shower",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     },
     {
         id: 8,
@@ -86,7 +92,8 @@ export const products = [
         reviewCount: 145,
         category: "livingroom",
         icon: "couch",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     },
     {
         id: 9,
@@ -97,7 +104,8 @@ export const products = [
         reviewCount: 87,
         category: "livingroom",
         icon: "coffee",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     },
     {
         id: 10,
@@ -108,7 +116,8 @@ export const products = [
         reviewCount: 63,
         category: "kitchen",
         icon: "pepper-hot",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     },
     {
         id: 11,
@@ -119,7 +128,8 @@ export const products = [
         reviewCount: 91,
         category: "livingroom",
         icon: "couch",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     },
     {
         id: 12,
@@ -130,6 +140,17 @@ export const products = [
         reviewCount: 78,
         category: "livingroom",
         icon: "window-maximize",
-        image: "/img/noicomdien.webp"
+        image: "/img/noicomdien.webp",
+        status: "Đang bán"
     }
 ];
+
+export const updateProductData = (updatedProduct) => {
+    const index = products.findIndex(p => p.id === updatedProduct.id);
+    if (index !== -1) {
+        products[index] = { ...updatedProduct };
+        console.log('Dữ liệu sản phẩm đã được cập nhật', products);
+        return true;
+    }
+    return false;
+};
