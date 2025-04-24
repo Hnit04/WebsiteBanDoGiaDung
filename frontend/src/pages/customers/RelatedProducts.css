@@ -1,0 +1,38 @@
+.related-container {
+  margin-top: 6rem;
+  margin-bottom: 6rem;
+}
+
+.related-title {
+  text-align: center;
+  font-size: 1.875rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  row-gap: 1.5rem;
+  margin-left: 1.25rem;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 640px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

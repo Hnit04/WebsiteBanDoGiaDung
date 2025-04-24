@@ -1,0 +1,37 @@
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    border-radius: 5px;
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+    padding: 30px;
+    text-align: left; 
+    transition: transform 0.3s, box-shadow 0.3s; /* Hiệu ứng khi hover */
+}
+.dashboard-card h3 {
+    font-size: 26px;
+    height: 10px;
+    font-weight: 100px;
+}
+.dashboard-card p {
+    color: rgb(92, 92, 92);
+}
+.dashboard-card:hover {
+    transform: translateY(-5px); /* Hiệu ứng 3D khi hover */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Đổ bóng khi hover */
+}
+.dashboard-container {
+    background-color: #f0f2f5;
+}
+.comment {
+    font-size: 12px; /* Kích thước chữ nhỏ hơn */
+    color: #888; /* Màu sắc nhẹ nhàng */
+    display: flex; /* Sử dụng flexbox để căn chỉnh icon và text */
+    align-items: center; /* Căn giữa icon và text theo chiều dọc */
+    margin-top: 5px; /* Khoảng cách giữa p và comment */
+}

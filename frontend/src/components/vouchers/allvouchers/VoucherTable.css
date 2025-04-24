@@ -1,0 +1,108 @@
+/* src/components/vouchers/VoucherTable.css */
+.voucher-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.voucher-table thead {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+}
+
+.voucher-table th,
+.voucher-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.voucher-table tbody tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s;
+}
+
+.icon {
+    margin: 0 5px;
+    cursor: pointer;
+    color: #007bff;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.icon:hover {
+    color: #0056b3;
+}
+
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+
+.confirm-delete-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 300px; /* Tùy chỉnh chiều rộng nếu cần */
+}
+
+.confirm-delete-modal p {
+    margin: 0 0 10px;
+}
+
+.confirm-delete-modal .button-group {
+    display: flex;
+    justify-content: flex-end; /* Căn nút sang phải */
+    gap: 10px; /* Khoảng cách giữa các nút */
+    margin-top: 15px; /* Khoảng cách với nội dung phía trên */
+}
+
+.confirm-delete-modal button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirm-delete-modal button:hover {
+    background-color: #0056b3;
+}
+
+.button-delete{
+    padding: 8px 12px;
+    background-color: #ffcccc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-delete:hover{
+    background-color: #cd0303;
+}
+.button-delete:disabled{
+    cursor: not-allowed;
+}
+.button-delete.enabled {
+    background-color: #ff4d4d; /* Màu đỏ đậm khi có sản phẩm được chọn */
+}
