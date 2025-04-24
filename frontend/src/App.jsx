@@ -45,10 +45,12 @@ export default function App() {
     };
 
     useEffect(() => {
+
         setupDarkMode();
     }, []);
 
-    const handleProductClick = (product) => {
+    // Xử lý khi người dùng chọn một sản phẩm
+    const handleProductClick = useCallback((product) => {
         setCurrentProduct(product);
         setIsModalOpen(true);
     };
@@ -101,5 +103,6 @@ export default function App() {
                 <ChatPopup />
             </div>
         </Router>
+
     );
 }

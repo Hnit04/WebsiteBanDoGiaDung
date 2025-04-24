@@ -1,44 +1,54 @@
 package iuh.fit.productservice.controller;
 
-import iuh.fit.productservice.model.Product;
+import iuh.fit.productservice.dto.request.AddReviewRequest;
+import iuh.fit.productservice.dto.request.CreateProductRequest;
+import iuh.fit.productservice.dto.response.ProductResponse;
+import iuh.fit.productservice.dto.response.ReviewResponse;
 import iuh.fit.productservice.service.ProductService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
-@RequiredArgsConstructor
 public class ProductController {
+
     private final ProductService productService;
 
+    @Autowired
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+        List<ProductResponse> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable String id) {
-        Optional<Product> product = productService.getProductById(id);
-        return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String categoryId) {
-        return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable String productId) {
+        ProductResponse product = productService.getProductById(productId);
+        return ResponseEntity.ok(product);
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        return ResponseEntity.ok(productService.saveProduct(product));
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) {
+        ProductResponse product = productService.saveProduct(request);
+        return ResponseEntity.status(201).body(product);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{productId}/reviews")
+    public ResponseEntity<List<ReviewResponse>> getReviewsByProductId(@PathVariable String productId) {
+        List<ReviewResponse> reviews = productService.getReviewsByProductId(productId);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @PostMapping("/reviews")
+    public ResponseEntity<ReviewResponse> addReview(@RequestBody AddReviewRequest request) {
+        ReviewResponse review = productService.addReview(request);
+        return ResponseEntity.status(201).body(review);
     }
 }

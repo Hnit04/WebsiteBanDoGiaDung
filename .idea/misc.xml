@@ -7,6 +7,7 @@
     <file type="web" url="file://$PROJECT_DIR$/backend/demo" />
     <file type="web" url="file://$PROJECT_DIR$/backend/NotificationService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/OrderService" />
+    <file type="web" url="file://$PROJECT_DIR$/backend/PaymentService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/ProductService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/UserService" />
   </component>

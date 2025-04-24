@@ -2,10 +2,9 @@ package iuh.fit.orderservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-@SpringBootApplication
-@EnableMongoRepositories(basePackages = "iuh.fit.orderservice.repository") // Đảm bảo dòng này có
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class OrderServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(OrderServiceApplication.class, args);

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { formatPrice, generateRatingStars, getProductIcon } from '../assets/js/utils.jsx';
-import { addToCart } from '../assets/js/cartManager.jsx';
+import React, { useState, useEffect } from "react";
+import { formatPrice, generateRatingStars } from "../assets/js/utils.jsx";
+import { addToCart } from "../assets/js/cartManager.jsx";
 
-const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
+const ProductModal = ({ product, isOpen, onClose }) => {
     const [quantity, setQuantity] = useState(1);
     const [addedToCart, setAddedToCart] = useState(false);
 
@@ -18,44 +18,16 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
     const handleAddToCart = () => {
         addToCart(product, quantity);
         setAddedToCart(true);
-        onAddToCart(); // Gọi hàm cập nhật số lượng từ component cha
+
         setTimeout(() => {
             setAddedToCart(false);
         }, 2000);
     };
 
-    const handleBuyNow = () => {
-        import('../assets/js/cartManager.jsx').then(({ clearCart, addToCart, toggleCartSidebar }) => {
-            clearCart();
-            addToCart(product, quantity);
-            onClose();
-            toggleCartSidebar();
-        });
-    };
-
-    const handleOverlayClick = (e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
-
     return (
         <div
-            className="modal fade show d-block"
-            tabIndex="-1"
-            style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 1050,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}
-            onClick={handleOverlayClick}
+            className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn"
+            onClick={onClose} // Click ngoài modal để đóng
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content bg-white rounded-lg shadow-lg" style={{ width: '500px', height: '500px' }}>
@@ -116,7 +88,27 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
                                         Mua ngay
                                     </button>
                                 </div>
+
                             </div>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                className={`w-full py-2 rounded-xl flex items-center justify-center transition shadow-md ${
+                                    addedToCart ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700"
+                                }`}
+                                onClick={handleAddToCart}
+                            >
+                                <i className={`fa ${addedToCart ? "fa-check" : "fa-cart-plus"} mr-2`}></i>
+                                {addedToCart ? "Đã thêm" : "Thêm vào giỏ"}
+                            </button>
+                            <button
+                                className="w-full py-2 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition shadow-md"
+                                onClick={onClose}
+                            >
+                                Mua ngay
+                            </button>
                         </div>
                     </div>
                 </div>

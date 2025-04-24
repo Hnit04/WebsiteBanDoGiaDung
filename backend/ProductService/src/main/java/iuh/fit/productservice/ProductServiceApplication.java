@@ -2,10 +2,9 @@ package iuh.fit.productservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-@SpringBootApplication
-@EnableMongoRepositories(basePackages = "iuh.fit.productservice.repository") // Đảm bảo dòng này có
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class ProductServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(ProductServiceApplication.class, args);

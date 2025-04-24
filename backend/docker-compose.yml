@@ -11,19 +11,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
-    ports:
-      - "1433:1433"
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrongPassword!123
-    healthcheck:
-      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "hung2004", "-Q", "SELECT 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -50,6 +38,8 @@ services:
       - order-service
       - cart-service
       - notification-service
+      - payment-service
+      - promotion-service
     networks:
       - backend
 
@@ -59,11 +49,11 @@ services:
     container_name: user-service
     ports:
       - "8082:8082"
+    depends_on:
+      mongo:
+        condition: service_healthy
     networks:
       - backend
-    depends_on:
-      - mongo
-      - sqlserver
 
   product-service:
     build:
@@ -72,7 +62,8 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - backend
 
@@ -83,7 +74,8 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - backend
 
@@ -94,7 +86,8 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - backend
 
@@ -107,7 +100,10 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      mongo:
+        condition: service_healthy
     environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/notificationdb
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=guest
@@ -116,6 +112,37 @@ services:
     networks:
       - backend
     restart: on-failure
+
+  payment-service:
+    build:
+      context: ./PaymentService
+    container_name: payment-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/paymentdb
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - backend
+
+  promotion-service:
+    build:
+      context: ./PromotionService
+    container_name: promotion-service
+    ports:
+      - "8086:8086"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - backend
 
 networks:
   backend:
