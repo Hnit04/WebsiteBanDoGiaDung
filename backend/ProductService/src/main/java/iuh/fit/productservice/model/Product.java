@@ -15,4 +15,5 @@ public class Product {
     private int quantityInStock;
     private double salePrice;
     private String categoryId;
+    private String imageUrl;
 }

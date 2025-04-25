@@ -1,117 +1,142 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react";
+import api from "../services/api"; // Import api.js
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
-        fullName: "",
+        username: "", // Đổi fullName thành username để khớp với CreateUserRequest
         email: "",
         phone: "",
         password: "",
         confirmPassword: "",
-    })
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    const [agreeTerms, setAgreeTerms] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [errors, setErrors] = useState({})
-    const [verificationCode, setVerificationCode] = useState("")
-    const [userInputCode, setUserInputCode] = useState("")
-    const [showVerificationModal, setShowVerificationModal] = useState(false)
+        role: "CUSTOMER", // Mặc định là CUSTOMER, khớp với backend
+        address: "", // Thêm address (tùy chọn)
+    });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [verificationCode, setVerificationCode] = useState("");
+    const [userInputCode, setUserInputCode] = useState("");
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
 
     const handleChange = (e) => {
-        const { name, value } = e.target
+        const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
-        }))
+        }));
 
         if (errors[name]) {
             setErrors((prev) => ({
                 ...prev,
                 [name]: "",
-            }))
+            }));
         }
-    }
+    };
 
     const validateForm = () => {
-        const newErrors = {}
+        const newErrors = {};
 
-        if (!formData.fullName.trim()) {
-            newErrors.fullName = "Họ tên không được để trống"
+        if (!formData.username.trim()) {
+            newErrors.username = "Tên người dùng không được để trống";
+        } else if (formData.username.length < 3 || formData.username.length > 50) {
+            newErrors.username = "Tên người dùng phải từ 3 đến 50 ký tự";
         }
 
         if (!formData.email.trim()) {
-            newErrors.email = "Email không được để trống"
+            newErrors.email = "Email không được để trống";
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Email không hợp lệ"
+            newErrors.email = "Email không hợp lệ";
         }
 
         if (!formData.password) {
-            newErrors.password = "Mật khẩu không được để trống"
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự"
+            newErrors.password = "Mật khẩu không được để trống";
+        } else if (formData.password.length < 8) {
+            newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)) {
+            newErrors.password = "Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt";
         }
 
         if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = "Mật khẩu xác nhận không khớp"
+            newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+        }
+
+        if (formData.phone && !/^\+?[1-9]\d{1,14}$/.test(formData.phone)) {
+            newErrors.phone = "Số điện thoại không hợp lệ";
         }
 
         if (!agreeTerms) {
-            newErrors.agreeTerms = "Bạn phải đồng ý với điều khoản sử dụng"
+            newErrors.agreeTerms = "Bạn phải đồng ý với điều khoản sử dụng";
         }
 
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
-    }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-    // Hàm tạo mã xác nhận ngẫu nhiên
     const generateVerificationCode = () => {
-        return Math.floor(100000 + Math.random() * 900000).toString() // Mã 6 chữ số
-    }
+        return Math.floor(100000 + Math.random() * 900000).toString(); // Mã 6 chữ số
+    };
 
-    // Hàm giả lập gửi mã xác nhận qua email
     const sendVerificationEmail = (email, code) => {
-        console.log(`Gửi mã xác nhận ${code} đến email: ${email}`)
-        // Trong thực tế, bạn sẽ gọi API gửi email ở đây
-        // Ví dụ: dùng EmailJS hoặc gọi API backend
-    }
+        console.log(`Gửi mã xác nhận ${code} đến email: ${email}`);
+        // Trong thực tế, NotificationService sẽ gửi email
+    };
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         if (!validateForm()) {
-            return
+            return;
         }
 
-        setIsLoading(true)
+        setIsLoading(true);
 
-        // Tạo mã xác nhận và gửi qua email
-        const code = generateVerificationCode()
-        setVerificationCode(code)
-        sendVerificationEmail(formData.email, code)
+        try {
+            // Gửi yêu cầu đăng ký đến backend
+            const payload = {
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone,
+                address: formData.address,
+                role: formData.role,
+            };
+            await api.post("/users", payload);
 
-        // Hiển thị modal nhập mã xác nhận
-        setShowVerificationModal(true)
-        setIsLoading(false)
-    }
+            // Tạo mã xác nhận và gửi qua email
+            const code = generateVerificationCode();
+            setVerificationCode(code);
+            sendVerificationEmail(formData.email, code);
+
+            // Hiển thị modal nhập mã xác nhận
+            setShowVerificationModal(true);
+        } catch (err) {
+            setErrors({
+                api: err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleVerifyCode = () => {
         if (userInputCode === verificationCode) {
-            setShowVerificationModal(false)
-            setIsLoading(true)
+            setShowVerificationModal(false);
+            setIsLoading(true);
 
-            // Giả lập API call để lưu thông tin đăng ký
             setTimeout(() => {
-                setIsLoading(false)
-                alert("Đăng ký thành công! Vui lòng đăng nhập.")
-                window.location.href = "/login" // Thay router.push bằng window.location.href
-            }, 1500)
+                setIsLoading(false);
+                alert("Đăng ký thành công! Vui lòng đăng nhập.");
+                window.location.href = "/login";
+            }, 1500);
         } else {
-            alert("Mã xác nhận không đúng. Vui lòng thử lại!")
-            setUserInputCode("")
+            alert("Mã xác nhận không đúng. Vui lòng thử lại!");
+            setUserInputCode("");
         }
-    }
+    };
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -128,7 +153,6 @@ const RegisterPage = () => {
                             <ArrowLeft size={20} />
                             <span className="sr-only">Quay lại</span>
                         </a>
-
                         <div className="text-center">
                             <h1 className="text-2xl font-bold text-white">Đăng ký tài khoản</h1>
                             <p className="text-blue-100 mt-2">Tạo tài khoản để mua sắm dễ dàng hơn</p>
@@ -139,30 +163,30 @@ const RegisterPage = () => {
                     <div className="p-6">
                         <form onSubmit={handleSubmit}>
                             <div className="space-y-4">
-                                {/* Full Name field */}
+                                {/* Username field */}
                                 <div>
-                                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Họ và tên
+                                    <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Tên người dùng
                                     </label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <User size={18} className="text-gray-400" />
                                         </div>
                                         <input
-                                            id="fullName"
-                                            name="fullName"
+                                            id="username"
+                                            name="username"
                                             type="text"
-                                            autoComplete="name"
+                                            autoComplete="username"
                                             required
-                                            value={formData.fullName}
+                                            value={formData.username}
                                             onChange={handleChange}
                                             className={`block w-full pl-10 pr-3 py-2.5 border ${
-                                                errors.fullName ? "border-red-500" : "border-gray-300"
+                                                errors.username ? "border-red-500" : "border-gray-300"
                                             } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                                            placeholder="Nguyễn Văn A"
+                                            placeholder="Tên người dùng"
                                         />
                                     </div>
-                                    {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
+                                    {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
                                 </div>
 
                                 {/* Email field */}
@@ -207,10 +231,30 @@ const RegisterPage = () => {
                                             autoComplete="tel"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className={`block w-full pl-10 pr-3 py-2.5 border ${
+                                                errors.phone ? "border-red-500" : "border-gray-300"
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                             placeholder="0912345678"
                                         />
                                     </div>
+                                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                                </div>
+
+                                {/* Address field */}
+                                <div>
+                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Địa chỉ (tùy chọn)
+                                    </label>
+                                    <input
+                                        id="address"
+                                        name="address"
+                                        type="text"
+                                        autoComplete="street-address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="123 Đường ABC, Quận 1"
+                                    />
                                 </div>
 
                                 {/* Password field */}
@@ -283,6 +327,23 @@ const RegisterPage = () => {
                                     {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
                                 </div>
 
+                                {/* Role field */}
+                                <div>
+                                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Vai trò
+                                    </label>
+                                    <select
+                                        id="role"
+                                        name="role"
+                                        value={formData.role}
+                                        onChange={handleChange}
+                                        className="block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value="CUSTOMER">Khách hàng</option>
+                                        <option value="ADMIN">Quản trị viên</option>
+                                    </select>
+                                </div>
+
                                 {/* Terms and conditions checkbox */}
                                 <div className="flex items-start">
                                     <div className="flex items-center h-5">
@@ -292,9 +353,9 @@ const RegisterPage = () => {
                                             type="checkbox"
                                             checked={agreeTerms}
                                             onChange={(e) => {
-                                                setAgreeTerms(e.target.checked)
+                                                setAgreeTerms(e.target.checked);
                                                 if (e.target.checked && errors.agreeTerms) {
-                                                    setErrors((prev) => ({ ...prev, agreeTerms: "" }))
+                                                    setErrors((prev) => ({ ...prev, agreeTerms: "" }));
                                                 }
                                             }}
                                             className={`h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ${
@@ -316,6 +377,9 @@ const RegisterPage = () => {
                                     </div>
                                 </div>
                                 {errors.agreeTerms && <p className="mt-1 text-sm text-red-600">{errors.agreeTerms}</p>}
+
+                                {/* API Error */}
+                                {errors.api && <p className="mt-1 text-sm text-red-600">{errors.api}</p>}
 
                                 {/* Submit button */}
                                 <div>
@@ -469,7 +533,7 @@ const RegisterPage = () => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default RegisterPage
+export default RegisterPage;

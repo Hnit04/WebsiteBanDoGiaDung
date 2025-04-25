@@ -10,7 +10,7 @@ spring:
       uri: ${MONGODB_URI:mongodb://mongo:27017/userdb}
 
   rabbitmq:
-    host: rabbitmq  # Sử dụng tên service trong Docker
+    host: rabbitmq
     port: 5672
     username: guest
     password: guest
@@ -20,6 +20,14 @@ spring:
         enabled: true
         initial-interval: 2000ms
         max-attempts: 3
+
+  # Thêm cấu hình CORS
+  web:
+    cors:
+      allowed-origins: "http://localhost:5173"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: true
 
 eureka:
   client:
@@ -42,3 +50,7 @@ management:
 app:
   security:
     enabled: false
+
+jwt:
+  secret: your-secret-key-very-long-and-secure
+  expiration: 86400000

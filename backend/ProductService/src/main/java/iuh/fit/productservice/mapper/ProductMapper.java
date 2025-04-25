@@ -21,6 +21,7 @@ public class ProductMapper {
         response.setQuantityInStock(product.getQuantityInStock());
         response.setSalePrice(product.getSalePrice());
         response.setCategoryId(product.getCategoryId());
+        response.setImageUrl(product.getImageUrl()); // Ánh xạ trường mới
         return response;
     }
 

@@ -24,4 +24,6 @@ public class CreateProductRequest {
     private double salePrice;
 
     private String categoryId;
+
+    private String imageUrl; // Thêm trường mới
 }
