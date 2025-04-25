@@ -1,9 +1,11 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
+@import "tailwindcss";
+header {
+    position: sticky; /* Hoặc fixed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Đảm bảo header luôn nằm trên cùng */
+    background-color: white; /* Hoặc màu nền của bạn */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tạo bóng cho header */
 }
+
