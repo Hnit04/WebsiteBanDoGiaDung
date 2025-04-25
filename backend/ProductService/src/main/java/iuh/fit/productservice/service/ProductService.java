@@ -72,6 +72,7 @@ public class ProductService {
         product.setQuantityInStock(request.getQuantityInStock());
         product.setSalePrice(request.getSalePrice());
         product.setCategoryId(request.getCategoryId());
+        product.setImageUrl(request.getImageUrl()); // Thêm trường mới
 
         Product savedProduct = productRepository.save(product);
         logger.info("Product saved with ID: {}", savedProduct.getProductId());
