@@ -1,5 +1,4 @@
 package iuh.fit.userservice.dto.response;
-
 import lombok.Data;
 
 @Data
@@ -9,5 +8,5 @@ public class UserResponse {
     private String email;
     private String phone;
     private String address;
-    private String role; // Role dưới dạng String (CUSTOMER hoặc ADMIN)
+    private String role;
 }
