@@ -1,0 +1,95 @@
+/* src/components/vouchers/EditVoucherTable.css */
+.voucher-container {
+    display: flex;
+    gap: 20px;
+}
+.edit-voucher-page {
+    width:70%;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding: 30px;
+    margin-right: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+}
+.edit-voucher-container {
+    flex: 0 0 100%;
+}
+
+.edit-voucher-container h2 {
+    text-align: left;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.edit-voucher-container p{
+    color: rgb(92, 92, 92);
+    font-size: 14px;
+}
+.edit-voucher-form .form-row {
+    display: flex;
+    width: 100%;
+    gap: 30px;
+}
+
+.edit-voucher-form .form-group {
+    margin-bottom: 20px;
+    width: auto;
+    margin-right: 10px;
+}
+.edit-voucher-form .form-group .form-row{
+    flex: 1;
+}
+
+
+.edit-voucher-form label {
+    display: block;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.edit-voucher-form input {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+}
+
+.edit-voucher-form input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.save-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.save-button:hover {
+    background-color: #218838;
+}
+
+/* Sumary voucher */
+.summary-table table {
+    width:100%;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding: 30px;
+    margin-right: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

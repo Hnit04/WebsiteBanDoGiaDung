@@ -11,17 +11,5 @@
         <module name="ProductService.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="api-gateway.test" target="21" />
-      <module name="CartService.test" target="21" />
-      <module name="demo.main" target="21" />
-      <module name="demo.test" target="21" />
-      <module name="OrderService.test" target="21" />
-      <module name="PaymentService.test" target="21" />
-      <module name="ProductService.test" target="21" />
-      <module name="PromotionService.main" target="21" />
-      <module name="PromotionService.test" target="21" />
-      <module name="UserService.test" target="21" />
-    </bytecodeTargetLevel>
   </component>
 </project>
