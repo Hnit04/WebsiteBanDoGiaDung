@@ -24,8 +24,8 @@ spring:
           uri: http://user-service:8082
           predicates:
             - Path=/api/users/**
-          filters:
-            - RemoveRequestHeader=Authorization
+        #          filters:
+        #            - RemoveRequestHeader=Authorization
 
         - id: order-service-route
           uri: http://order-service:8083
@@ -63,7 +63,16 @@ spring:
             - RemoveRequestHeader=Authorization
 
       discovery:
-        enabled: false  # Tắt discovery (Eureka Client)
+        enabled: false
+
+      # Thêm cấu hình CORS
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
 
 eureka:
   client:
@@ -72,6 +81,7 @@ eureka:
       enabled: false
     register-with-eureka: false
     fetch-registry: false
+
 management:
   endpoints:
     web:

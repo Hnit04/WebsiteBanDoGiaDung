@@ -1,6 +1,7 @@
 package iuh.fit.userservice.controller;
 
 import iuh.fit.userservice.dto.request.CreateUserRequest;
+import iuh.fit.userservice.dto.request.LoginRequest;
 import iuh.fit.userservice.dto.response.UserResponse;
 import iuh.fit.userservice.service.UserService;
 import jakarta.validation.Valid;
@@ -62,5 +63,10 @@ public class UserController {
             errors.put(error.getField(), error.getDefaultMessage());
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
+        Map<String, Object> response = userService.login(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(response);
     }
 }

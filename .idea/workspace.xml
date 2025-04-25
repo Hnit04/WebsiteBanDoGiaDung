@@ -5,80 +5,104 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="178abc95-661e-4ae2-a30d-4ead9726e36c" name="Changes" comment="commit resolve conflict">
+      <change afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/config/CorsConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/config/JwtAuthenticationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/dto/request/LoginRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/util/JwtUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/eslint.config.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/banh-flan.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/banh-mi-opla.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bo-luc-lac.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bochangagoi.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bodao.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bun-thit-nuong.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/ca-kho.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/canh-chua-ca-loc.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/che-buoi.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/che-khuc-bach.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/com-chien.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/denngu.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/ga-chien-mam-toi.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/goi-cuon.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/guongled.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/hu-tieu.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/mayxay.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/mi-xao-bo.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/nem-ran.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/noicomdien.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/pancake.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/pho-bo.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/salad-ga.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/spaghetti.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/suon-xao.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/trung-hap.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/vite.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/css/styles.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/cartManager.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/productData.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/recipesData.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/storageUtils.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/utils.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/react.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/AddProductModal.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/CartSidebar.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/CategorySection.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ChatPopup.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Header.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ModalLogin.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ModalSubscribe.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ProductCard.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ProductModal.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/UpdateProductModal.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AboutPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductDetailPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductListPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductsPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/RecipesDetailPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/RecipesPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/checksums.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/md5-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/file-system.probe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/vcs-1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/HELP.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/classes/java/main/iuh/fit/notificationservice/NotificationServiceApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/classes/java/main/iuh/fit/notificationservice/config/RabbitMQConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/classes/java/main/iuh/fit/notificationservice/controller/NotificationController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/resources/main/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/tmp/compileJava/compileTransaction/stash-dir/EmailService.class.uniqueId1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/tmp/compileJava/compileTransaction/stash-dir/NotificationController.class.uniqueId2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/tmp/compileJava/compileTransaction/stash-dir/RabbitMQListenerService.class.uniqueId0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/src/main/java/iuh/fit/notificationservice/config/RestTemplateConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/src/main/java/iuh/fit/notificationservice/config/RestTemplateConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/src/main/java/iuh/fit/notificationservice/dto/NotificationMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/src/main/java/iuh/fit/notificationservice/dto/NotificationMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/NotificationService/src/main/java/iuh/fit/notificationservice/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/src/main/java/iuh/fit/notificationservice/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/checksums.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/file-system.probe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/vcs-1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/HELP.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/classes/java/main/iuh/fit/orderservice/OrderServiceApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/classes/java/main/iuh/fit/orderservice/controller/OrderController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/classes/java/main/iuh/fit/orderservice/model/Order.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/classes/java/main/iuh/fit/orderservice/repository/OrderRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/classes/java/main/iuh/fit/orderservice/service/OrderService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/reports/problems/problems-report.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/resources/main/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/hs_err_pid17712.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/hs_err_pid28340.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/hs_err_pid29896.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/replay_pid17712.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/replay_pid29896.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/dto/request/CreateProductRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/dto/request/CreateProductRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/dto/response/ProductResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/dto/response/ProductResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/mapper/ProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/model/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/ProductService/src/main/java/iuh/fit/productservice/service/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/config/RabbitMQConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/dto/response/UserResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/dto/response/UserResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/java/iuh/fit/userservice/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/UserService/src/test/java/iuh/fit/userservice/UserServiceApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/UserService/src/test/java/iuh/fit/userservice/UserServiceApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api-gateway/hs_err_pid25064.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api-gateway/replay_pid25064.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/hs_err_pid29064.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/hs_err_pid29180.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/replay_pid29064.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demo/replay_pid29180.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/RegisterPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/RegisterPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -356,6 +380,7 @@
     &quot;Gradle.PromotionService [build].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.UserService [:iuh.fit.userservice.UserServiceApplication.main()].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.UserService [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.UserService [clean].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.api-gateway [:iuh.fit.apigateway.ApiGatewayApplication.main()].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.api-gateway [build].executor&quot;: &quot;Run&quot;,
     &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
@@ -364,6 +389,7 @@
     &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
     &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.CartServiceApplication.executor&quot;: &quot;Run&quot;,
@@ -373,7 +399,7 @@
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;git-widget-placeholder&quot;: &quot;zt&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/PC/OneDrive/Tài liệu/GitHub/WebsiteBanDoGiaDung&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Lenovo/IdeaProjects/WebsiteBanDoGiaDung&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -390,6 +416,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Lenovo\IdeaProjects\WebsiteBanDoGiaDung" />
       <recent name="C:\Users\PC\OneDrive\Tài liệu\GitHub\WebsiteBanDoGiaDung\backend" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -407,29 +434,6 @@
     </option>
   </component>
   <component name="RunManager" selected="Gradle.UserService [build]">
-    <configuration name="NotificationService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/NotificationService" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="PaymentService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -522,6 +526,29 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="UserService [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/UserService" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="api-gateway.main" />
@@ -587,10 +614,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.UserService [build]" />
+        <item itemvalue="Gradle.UserService [clean]" />
         <item itemvalue="Gradle.PromotionService [build]" />
         <item itemvalue="Gradle.ProductService [build]" />
         <item itemvalue="Gradle.PaymentService [build]" />
-        <item itemvalue="Gradle.NotificationService [build]" />
       </list>
     </recent_temporary>
   </component>
@@ -631,6 +658,10 @@
       <workItem from="1745518187735" duration="1764000" />
       <workItem from="1745523778304" duration="14000" />
       <workItem from="1745523914198" duration="17000" />
+      <workItem from="1745581888588" duration="339000" />
+      <workItem from="1745583165231" duration="5709000" />
+      <workItem from="1745597481112" duration="1911000" />
+      <workItem from="1745599910046" duration="298000" />
     </task>
     <task id="LOCAL-00001" summary="comit">
       <option name="closed" value="true" />

@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,15 +35,20 @@ public class NotificationService {
     @Autowired
     public NotificationService(NotificationRepository notificationRepository,
                                NotificationMapper notificationMapper,
-                               JavaMailSender mailSender,
-                               RestTemplate restTemplate) {
+                               JavaMailSender mailSender) {
         this.notificationRepository = notificationRepository;
         this.notificationMapper = notificationMapper;
         this.mailSender = mailSender;
-        this.restTemplate = restTemplate;
+        this.restTemplate = createRestTemplate(); // Tạo RestTemplate riêng
     }
 
-    // Phương thức cho Controller
+    // Tạo RestTemplate với Basic Auth mà không đăng ký làm Bean
+    private RestTemplate createRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor("admin", "1234"));
+        return restTemplate;
+    }
+
     public NotificationResponse createNotification(CreateNotificationRequest request) {
         Notification notification = new Notification();
         notification.setUserId(request.getUserId());
@@ -57,7 +62,6 @@ public class NotificationService {
         return notificationMapper.toNotificationResponse(savedNotification);
     }
 
-    // Phương thức cho Controller
     public List<NotificationResponse> getNotificationsByUserId(String userId) {
         return notificationRepository.findByUserId(userId)
                 .stream()
@@ -65,7 +69,6 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-    // Phương thức cho Controller
     public NotificationResponse markAsRead(String notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
@@ -74,7 +77,6 @@ public class NotificationService {
         return notificationMapper.toNotificationResponse(updatedNotification);
     }
 
-    // Xử lý message từ RabbitMQ
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
     public void handleNotificationMessage(String rawMessage) {
         logger.info("🐇 Received raw message: {}", rawMessage);
@@ -84,22 +86,30 @@ public class NotificationService {
 
             logger.info("✅ Parsed message for user: {}", message.getUserId());
 
-            // Gọi xử lý như cũ
             CreateNotificationRequest request = new CreateNotificationRequest();
             request.setUserId(message.getUserId());
             request.setMessage(message.getMessage());
             request.setType(message.getType());
             createNotification(request);
-            sendEmail(message);
+
+            // Kiểm tra xem NotificationMessage có email không
+            if (message.getEmail() != null && !message.getEmail().isEmpty()) {
+                sendEmail(message.getEmail(), message.getMessage());
+            } else {
+                String userEmail = getUserEmail(message.getUserId());
+                sendEmail(userEmail, message.getMessage());
+            }
 
         } catch (Exception e) {
             logger.error("❌ Failed to parse message: {}", e.getMessage());
         }
     }
 
-
-    private void sendEmail(NotificationMessage message) {
-        String userEmail = getUserEmail(message.getUserId());
+    private void sendEmail(String userEmail, String messageContent) {
+        if (userEmail == null || userEmail.isEmpty()) {
+            logger.warn("User email is null or empty, using default email");
+            userEmail = "trancongtinh20042004@gmail.com";
+        }
 
         logger.info("Preparing to send email to: {}", userEmail);
 
@@ -107,16 +117,16 @@ public class NotificationService {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
-            helper.setFrom("noreply@bandogiadung.com", "Bán đồ gia dụng");
+            helper.setFrom("trancongtinh20042004@gmail.com", "Bán đồ gia dụng");
             helper.setTo(userEmail);
-            helper.setReplyTo("support@bandogiadung.com");
+            helper.setReplyTo("trancongtinh20042004@gmail.com");
             helper.setSubject("🎉 Chào mừng bạn đến với Bán Đồ Gia Dụng!");
             helper.setText(
                     "<p>Xin chào,</p>" +
                             "<p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Bán Đồ Gia Dụng</strong>.</p>" +
-                            "<p>" + message.getMessage() + "</p>" +
+                            "<p>" + messageContent + "</p>" +
                             "<hr/>" +
-                            "<p style='font-size: 12px;'>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ <a href='mailto:support@bandogiadung.com'>support@bandogiadung.com</a>.</p>",
+                            "<p style='font-size: 12px;'>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ <a href='mailto:trancongtinh20042004@gmail.com'>trancongtinh20042004@gmail.com</a>.</p>",
                     true
             );
 
@@ -128,15 +138,20 @@ public class NotificationService {
         }
     }
 
-
     private String getUserEmail(String userId) {
         try {
-            String userServiceUrl = "http://api-gateway:8080/api/users/" + userId;
+            String userServiceUrl = "http://localhost:8080/api/users/" + userId;
+            logger.info("Fetching user email from: {}", userServiceUrl);
             UserResponse user = restTemplate.getForObject(userServiceUrl, UserResponse.class);
-            return user != null ? user.getEmail() : "default@bandogiadung.com";
+            if (user == null || user.getEmail() == null) {
+                logger.warn("User not found or email is null for userId: {}", userId);
+                return "trancongtinh20042004@gmail.com";
+            }
+            logger.info("Found email: {} for userId: {}", user.getEmail(), userId);
+            return user.getEmail();
         } catch (Exception e) {
-            logger.error("Failed to fetch user email: {}", e.getMessage());
-            return "default@bandogiadung.com";
+            logger.error("Failed to fetch user email for userId {}: {}", userId, e.getMessage(), e);
+            return "trancongtinh20042004@gmail.com";
         }
     }
 }
