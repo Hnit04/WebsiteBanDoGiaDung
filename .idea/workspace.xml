@@ -5,80 +5,404 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="178abc95-661e-4ae2-a30d-4ead9726e36c" name="Changes" comment="commit resolve conflict">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/bantrahiendai.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/bochangagoi.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/bodao.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/bohopdunggiavi.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/denngu.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/guongled.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/kededoquanao.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/mancua.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/mayxay.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/noicomdien.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/sofagocphongkhach.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/img/thamtrai.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/assets/css/styles.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/assets/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/assets/js/cartManager.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/assets/js/productData.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/assets/js/storageUtils.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/assets/js/utils.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/AuthModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/CartSidebar.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/CategorySection.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/ChatPopup.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/Header.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/LoginModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/ProductCard.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/ProductModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/RegisterModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/index.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/AboutPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/Contact.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/FAQPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/LoginPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ProductDetailPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ProductsPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/RegisterPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/services/api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/backend/NotificationService/.gradle/8.13/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OrderService/.gradle/8.13/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/eslint.config.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/banh-flan.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/banh-mi-opla.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bo-luc-lac.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bochangagoi.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bodao.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/bun-thit-nuong.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/ca-kho.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/canh-chua-ca-loc.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/che-buoi.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/che-khuc-bach.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/com-chien.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/denngu.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/ga-chien-mam-toi.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/goi-cuon.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/guongled.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/hu-tieu.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/mayxay.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/mi-xao-bo.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/nem-ran.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/noicomdien.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/pancake.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/pho-bo.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/salad-ga.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/spaghetti.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/suon-xao.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/img/trung-hap.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/vite.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/css/styles.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/cartManager.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/productData.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/recipesData.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/storageUtils.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/js/utils.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/react.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/AddProductModal.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/CartSidebar.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/CategorySection.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ChatPopup.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Footer.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Header.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ModalLogin.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ModalSubscribe.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ProductCard.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ProductModal.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/UpdateProductModal.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AboutPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductDetailPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductListPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductsPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/RecipesDetailPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/RecipesPage.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/axiosClient.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/LogoWeb-removebg.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/LogoWeb.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/about_img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/assets.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/assets1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/assets2.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/avt1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/bg-login.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/bg1-login.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/bin_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/cart_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/contact_img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/cross_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/dropdown_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/exchange_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/hero_img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/1.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/a1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/a2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/a3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/a4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/a5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/a6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/about_img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/avatar.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/banner.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/about/slogan.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b10.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b16.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b17.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b18.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b19.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b20.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/b7.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/banner/newletter.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/blog/b7.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/button.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/d1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/d2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/features/f1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/features/f2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/features/f3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/features/f4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/features/f5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/features/f6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/hero4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/hero_img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/pay/app.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/pay/pay.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/pay/play.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/people/1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/people/2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/people/3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f7.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/f8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n10.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n11.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n12.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n13.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n14.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n15.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n16.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n17.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n18.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n19.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n20.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n21.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n22.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n23.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n24.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n25.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n26.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n27.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n28.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n29.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n30.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n31.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n32.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n33.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n34.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n35.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n36.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n37.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n38.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n39.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n40.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n7.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/img/products/n9.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/menu_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img10.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img11.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img12.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img13.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img14.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img15.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img17.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img19.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img20.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img21.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img22.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img23.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img24.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img25.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img26.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img27.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img28.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img29.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img2_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img2_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img2_3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img2_4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img30.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img31.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img33.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img34.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img35.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img36.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img37.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img38.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img39.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img40.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img41.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img42.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img43.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img44.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img45.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img46.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img47.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img48.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img49.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img50.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img51.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img52.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/p_img9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/profile_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/quality_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/razorpay_logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/search_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/star_dull_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/star_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/stripe_logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/support_img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/CustomerHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/CustomerHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/CustomerHeader1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/CustomerTable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/CustomerTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/PaginationCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/allcustomers/PaginationCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/customerInfo/CustomerInfo.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/customerInfo/CustomerInfoForm.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/customer/customerInfo/CustomerInfoHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/CustomerCount.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/DashboardHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/DashboardHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/OrderCard.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/OrderRevenue.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/PendingOrders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/PendingOrdersCard.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/PendingPaymentOrdersCard.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/RevenueToday.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/SuccessfulOrders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/dashboard/TotalOrders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/footerCustomer/FooterCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/footerCustomer/FooterCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/header/ChangePassword.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/header/Header.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/header/Header.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/header/Profile.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/header/Profile.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/headerCustomer/HeaderCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/headerCustomer/HeaderCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/headerCustomer/ProfileCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/headerCustomer/ProfileCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/login/Login.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/login/Login.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrderDetails.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrderDetails.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrdersHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrdersHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrdersHeader1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrdersTable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/OrdersTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/PaginationOrders.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/order/PaginationOrders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/ProductHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/ProductHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/ProductHeader1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/ProductTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/Products.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/Pagination.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/Pagination.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/ProductHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/ProductHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/ProductHeader1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/ProductTable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/allproducts/ProductTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountInfo.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountInfoHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountProducts.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountProductsHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountProductsHeader1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountProductsTable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/DiscountProductsTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/PaginationDiscount.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/discount/PaginationDiscount.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/insertproduct/InsertProduct.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/insertproduct/InsertProduct.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/insertproduct/InsertProductHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/insertproduct/RightSidebar.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/products/insertproduct/RightSidebar.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/register/Register.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/register/Register.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/sidebar/Sidebar.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/sidebar/Sidebar.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/PaginationVoucher.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/PaginationVouchers.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/VoucherHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/VoucherHeader1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/VoucherTable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/VoucherTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/allvouchers/VouchersHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/createvoucher/CreateVoucherHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/createvoucher/CreateVoucherInfo.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/createvoucher/CreateVoucherInfo.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/editvoucher/EditVoucherHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/editvoucher/EditVoucherHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/editvoucher/EditVoucherTable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/vouchers/editvoucher/EditVoucherTable.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/configurations/configuration.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/context/ShopContext.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/AllProducts.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Customer/CustomerInfo.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Customer/Customers.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Customers.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Dashboard.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Dashboard.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Dashboard/Dashboard.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Dashboard/Dashboard.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Order/Orders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Orders.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Product/AllProducts.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Product/DiscountProducts.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Product/DiscountProductsInfo.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Product/InsertProduct.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Products.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Setting.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Voucher/AllVouchers.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Voucher/CreateVoucher.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Voucher/EditVoucher.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/admin/Vouchers.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/About.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/AboutBanner/AboutBanner.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/AboutBanner/AboutBanner.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/AboutContent/AboutContent.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/AboutContent/AboutContent.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BannerSection/BannerSection.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BannerSection/BannerSection.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BannerSection/BannerSection2.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/Blog.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BlogBanner/BlogBanner.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BlogBanner/BlogBanner.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BlogContent/BlogContent.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/BlogContent/BlogContent.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartContext/CartContext.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartHeader/CartHeader.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartHeader/CartHeader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartProducts/CartProducts.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartProducts/CartProducts.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartTotals/CartTotals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CartTotals/CartTotals.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/Contact.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ContactBanner/ContactBanner.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ContactBanner/ContactBanner.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ContactContent/ContactContent.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ContactContent/ContactContent.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/CustomerRoutes.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/FeatureSection/FeatureSection.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/FeatureSection/FeatureSection.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/HeroSection/HeroSection.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/HeroSection/HeroSection.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/HomeCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/HomeCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/NewLetterSection/NewLetterSection.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/NewLetterSection/NewLetterSection.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/Notification/Notification.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/Notification/Notification.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsCustomer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsCustomer.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsDetails.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsDetails.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsItem.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsItem.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsSection/ProductsSection1.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsSection/ProductsSection1.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsSection/ProductsSection2.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/ProductsSection/ProductsSection2.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/RelatedProducts.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/RelatedProducts.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/SearchBar.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/SearchBar.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/Title.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/customers/Title.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/ApiServices.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/authenticationServices.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/localStorageServices.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -301,12 +625,12 @@
     &quot;assignee&quot;: &quot;Hnit04&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Hnit04/WebsiteBanDoGiaDung.git&quot;,
-    &quot;accountId&quot;: &quot;52244145-9f83-4ff7-b0d8-6f8abf3189eb&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Hnit04/WebsiteBanDoGiaDung",
+    "accountId": "83dbef45-05c2-4a4d-81cc-9355ddd94f31"
   }
-}</component>
+}]]></component>
   <component name="IlluminatedCloudWorkspaceSettings">
     <option name="projectWorkspaceSettings">
       <ProjectWorkspaceSettings>
@@ -333,63 +657,66 @@
   &quot;associatedIndex&quot;: 6
 }</component>
   <component name="ProjectId" id="2uJUwJK8sbMMrYQKj1uwGhwSLrr" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ProductServiceApplication (1).executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build CartService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build NotificationService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build OrderService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build ProductService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build UserService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build api-gateway.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.CartService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.NotificationService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.OrderService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.PaymentService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.ProductService [:iuh.fit.productservice.ProductServiceApplication.main()].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.ProductService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.PromotionService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.UserService [:iuh.fit.userservice.UserServiceApplication.main()].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.UserService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.api-gateway [:iuh.fit.apigateway.ApiGatewayApplication.main()].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.api-gateway [build].executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.CartServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.NotificationServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.OrderServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.ProductServiceApplication (1).executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;zt&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/PC/OneDrive/Tài liệu/GitHub/WebsiteBanDoGiaDung&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ProductServiceApplication (1).executor": "Run",
+    "Gradle.Build CartService.executor": "Run",
+    "Gradle.Build NotificationService.executor": "Run",
+    "Gradle.Build OrderService.executor": "Run",
+    "Gradle.Build ProductService.executor": "Run",
+    "Gradle.Build UserService.executor": "Run",
+    "Gradle.Build api-gateway.executor": "Run",
+    "Gradle.CartService [build].executor": "Run",
+    "Gradle.NotificationService [build].executor": "Run",
+    "Gradle.OrderService [build].executor": "Run",
+    "Gradle.PaymentService [build].executor": "Run",
+    "Gradle.ProductService [:iuh.fit.productservice.ProductServiceApplication.main()].executor": "Run",
+    "Gradle.ProductService [build].executor": "Run",
+    "Gradle.PromotionService [build].executor": "Run",
+    "Gradle.UserService [:iuh.fit.userservice.UserServiceApplication.main()].executor": "Run",
+    "Gradle.UserService [build].executor": "Run",
+    "Gradle.api-gateway [:iuh.fit.apigateway.ApiGatewayApplication.main()].executor": "Run",
+    "Gradle.api-gateway [build].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.CartServiceApplication.executor": "Run",
+    "Spring Boot.NotificationServiceApplication.executor": "Run",
+    "Spring Boot.OrderServiceApplication.executor": "Run",
+    "Spring Boot.ProductServiceApplication (1).executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
+    "git-widget-placeholder": "TranNgocHung",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "F:/TranNgocHung/HK2 2024-2025/Phat Trien Giao Dien/ThucHanh/Week01/WebsiteBanDoGiaDung",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\TranNgocHung\HK2 2024-2025\Phat Trien Giao Dien\ThucHanh\Week01\WebsiteBanDoGiaDung" />
       <recent name="C:\Users\PC\OneDrive\Tài liệu\GitHub\WebsiteBanDoGiaDung\backend" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -597,8 +924,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
       </set>
     </attachedChunks>
   </component>
@@ -631,6 +958,7 @@
       <workItem from="1745518187735" duration="1764000" />
       <workItem from="1745523778304" duration="14000" />
       <workItem from="1745523914198" duration="17000" />
+      <workItem from="1745997688098" duration="546000" />
     </task>
     <task id="LOCAL-00001" summary="comit">
       <option name="closed" value="true" />
