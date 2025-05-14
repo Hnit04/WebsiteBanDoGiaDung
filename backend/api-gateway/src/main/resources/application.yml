@@ -1,12 +1,11 @@
 server:
-  port: ${PORT:8080}  # Sử dụng biến môi trường PORT, mặc định 8080 cho cục bộ
+  port: 8080
 
 spring:
-  # Tạm tắt security để đơn giản hóa việc test CRUD
-  # security:
-  #   user:
-  #     name: admin
-  #     password: 1234
+  security:
+    user:
+      name: admin
+      password: 1234
 
   application:
     name: api-gateway
@@ -14,57 +13,50 @@ spring:
   cloud:
     gateway:
       routes:
-        # Route cho product-service (sử dụng httpbin.org để test)
         - id: product-service-route
-          uri: https://httpbin.org  # Bỏ :80, sử dụng HTTPS cho httpbin.org
+          uri: http://product-service:8081
           predicates:
-            - Path=/api/products/**, /api/categories/**
+            - Path=/api/products/**,/api/products/categories/**,/api/categories/**
           filters:
             - RemoveRequestHeader=Authorization
 
-        # Route cho user-service (giả định tạm thời dùng httpbin.org để test)
         - id: user-service-route
-          uri: https://httpbin.org  # Thay user-service:8082 bằng httpbin.org để test
+          uri: http://user-service:8082
           predicates:
             - Path=/api/users/**
-          filters:
-            - RemoveRequestHeader=Authorization
+        #          filters:
+        #            - RemoveRequestHeader=Authorization
 
-        # Route cho order-service
         - id: order-service-route
-          uri: https://httpbin.org  # Thay order-service:8083 bằng httpbin.org
+          uri: http://order-service:8083
           predicates:
             - Path=/api/orders/**
           filters:
             - RemoveRequestHeader=Authorization
 
-        # Route cho cart-service
         - id: cart-service-route
-          uri: https://httpbin.org  # Thay cart-service:8084
+          uri: http://cart-service:8084
           predicates:
             - Path=/api/carts/**
           filters:
             - RemoveRequestHeader=Authorization
 
-        # Route cho notification-service
         - id: notification-service-route
-          uri: https://httpbin.org  # Thay notification-service:8089
+          uri: http://notification-service:8089
           predicates:
             - Path=/api/notifications/**
           filters:
             - RemoveRequestHeader=Authorization
 
-        # Route cho payment-service
         - id: payment-service-route
-          uri: https://httpbin.org  # Thay payment-service:8085
+          uri: http://payment-service:8085
           predicates:
             - Path=/api/payments/**
           filters:
             - RemoveRequestHeader=Authorization
 
-        # Route cho promotion-service
         - id: promotion-service-route
-          uri: https://httpbin.org  # Thay promotion-service:8086
+          uri: http://promotion-service:8086
           predicates:
             - Path=/api/promotions/**
           filters:
@@ -73,13 +65,11 @@ spring:
       discovery:
         enabled: false
 
-      # Cấu hình CORS
+      # Thêm cấu hình CORS
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins:
-              - "http://localhost:5173"  # Cho frontend cục bộ
-              - "https://your-frontend-on-render.com"  # Thay bằng URL frontend trên Render nếu có
+            allowedOrigins: "http://localhost:5173"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
@@ -96,10 +86,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"  # Bật tất cả endpoint actuator
+        include: "*"
   endpoint:
     gateway:
       enabled: true
-    health:
-      enabled: true  # Đảm bảo endpoint health được bật
-      show-details: always  # Hiển thị chi tiết khi test

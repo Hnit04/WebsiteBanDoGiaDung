@@ -1,0 +1,22 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: OrderService
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://mongo:27017/orderdb}
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health"

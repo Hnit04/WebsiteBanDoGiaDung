@@ -20,5 +20,7 @@ public class Order {
     private String deliveryAddress;
     private String deliveryStatus;
     private LocalDate deliveryDate;
+
+    // Bỏ @Transient để nhúng orderDetails trực tiếp vào document
     private List<OrderDetail> orderDetails;
 }

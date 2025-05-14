@@ -9,9 +9,10 @@
     <file type="web" url="file://$PROJECT_DIR$/backend/OrderService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/PaymentService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/ProductService" />
+    <file type="web" url="file://$PROJECT_DIR$/backend/PromotionService" />
     <file type="web" url="file://$PROJECT_DIR$/backend/UserService" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="23" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21_PREVIEW" project-jdk-name="21" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
