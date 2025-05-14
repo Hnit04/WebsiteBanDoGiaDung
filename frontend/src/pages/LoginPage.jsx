@@ -1,19 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { users, saveUserToLocalStorage } from "../assets/js/userData.jsx"
 
 const LoginPage = () => {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+    const [email, setEmail] = useState("") // Đảm bảo khởi tạo là rỗng
+    const [password, setPassword] = useState("") // Đảm bảo khởi tạo là rỗng
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
+    const [checkingAuth, setCheckingAuth] = useState(true) // Thêm state để kiểm soát việc kiểm tra xác thực
 
-    // In a real application, you would use Next.js router
-    // const router = useRouter()
+    const navigate = useNavigate()
+
 
     const validateForm = () => {
         const newErrors = {}
@@ -41,14 +44,75 @@ const LoginPage = () => {
 
         setIsLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Tìm người dùng trong mảng users từ userData.jsx
+            const user = users.find((u) => u.email === email && u.password === password)
+
+            if (user) {
+                // Đăng nhập thành công
+                console.log("Login successful!", user)
+
+                // Lưu thông tin người dùng vào localStorage
+                saveUserToLocalStorage(user)
+
+                // Đảm bảo isLoggedIn và userRole được đặt trong localStorage
+                localStorage.setItem("isLoggedIn", "true")
+                localStorage.setItem("userRole", user.role)
+
+                // Xóa giá trị input sau khi đăng nhập thành công
+                setEmail("")
+                setPassword("")
+
+                // Chuyển hướng dựa trên vai trò
+                if (user.role === "admin") {
+                    navigate("/admin") // Chuyển đến trang admin
+                } else {
+                    navigate("/") // Chuyển đến trang chủ cho người dùng thông thường
+                }
+            } else {
+                // Đăng nhập thất bại
+                setErrors({
+                    email: "Thông tin đăng nhập không chính xác",
+                    password: "Thông tin đăng nhập không chính xác",
+                })
+                alert("Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại email và mật khẩu.")
+            }
+        } catch (error) {
+            console.error("Login error:", error)
+            setErrors({ email: "Đăng nhập thất bại", password: "Đăng nhập thất bại" })
+            alert("Đăng nhập thất bại. Vui lòng thử lại.")
+        } finally {
             setIsLoading(false)
-            // Success handling would go here
-            console.log("Login attempt with:", { email, password, rememberMe })
-            // router.push("/dashboard")
-            alert("Đăng nhập thành công!")
-        }, 1500)
+        }
+    }
+
+    // Kiểm tra nếu người dùng đã đăng nhập, chuyển hướng đến trang tương ứng
+    useEffect(() => {
+        // Xóa thông tin đăng nhập cũ để đảm bảo form đăng nhập hiển thị
+        // localStorage.removeItem("isLoggedIn");
+
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true"
+        const storedRole = localStorage.getItem("userRole")
+
+        if (isLoggedIn && storedRole) {
+            if (storedRole === "admin") {
+                navigate("/admin")
+            } else {
+                navigate("/login")
+            }
+        }
+
+        // Đánh dấu đã hoàn thành việc kiểm tra xác thực
+        setCheckingAuth(false)
+    }, [navigate])
+
+    // Hiển thị loading trong khi kiểm tra xác thực
+    if (checkingAuth) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        )
     }
 
     return (
@@ -282,10 +346,12 @@ const LoginPage = () => {
                 </div>
 
                 {/* Footer */}
-                <p className="mt-4 text-center text-xs text-gray-500">&copy; 2023 Home Craft. Tất cả các quyền được bảo lưu.</p>
+                <p className="mt-4 text-center text-xs text-gray-500">© 2023 Home Craft. Tất cả các quyền được bảo lưu.</p>
+
             </motion.div>
         </div>
     )
 }
 
 export default LoginPage
+

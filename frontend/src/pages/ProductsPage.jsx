@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { products } from '../assets/js/productData.jsx';
 import ProductCard from '../components/ProductCard.jsx';
+import { Link } from "react-router-dom" // Import Link
+
 
 const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const [filteredProducts, setFilteredProducts] = useState(products);
@@ -90,10 +92,12 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                     ) : (
                         filteredProducts.map(product => (
                             <div key={product.id} className="col">
+                                <Link to={`/product/${product.id}`} className="block">
                                 <ProductCard
                                     product={product}
-                                    onClick={onProductClick}
                                 />
+                                </Link>
+
                             </div>
                         ))
                     )}
