@@ -1,7 +1,9 @@
 package iuh.fit.productservice.mapper;
 
+import iuh.fit.productservice.dto.response.CategoryResponse;
 import iuh.fit.productservice.dto.response.ProductResponse;
 import iuh.fit.productservice.dto.response.ReviewResponse;
+import iuh.fit.productservice.model.Category;
 import iuh.fit.productservice.model.Product;
 import iuh.fit.productservice.model.Review;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,7 @@ public class ProductMapper {
         response.setQuantityInStock(product.getQuantityInStock());
         response.setSalePrice(product.getSalePrice());
         response.setCategoryId(product.getCategoryId());
-        response.setImageUrl(product.getImageUrl()); // Ánh xạ trường mới
+        response.setImageUrl(product.getImageUrl());
         return response;
     }
 
@@ -45,6 +47,19 @@ public class ProductMapper {
     public List<ReviewResponse> toReviewResponseList(List<Review> reviews) {
         return reviews.stream()
                 .map(this::toReviewResponse)
+                .collect(Collectors.toList());
+    }
+
+    public CategoryResponse toCategoryResponse(Category category) {
+        CategoryResponse response = new CategoryResponse();
+        response.setCategoryId(category.getCategoryId());
+        response.setCategoryName(category.getCategoryName());
+        return response;
+    }
+
+    public List<CategoryResponse> toCategoryResponseList(List<Category> categories) {
+        return categories.stream()
+                .map(this::toCategoryResponse)
                 .collect(Collectors.toList());
     }
 }

@@ -85,11 +85,17 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getCartId(), request.getProductId())
                 .orElseThrow(() -> new RuntimeException("CartItem not found for product: " + request.getProductId()));
 
-        cart.getCartItems().remove(cartItem);
+        // Xóa cartItem khỏi cơ sở dữ liệu
         cartItemRepository.delete(cartItem);
 
-        cart.setTotalAmount(calculateTotalAmount(cart.getCartItems()));
+        // Tải lại danh sách cartItems từ cơ sở dữ liệu để đảm bảo dữ liệu chính xác
+        List<CartItem> updatedCartItems = cartItemRepository.findByCartId(cart.getCartId());
+        cart.setCartItems(updatedCartItems);
 
+        // Tính toán lại totalAmount dựa trên danh sách cartItems mới
+        cart.setTotalAmount(calculateTotalAmount(updatedCartItems));
+
+        // Lưu cart đã cập nhật
         cartRepository.save(cart);
 
         return cartMapper.toCartResponse(cart);

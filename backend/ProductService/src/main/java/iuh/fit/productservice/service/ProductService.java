@@ -2,11 +2,14 @@ package iuh.fit.productservice.service;
 
 import iuh.fit.productservice.dto.request.AddReviewRequest;
 import iuh.fit.productservice.dto.request.CreateProductRequest;
+import iuh.fit.productservice.dto.response.CategoryResponse;
 import iuh.fit.productservice.dto.response.ProductResponse;
 import iuh.fit.productservice.dto.response.ReviewResponse;
 import iuh.fit.productservice.mapper.ProductMapper;
+import iuh.fit.productservice.model.Category;
 import iuh.fit.productservice.model.Product;
 import iuh.fit.productservice.model.Review;
+import iuh.fit.productservice.repository.CategoryRepository;
 import iuh.fit.productservice.repository.ProductRepository;
 import iuh.fit.productservice.repository.ReviewRepository;
 import org.slf4j.Logger;
@@ -29,16 +32,19 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
-    private final RestTemplate restTemplate; // Để gọi UserService kiểm tra userId
+    private final RestTemplate restTemplate;
 
     @Autowired
     public ProductService(ProductRepository productRepository,
                           ReviewRepository reviewRepository,
+                          CategoryRepository categoryRepository,
                           ProductMapper productMapper,
                           RestTemplate restTemplate) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
+        this.categoryRepository = categoryRepository;
         this.productMapper = productMapper;
         this.restTemplate = restTemplate;
     }
@@ -60,7 +66,6 @@ public class ProductService {
     public ProductResponse saveProduct(CreateProductRequest request) {
         logger.info("Saving product: {}", request.getProductName());
 
-        // Kiểm tra logic nghiệp vụ
         if (request.getSalePrice() > request.getOriginalPrice()) {
             throw new IllegalArgumentException("Sale price cannot be greater than original price");
         }
@@ -72,7 +77,7 @@ public class ProductService {
         product.setQuantityInStock(request.getQuantityInStock());
         product.setSalePrice(request.getSalePrice());
         product.setCategoryId(request.getCategoryId());
-        product.setImageUrl(request.getImageUrl()); // Thêm trường mới
+        product.setImageUrl(request.getImageUrl());
 
         Product savedProduct = productRepository.save(product);
         logger.info("Product saved with ID: {}", savedProduct.getProductId());
@@ -82,7 +87,6 @@ public class ProductService {
     public Page<ReviewResponse> getReviewsByProductId(String productId, Pageable pageable) {
         logger.debug("Fetching reviews for product ID: {} with pagination: {}", productId, pageable);
 
-        // Kiểm tra sản phẩm tồn tại
         if (!productRepository.existsById(productId)) {
             throw new ProductNotFoundException("Product not found with id: " + productId);
         }
@@ -95,12 +99,10 @@ public class ProductService {
     public ReviewResponse addReview(AddReviewRequest request) {
         logger.info("Adding review for product ID: {}", request.getProductId());
 
-        // Kiểm tra sản phẩm tồn tại
         if (!productRepository.existsById(request.getProductId())) {
             throw new ProductNotFoundException("Product not found with id: " + request.getProductId());
         }
 
-        // Kiểm tra userId tồn tại (gọi UserService)
         validateUser(request.getUserId());
 
         Review review = new Review();
@@ -127,9 +129,14 @@ public class ProductService {
             throw new IllegalArgumentException("Error validating user ID: " + userId, e);
         }
     }
+
+    public List<CategoryResponse> getAllCategories() {
+        logger.debug("Fetching all categories");
+        List<Category> categories = categoryRepository.findAll();
+        return productMapper.toCategoryResponseList(categories);
+    }
 }
 
-// Tạo ngoại lệ tùy chỉnh
 class ProductNotFoundException extends RuntimeException {
     private final HttpStatus status;
 

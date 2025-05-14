@@ -16,7 +16,7 @@ spring:
         - id: product-service-route
           uri: http://product-service:8081
           predicates:
-            - Path=/api/products/**, /api/categories/**
+            - Path=/api/products/**,/api/products/categories/**,/api/categories/**
           filters:
             - RemoveRequestHeader=Authorization
 

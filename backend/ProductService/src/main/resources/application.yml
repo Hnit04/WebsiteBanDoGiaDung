@@ -5,15 +5,9 @@ spring:
   application:
     name: ProductService
 
-services:
-  mongo:
-    image: mongo
-    ports:
-      - 27017:27017
-  cartservice:
-    build: .
-    depends_on:
-      - mongo
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://mongo:27017/productdb}
 
 eureka:
   client:
@@ -25,10 +19,4 @@ management:
   endpoints:
     web:
       exposure:
-        include:  "health,info,metrics"
-  endpoint:
-    info:
-      enabled: true
-  info:
-    env:
-      enabled: true
+        include: "info,health"
