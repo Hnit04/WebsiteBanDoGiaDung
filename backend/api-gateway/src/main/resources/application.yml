@@ -14,11 +14,11 @@ spring:
     gateway:
       routes:
         - id: product-service-route
-          uri: http://product-service:8081
+          uri: http://httpbin.org:80
           predicates:
-            - Path=/api/products/**, /api/categories/**
+              - Path=/api/products/**, /api/categories/**
           filters:
-            - RemoveRequestHeader=Authorization
+              - RemoveRequestHeader=Authorization
 
         - id: user-service-route
           uri: http://user-service:8082
