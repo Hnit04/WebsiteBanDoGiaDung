@@ -11,4 +11,5 @@ public class ProductResponse {
     private int quantityInStock;
     private double salePrice;
     private String categoryId;
+    private String imageUrl; // Thêm trường mới
 }

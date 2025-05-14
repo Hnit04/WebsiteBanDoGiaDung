@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import ProductModal from './components/ProductModal.jsx';
 import CartSidebar from './components/CartSidebar.jsx';
 import ChatPopup from './components/ChatPopup.jsx';
@@ -21,6 +22,7 @@ import { getUserFromLocalStorage } from "./assets/js/userData"
 import CheckoutPage from "@/pages/CheckoutPage.jsx";
 import ProfilePage from "@/pages/ProfilePage.jsx";
 
+
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +32,7 @@ export default function App() {
 
     useEffect(() => {
         setupDarkMode();
+
         const updateTotalItems = () => {
             const cart = getCart();
             const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -47,6 +50,7 @@ export default function App() {
         return () => {
             window.removeEventListener('storage', updateTotalItems);
             clearTimeout(timer);
+
         };
     }, []);
 
@@ -97,6 +101,7 @@ export default function App() {
                 <Routes>
                     {/* Các route công khai với UserLayout */}
                     <Route element={<UserLayout onCartClick={toggleCart} totalItems={totalItems} />}>
+
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
@@ -126,6 +131,7 @@ export default function App() {
                 </Routes>
 
                 {/* Các thành phần dùng chung */}
+
                 <ProductModal
                     product={currentProduct}
                     isOpen={isModalOpen}

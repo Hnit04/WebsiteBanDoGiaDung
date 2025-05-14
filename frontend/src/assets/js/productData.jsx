@@ -150,4 +150,5 @@ export const products = [
             "categoryId": "livingroom",
             "imageUrl": "img/dentrangtri.jpg"
         }
+
 ];

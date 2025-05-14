@@ -8,16 +8,18 @@ import iuh.fit.userservice.mapper.UserMapper;
 import iuh.fit.userservice.model.Role;
 import iuh.fit.userservice.model.User;
 import iuh.fit.userservice.repository.UserRepository;
+import iuh.fit.userservice.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -27,16 +29,18 @@ public class UserService {
     private final UserMapper userMapper;
     private final RabbitTemplate rabbitTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        RabbitTemplate rabbitTemplate,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Transactional
@@ -162,6 +166,34 @@ public class UserService {
             logger.error("Failed to send welcome notification: {}", e.getMessage());
             // Continue without notification
         }
+    }
+
+    public Map<String, Object> login(String email, String password) {
+        logger.info("Attempting login for email: {}", email);
+
+        // Tìm người dùng theo email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    logger.warn("Email not found: {}", email);
+                    return new RuntimeException("Invalid email or password");
+                });
+
+        // Kiểm tra mật khẩu
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            logger.warn("Invalid password for email: {}", email);
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        // Tạo token
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+
+        // Trả về thông tin người dùng và token
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", userMapper.toUserResponse(user));
+        response.put("token", token);
+
+        logger.info("Login successful for email: {}", email);
+        return response;
     }
 
     private void validatePassword(String password) {

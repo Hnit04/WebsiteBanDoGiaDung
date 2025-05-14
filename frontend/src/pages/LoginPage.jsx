@@ -17,6 +17,7 @@ const LoginPage = () => {
 
     const navigate = useNavigate()
 
+
     const validateForm = () => {
         const newErrors = {}
 
@@ -346,9 +347,11 @@ const LoginPage = () => {
 
                 {/* Footer */}
                 <p className="mt-4 text-center text-xs text-gray-500">© 2023 Home Craft. Tất cả các quyền được bảo lưu.</p>
+
             </motion.div>
         </div>
     )
 }
 
 export default LoginPage
+

@@ -293,6 +293,7 @@
     &quot;Gradle.PromotionService [build].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.UserService [:iuh.fit.userservice.UserServiceApplication.main()].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.UserService [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.UserService [clean].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.api-gateway [:iuh.fit.apigateway.ApiGatewayApplication.main()].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.api-gateway [build].executor&quot;: &quot;Run&quot;,
     &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
@@ -301,6 +302,7 @@
     &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
     &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.CartServiceApplication.executor&quot;: &quot;Run&quot;,
@@ -311,6 +313,7 @@
     &quot;git-widget-placeholder&quot;: &quot;TranNgocHung&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;F:/TranNgocHung/HK2 2024-2025/Phat Trien Giao Dien/ThucHanh/Week01/WebsiteBanDoGiaDung&quot;,
+
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -345,29 +348,6 @@
     </option>
   </component>
   <component name="RunManager" selected="Gradle.UserService [build]">
-    <configuration name="NotificationService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/NotificationService" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="PaymentService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -460,6 +440,29 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="UserService [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/UserService" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="api-gateway.main" />
@@ -525,10 +528,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.UserService [build]" />
+        <item itemvalue="Gradle.UserService [clean]" />
         <item itemvalue="Gradle.PromotionService [build]" />
         <item itemvalue="Gradle.ProductService [build]" />
         <item itemvalue="Gradle.PaymentService [build]" />
-        <item itemvalue="Gradle.NotificationService [build]" />
       </list>
     </recent_temporary>
   </component>

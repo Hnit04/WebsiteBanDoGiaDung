@@ -133,6 +133,7 @@ const Header = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             >
+
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
@@ -160,6 +161,7 @@ const Header = () => {
                             ))}
                         </ul>
                     )}
+
                 </div>
 
                 {/* Navigation */}
@@ -207,6 +209,7 @@ const Header = () => {
                             )}
                         </div>
                     )}
+
                 </div>
 
                 {/* Cart */}
@@ -229,6 +232,7 @@ const Header = () => {
                 <div className="md:hidden ml-4">
                     <button className="p-2 hover:bg-gray-100 rounded-md" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                         ☰
+
                     </button>
                 </div>
             </div>
@@ -281,6 +285,7 @@ const Header = () => {
                             )}
                         </div>
                     )}
+
                 </div>
             )}
         </header>
@@ -288,3 +293,4 @@ const Header = () => {
 }
 
 export default Header
+

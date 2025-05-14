@@ -3,6 +3,7 @@ import { products } from '../assets/js/productData.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import { Link } from "react-router-dom" // Import Link
 
+
 const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const [filteredProducts, setFilteredProducts] = useState(products);
     const [currentCategory, setCurrentCategory] = useState(selectedCategory);
@@ -96,6 +97,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                                     product={product}
                                 />
                                 </Link>
+
                             </div>
                         ))
                     )}

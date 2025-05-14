@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+
 import { Swiper, SwiperSlide } from "swiper/react"
 import { motion } from "framer-motion"
 import "swiper/css"
@@ -9,6 +10,7 @@ import { Pagination } from "swiper/modules"
 import { Link } from "react-router-dom"
 
 import { products } from "../assets/js/productData.jsx" // import data sản phẩm
+
 
 // Import images
 import img1 from "../assets/img.png"
