@@ -55,6 +55,7 @@ const CartPage = () => {
 
         try {
             setIsUpdating(true)
+            console.log("hung"+ cartItemId)
             const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${cartItemId}`, {
                 method: "PUT",
                 headers: {

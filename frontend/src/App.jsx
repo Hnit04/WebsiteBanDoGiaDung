@@ -21,7 +21,8 @@ import { getCart } from './assets/js/cartManager.jsx';
 import { getUserFromLocalStorage } from "./assets/js/userData"
 import CheckoutPage from "@/pages/CheckoutPage.jsx";
 import ProfilePage from "@/pages/ProfilePage.jsx";
-
+import ProductsAdminPage from "@/pages/ProductsAdminPage.jsx";
+import OrderAdminPage from "@/pages/OrderAdminPage.jsx"
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -123,6 +124,14 @@ export default function App() {
                         <Route
                             path="/admin/*"
                             element={<AdminRoute element={<HomePageAdmin />} />}
+                        />
+                        <Route
+                            path="/admin/products"
+                            element={<AdminRoute element={<ProductsAdminPage />} />}
+                        />
+                        <Route
+                            path="/admin/orders"
+                            element={<AdminRoute element={<OrderAdminPage />} />}
                         />
                     </Route>
 
