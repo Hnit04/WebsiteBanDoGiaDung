@@ -3,7 +3,26 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { users } from "../assets/js/userData"
-import { ChevronDown, CreditCard, DollarSign, Download, Layers, Package, Plus, ShoppingBag, ShoppingCart, Truck, Users, X, AlertTriangle, CheckCircle } from 'lucide-react'
+import {
+    ChevronDown,
+    CreditCard,
+    DollarSign,
+    Download,
+    Layers,
+    Package,
+    Plus,
+    ShoppingBag,
+    ShoppingCart,
+    Truck,
+    Users,
+    X,
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    XCircle,
+    PackageCheck,
+    PackageX,
+} from "lucide-react"
 import { Bar, Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js"
 
@@ -16,6 +35,7 @@ const HomePageAdmin = () => {
     const [error, setError] = useState(null)
     const [notification, setNotification] = useState(null)
     const [orders, setOrders] = useState([])
+    const [orderDetails, setOrderDetails] = useState([])
     const [products, setProducts] = useState([])
     const [customers, setCustomers] = useState([])
     const [stats, setStats] = useState({ orders: 0, customers: 0, revenue: 0, transactions: 0 })
@@ -31,6 +51,110 @@ const HomePageAdmin = () => {
         setTimeout(() => setNotification(null), 3000)
     }
 
+    // Get status background color
+    const getStatusBgColor = (status) => {
+        switch (status) {
+            case "pending":
+                return "bg-amber-500"
+            case "ready_to_pick":
+                return "bg-blue-500"
+            case "shipping":
+                return "bg-purple-500"
+            case "delivered":
+                return "bg-green-500"
+            case "returned":
+                return "bg-orange-500"
+            case "cancelled":
+                return "bg-rose-500"
+            default:
+                return "bg-gray-500"
+        }
+    }
+
+    // Get status text
+    const getStatusText = (status) => {
+        switch (status) {
+            case "pending":
+                return "Chờ xác nhận"
+            case "ready_to_pick":
+                return "Chờ lấy hàng"
+            case "shipping":
+                return "Chờ giao hàng"
+            case "delivered":
+                return "Đã giao"
+            case "returned":
+                return "Trả hàng"
+            case "cancelled":
+                return "Đã hủy"
+            default:
+                return "Không xác định"
+        }
+    }
+
+    // Get status badge color
+    const getStatusBadgeColor = (status) => {
+        switch (status) {
+            case "pending":
+                return "bg-amber-100 text-amber-800 border border-amber-200"
+            case "ready_to_pick":
+                return "bg-blue-100 text-blue-800 border border-blue-200"
+            case "shipping":
+                return "bg-purple-100 text-purple-800 border border-purple-200"
+            case "delivered":
+                return "bg-green-100 text-green-800 border border-green-200"
+            case "returned":
+                return "bg-orange-100 text-orange-800 border border-orange-200"
+            case "cancelled":
+                return "bg-rose-100 text-rose-800 border border-rose-200"
+            default:
+                return "bg-gray-100 text-gray-800 border border-gray-200"
+        }
+    }
+
+    // Get status icon
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case "pending":
+                return <Clock className="h-4 w-4" />
+            case "ready_to_pick":
+                return <PackageCheck className="h-4 w-4" />
+            case "shipping":
+                return <Truck className="h-4 w-4" />
+            case "delivered":
+                return <Package className="h-4 w-4" />
+            case "returned":
+                return <PackageX className="h-4 w-4" />
+            case "cancelled":
+                return <XCircle className="h-4 w-4" />
+            default:
+                return <AlertTriangle className="h-4 w-4" />
+        }
+    }
+
+    // Format date
+    const formatDate = (dateString) => {
+        if (!dateString) {
+            return "Không xác định"
+        }
+
+        const date = new Date(dateString)
+
+        if (isNaN(date.getTime())) {
+            return "Không xác định"
+        }
+
+        return date.toLocaleDateString("vi-VN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        })
+    }
+
+    // Format currency
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
+    }
+
     // Fetch data
     useEffect(() => {
         const fetchData = async () => {
@@ -43,18 +167,19 @@ const HomePageAdmin = () => {
                 const orderData = await orderResponse.json()
                 setOrders(orderData)
 
-                // Fetch products (placeholder API)
-                const productResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/products")
-                const productData = productResponse.ok ? await productResponse.json() : [
-                    // Fallback placeholder products
-                    { id: "1", productName: "Điện thoại iPhone 14", salePrice: 29990000, categoryId: "Điện thoại", sold: 125, imageUrl: "/placeholder.svg" },
-                    { id: "2", productName: "Laptop MacBook Air", salePrice: 25990000, categoryId: "Laptop", sold: 98, imageUrl: "/placeholder.svg" },
-                    { id: "3", productName: "Tai nghe AirPods Pro", salePrice: 5990000, categoryId: "Phụ kiện", sold: 210, imageUrl: "/placeholder.svg" },
-                    { id: "4", productName: "iPad Air 5", salePrice: 15990000, categoryId: "Máy tính bảng", sold: 87, imageUrl: "/placeholder.svg" },
-                ]
+                // Fetch order details
+                const orderDetailResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail")
+                if (!orderDetailResponse.ok) throw new Error("Không thể tải chi tiết đơn hàng")
+                const orderDetailData = await orderDetailResponse.json()
+                setOrderDetails(orderDetailData)
+
+                // Fetch products
+                const productResponse = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
+                if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
+                const productData = await productResponse.json()
                 setProducts(productData)
 
-                // Fetch customers (using users array)
+                // Fetch customers
                 setCustomers(users.filter((u) => u.role !== "admin"))
 
                 // Calculate stats
@@ -83,22 +208,34 @@ const HomePageAdmin = () => {
     }
 
     // Filter orders based on search query
-    const filteredOrders = orders.filter(
-        (order) => {
-            const user = users.find(u => u.id === parseInt(order.userId));
-            return (
-                order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
-        }
-    );
+    const filteredOrders = orders.filter((order) => {
+        const user = users.find((u) => u.id === parseInt(order.userId))
+        return (
+            order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+    })
 
     // Pagination
     const indexOfLastOrder = currentPage * ordersPerPage
     const indexOfFirstOrder = indexOfLastOrder - ordersPerPage
     const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder)
     const totalPages = Math.ceil(filteredOrders.length / ordersPerPage)
+
+    // Calculate top selling products
+    const topSellingProducts = products
+        .map((product) => {
+            const totalSold = orderDetails
+                .filter((detail) => detail.productId === product.id)
+                .reduce((sum, detail) => sum + detail.quantity, 0)
+            return {
+                ...product,
+                sold: totalSold,
+            }
+        })
+        .sort((a, b) => b.sold - a.sold)
+        .slice(0, 4)
 
     // Export report as CSV
     const exportReport = () => {
@@ -109,9 +246,9 @@ const HomePageAdmin = () => {
                 return [
                     order.id,
                     user ? user.fullName : "Unknown User",
-                    order.deliveryDate,
-                    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount),
-                    order.status,
+                    formatDate(order.deliveryDate),
+                    formatCurrency(order.totalAmount),
+                    getStatusText(order.status),
                 ]
             }),
         ]
@@ -134,7 +271,7 @@ const HomePageAdmin = () => {
         }
 
         try {
-            const response = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/products", {
+            const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -176,24 +313,68 @@ const HomePageAdmin = () => {
     }
 
     const orderStatusChartData = {
-        labels: ["Hoàn thành", "Đang xử lý", "Đã hủy"],
+        labels: ["Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Đã giao", "Trả hàng", "Đã hủy"],
         datasets: [
             {
                 data: orders.reduce(
                     (acc, order) => {
-                        if (order.status === "confirmed") acc[0]++
-                        else if (order.status === "pending") acc[1]++
-                        else acc[2]++
+                        switch (order.status) {
+                            case "pending":
+                                acc[0]++
+                                break
+                            case "ready_to_pick":
+                                acc[1]++
+                                break
+                            case "shipping":
+                                acc[2]++
+                                break
+                            case "delivered":
+                                acc[3]++
+                                break
+                            case "returned":
+                                acc[4]++
+                                break
+                            case "cancelled":
+                                acc[5]++
+                                break
+                            default:
+                                break
+                        }
                         return acc
                     },
-                    [0, 0, 0]
+                    [0, 0, 0, 0, 0, 0]
                 ),
-                backgroundColor: ["#10B981", "#3B82F6", "#EF4444"],
-                borderColor: ["#059669", "#2563EB", "#DC2626"],
+                backgroundColor: ["#F59E0B", "#3B82F6", "#06B6D4", "#10B981", "#F97316", "#EF4444"],
+                borderColor: ["#D97706", "#2563EB", "#0891B2", "#059669", "#EA580C", "#DC2626"],
                 borderWidth: 1,
             },
         ],
     }
+
+    // Get recent activities
+    const recentActivities = [
+        {
+            icon: <Package className="h-4 w-4" />,
+            title: "Sản phẩm mới được thêm",
+            description: products[products.length - 1]?.productName || "Nồi cơm điện thông minh",
+            time: "5 phút trước",
+            color: "text-blue-600 bg-blue-100",
+        },
+        {
+            icon: <ShoppingBag className="h-4 w-4" />,
+            title: "Đơn hàng mới",
+            description: `Từ khách hàng ${users.find((u) => u.id === parseInt(orders[orders.length - 1]?.userId))?.fullName || "Nguyễn Văn A"}`,
+            time: "15 phút trước",
+            color: "text-green-600 bg-green-100",
+        },
+        {
+            icon: <Users className="h-4 w-4" />,
+            title: "Khách hàng mới đăng ký",
+            description: customers[customers.length - 1]?.fullName || "Trần Thị B",
+            time: "1 giờ trước",
+            color: "text-purple-600 bg-purple-100",
+        },
+    ]
 
     // If loading
     if (isLoading) {
@@ -226,10 +407,10 @@ const HomePageAdmin = () => {
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
-                        notification.type === "success"
-                            ? "bg-green-50 text-green-800 border border-green-200"
-                            : "bg-red-50 text-red-800 border border-red-200"
-                    }`}
+    notification.type === "success"
+        ? "bg-green-50 text-green-800 border border-green-200"
+        : "bg-red-50 text-red-800 border border-red-200"
+}`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -258,7 +439,6 @@ const HomePageAdmin = () => {
                         <Download className="h-4 w-4" />
                         <span>Xuất báo cáo</span>
                     </button>
-
                 </div>
             </div>
 
@@ -293,9 +473,7 @@ const HomePageAdmin = () => {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Doanh thu</p>
-                            <p className="text-3xl font-bold">
-                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(stats.revenue)}
-                            </p>
+                            <p className="text-3xl font-bold">{formatCurrency(stats.revenue)}</p>
                         </div>
                     </div>
                 </div>
@@ -321,16 +499,16 @@ const HomePageAdmin = () => {
                             <button
                                 onClick={() => setActiveTab("overview")}
                                 className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                                    activeTab === "overview" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-                                }`}
+    activeTab === "overview" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+}`}
                             >
                                 Tổng quan
                             </button>
                             <button
                                 onClick={() => setActiveTab("monthly")}
                                 className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                                    activeTab === "monthly" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-                                }`}
+    activeTab === "monthly" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+}`}
                             >
                                 Theo tháng
                             </button>
@@ -362,71 +540,66 @@ const HomePageAdmin = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Mã đơn hàng
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Khách hàng
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Ngày đặt
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Tổng tiền
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Trạng thái
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Thao tác
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Mã đơn hàng
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Khách hàng
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Ngày đặt
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Tổng tiền
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Trạng thái
+                                    </th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Thao tác
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                            {currentOrders.map((order) => {
-                                const customer = users.find((u) => u.id === parseInt(order.userId))
-                                return (
-                                    <tr key={order.id} className="hover:bg-gray-50">
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm text-gray-900">
-                                                {customer ? customer.fullName : "Unknown User"}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm text-gray-500">{order.deliveryDate}</div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                    order.totalAmount
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
+                                {currentOrders.map((order) => {
+                                    const customer = users.find((u) => u.id === parseInt(order.userId))
+                                    return (
+                                        <tr key={order.id} className="hover:bg-gray-50">
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm font-medium text-gray-900">{order.id}</div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm text-gray-900">
+                                                    {customer ? customer.fullName : "Unknown User"}
+                                                </div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm text-gray-500">{formatDate(order.deliveryDate)}</div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {formatCurrency(order.totalAmount)}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                        order.status === "confirmed"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : order.status === "pending"
-                                                                ? "bg-blue-100 text-blue-800"
-                                                                : "bg-red-100 text-red-800"
-                                                    }`}
+                                                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+    order.status
+)}`}
                                                 >
-                                                    {order.status === "pending" ? "Mới" : order.status}
+                                                    {getStatusIcon(order.status)}
+                                                    <span className="ml-1">{getStatusText(order.status)}</span>
                                                 </span>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                            <Link to={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-900">
-                                                Chi tiết
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                                <Link to={`/admin/orders`} className="text-blue-600 hover:text-blue-900">
+                                                    Chi tiết
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -465,29 +638,7 @@ const HomePageAdmin = () => {
                             <h2 className="text-lg font-semibold">Hoạt động gần đây</h2>
                         </div>
                         <div className="divide-y">
-                            {[
-                                {
-                                    icon: <Package className="h-4 w-4" />,
-                                    title: "Sản phẩm mới được thêm",
-                                    description: "Điện thoại Samsung Galaxy S23",
-                                    time: "5 phút trước",
-                                    color: "text-blue-600 bg-blue-100",
-                                },
-                                {
-                                    icon: <ShoppingBag className="h-4 w-4" />,
-                                    title: "Đơn hàng mới",
-                                    description: "Từ khách hàng Nguyễn Văn A",
-                                    time: "15 phút trước",
-                                    color: "text-green-600 bg-green-100",
-                                },
-                                {
-                                    icon: <Users className="h-4 w-4" />,
-                                    title: "Khách hàng mới đăng ký",
-                                    description: "Trần Thị B",
-                                    time: "1 giờ trước",
-                                    color: "text-purple-600 bg-purple-100",
-                                },
-                            ].map((activity, index) => (
+                            {recentActivities.map((activity, index) => (
                                 <div key={index} className="flex items-start gap-3 px-4 py-3">
                                     <div className={`mt-1 flex h-8 w-8 items-center justify-center rounded-full ${activity.color}`}>
                                         {activity.icon}
@@ -513,30 +664,23 @@ const HomePageAdmin = () => {
                             <h2 className="text-lg font-semibold">Sản phẩm bán chạy</h2>
                         </div>
                         <div className="divide-y">
-                            {products
-                                .sort((a, b) => (b.sold || 0) - (a.sold || 0))
-                                .slice(0, 4)
-                                .map((product) => (
-                                    <div key={product.id} className="flex items-center gap-4 px-4 py-3">
-                                        <img
-                                            src={product.imageUrl || "/placeholder.svg"}
-                                            alt={product.productName}
-                                            className="h-12 w-12 rounded-md object-cover border"
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="truncate text-sm font-medium">{product.productName}</p>
-                                            <p className="text-xs text-gray-500">{product.categoryId}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-medium">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                    product.salePrice
-                                                )}
-                                            </p>
-                                            <p className="text-xs text-gray-500">{product.sold || 0} đã bán</p>
-                                        </div>
+                            {topSellingProducts.map((product) => (
+                                <div key={product.id} className="flex items-center gap-4 px-4 py-3">
+                                    <img
+                                        src={"/"+product.imageUrl || "/placeholder.svg"}
+                                        alt={product.productName}
+                                        className="h-12 w-12 rounded-md object-cover border"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="truncate text-sm font-medium">{product.productName}</p>
+                                        <p className="text-xs text-gray-500">{product.categoryId}</p>
                                     </div>
-                                ))}
+                                    <div className="text-right">
+                                        <p className="text-sm font-medium">{formatCurrency(product.salePrice)}</p>
+                                        <p className="text-xs text-gray-500">{product.sold} đã bán</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                         <div className="border-t p-4">
                             <Link
@@ -549,7 +693,6 @@ const HomePageAdmin = () => {
                     </div>
                 </div>
             </div>
-
         </div>
     )
 }

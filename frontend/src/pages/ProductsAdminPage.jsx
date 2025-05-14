@@ -69,7 +69,7 @@ export default function ProductsAdminPage() {
             }
 
             const data = await response.json()
-            setProducts(data)
+            setProducts(data.reverse())
         } catch (err) {
             console.error("Lỗi khi tải dữ liệu:", err)
             setError(err instanceof Error ? err.message : "Không thể tải dữ liệu sản phẩm")
@@ -84,18 +84,20 @@ export default function ProductsAdminPage() {
     }, [])
 
     // Filter products based on search query
-    const filteredProducts = products.filter(
-        (product) =>
-            product.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.categoryId?.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+    // Filter and sort products based on search query
+    const filteredProducts = products
+        .filter(
+            (product) =>
+                product.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.categoryId?.toLowerCase().includes(searchQuery.toLowerCase()),
+        )
 
-    // Pagination
-    const indexOfLastProduct = currentPage * productsPerPage
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage
-    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
-    const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+// Pagination
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
     // Handle add new product
     const handleAddProduct = () => {
@@ -120,26 +122,6 @@ export default function ProductsAdminPage() {
         showNotification("success", "Sản phẩm đã được cập nhật thành công")
     }
 
-    // Handle delete product
-    const handleDeleteProduct = async (id) => {
-        if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-            try {
-                const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${id}`, {
-                    method: "DELETE",
-                })
-
-                if (!response.ok) {
-                    throw new Error("Không thể xóa sản phẩm")
-                }
-
-                setProducts(products.filter((p) => p.id !== id))
-                showNotification("success", "Sản phẩm đã được xóa")
-            } catch (err) {
-                console.error("Lỗi khi xóa sản phẩm:", err)
-                showNotification("error", err instanceof Error ? err.message : "Không thể xóa sản phẩm")
-            }
-        }
-    }
 
     // Handle toggle product visibility
     const handleToggleVisibility = async (id, currentShow) => {
@@ -266,9 +248,6 @@ export default function ProductsAdminPage() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[80px]">
-                                ID
-                            </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
                                 Sản phẩm
                             </th>
@@ -302,7 +281,6 @@ export default function ProductsAdminPage() {
                         ) : (
                             currentProducts.map((product) => (
                                 <tr key={product.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-md overflow-hidden bg-gray-100 border">
@@ -352,13 +330,6 @@ export default function ProductsAdminPage() {
                                                 title="Chỉnh sửa sản phẩm"
                                             >
                                                 <Edit className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteProduct(product.id)}
-                                                className="p-1 rounded-md text-red-400 hover:text-red-500 hover:bg-red-50"
-                                                title="Xóa sản phẩm"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
                                     </td>

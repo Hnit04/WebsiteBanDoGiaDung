@@ -8,7 +8,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const [currentSort, setCurrentSort] = useState('default');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [allProducts, setAllProducts] = useState([]); // Lưu trữ toàn bộ sản phẩm từ API
+    const [allProducts, setAllProducts] = useState([]);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -19,7 +19,6 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                     throw new Error("Không thể lấy dữ liệu sản phẩm");
                 }
                 const data = await response.json();
-                // Lọc sản phẩm có show = true
                 const visibleProducts = data.filter(product => product.show === true);
                 setAllProducts(visibleProducts);
             } catch (err) {
@@ -130,11 +129,23 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                         </div>
                     ) : (
                         filteredProducts.map(product => (
-                            <div key={product.id} className="col">
+                            <div key={product.id} className="col relative">
                                 <Link to={`/product/${product.id}`} className="block">
-                                    <ProductCard product={product} />
+                                    {/* Vùng bị làm mờ */}
+                                    <div className={`${product.quantityInStock === 0 ? 'opacity-50' : ''}`}>
+                                        <ProductCard product={product}/>
+                                    </div>
+
+                                    {/* Dòng chữ nằm trên, không bị mờ */}
+                                    {product.quantityInStock === 0 && (
+                                        <div
+                                            className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded">
+                                            Hết hàng
+                                        </div>
+                                    )}
                                 </Link>
                             </div>
+
                         ))
                     )}
                 </div>
