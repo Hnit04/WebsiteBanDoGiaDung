@@ -1,11 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "/api", // Dùng proxy, không cần hardcode URL
-    // baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api", // Cách cũ
+    baseURL: "/api", // Sử dụng proxy
 });
 
-// Interceptor để thêm token vào header
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -19,7 +17,6 @@ api.interceptors.request.use(
     }
 );
 
-// Interceptor để xử lý lỗi 401
 api.interceptors.response.use(
     (response) => response,
     (error) => {

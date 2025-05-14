@@ -1,11 +1,17 @@
-FROM eclipse-temurin:21-jdk-alpine
-
+# Stage 1: Build JAR
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
+COPY . .
+RUN chmod +x gradlew
+RUN ./gradlew build
 
-COPY build/libs/ProductService-0.0.1-SNAPSHOT.jar app.jar
-
+# Stage 2: Run application
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=builder /app/build/libs/ProductService-0.0.1-SNAPSHOT.jar app.jar
 COPY src/main/resources/application.yml .
+EXPOSE ${PORT:-8081}
+CMD ["java", "-jar", "/app/app.jar", "--server.port=$PORT"]
+ENV JAVA_OPTS="-Xmx256m -Xms128m"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
 
-EXPOSE 8081
-
-ENTRYPOINT ["java", "-jar", "app.jar"]

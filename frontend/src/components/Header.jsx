@@ -1,353 +1,296 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getCart } from '../assets/js/cartManager';
-import ModalLogin from './ModalLogin';
-import ModalSubscribe from './ModalSubscribe';
-import { products } from '../assets/js/productData';
+"use client"
 
-const Header = ({ onCartClick }) => {
-    const [totalItems, setTotalItems] = useState(0);
-    const [showLoginModal, setShowLoginModal] = useState(false);
-    const [showSubscribeModal, setShowSubscribeModal] = useState(false);
-    const [username, setUsername] = useState(null);
-    const [role, setRole] = useState(null);
-    const [showDropdown, setShowDropdown] = useState(false);
-    const [searchInput, setSearchInput] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [allProducts, setAllProducts] = useState(products);
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
+import { getUserFromLocalStorage } from "../assets/js/userData"
+import { clearUserFromLocalStorage } from "../assets/js/userData"
+
+const Header = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [searchText, setSearchText] = useState("")
+    const [suggestions, setSuggestions] = useState([])
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+    const [user, setUser] = useState(null)
+    const [cartCount, setCartCount] = useState(0)
+    const navigate = useNavigate()
+    const location = useLocation()
 
     useEffect(() => {
-        const cart = getCart();
-        const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
-        setTotalItems(itemCount);
-
-        const savedUsername = localStorage.getItem('username');
-        const savedRole = localStorage.getItem('role');
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        if (isLoggedIn && savedUsername && savedRole) {
-            setUsername(savedUsername);
-            setRole(savedRole);
+        const loggedInUser = getUserFromLocalStorage()
+        if (loggedInUser) {
+            setUser(loggedInUser)
+            setIsLoggedIn(true)
+            // Fetch cart count when user is logged in
+            fetchCartCount(loggedInUser.id)
+        } else {
+            setUser(null)
+            setIsLoggedIn(false)
+            setCartCount(0)
         }
-    }, []);
+    }, [location.pathname]) // Re-check when route changes
 
-    const handleLogin = (user, userRole) => {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', user);
-        localStorage.setItem('role', userRole);
-        setUsername(user);
-        setRole(userRole);
-        setShowLoginModal(false);
-    };
+    // Lắng nghe sự kiện cartUpdated để cập nhật số lượng giỏ hàng
+    useEffect(() => {
+        const handleCartUpdated = () => {
+            const loggedInUser = getUserFromLocalStorage()
+            if (loggedInUser) {
+                fetchCartCount(loggedInUser.id)
+            }
+        }
 
-    const handleRegister = (user) => {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', user);
-        localStorage.setItem('role', 'customer');
-        setUsername(user);
-        setRole('customer');
-        setShowSubscribeModal(false);
-    };
+        window.addEventListener('cartUpdated', handleCartUpdated)
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdated)
+        }
+    }, []) // Chạy một lần khi component mount/unmount
+
+    // Fetch cart count
+    const fetchCartCount = async (userId) => {
+        try {
+            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart?userId=${userId}`)
+
+            if (!response.ok) {
+                throw new Error("Không thể lấy dữ liệu giỏ hàng")
+            }
+
+            const cartData = await response.json()
+            // Tính tổng số lượng sản phẩm trong giỏ
+            const totalItems = cartData.length
+            setCartCount(totalItems)
+        } catch (error) {
+            console.error("Lỗi khi lấy số lượng giỏ hàng:", error)
+            setCartCount(0)
+        }
+    }
 
     const handleLogout = () => {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('username');
-        localStorage.removeItem('role');
-        setUsername(null);
-        setRole(null);
-        setShowDropdown(false);
-    };
+        clearUserFromLocalStorage()
+        setUser(null)
+        navigate("/login")
+    }
 
-    const toggleDropdown = () => {
-        setShowDropdown(!showDropdown);
-    };
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen)
+    }
 
-    const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchInput(value);
+    const toggleUserMenu = () => {
+        setIsUserMenuOpen(!isUserMenuOpen)
+    }
 
-        if (value.trim() === '') {
-            setSearchResults([]);
-            return;
+    const handleSearchSubmit = (e) => {
+        e.preventDefault()
+        if (searchText.trim()) {
+            navigate(`/products?search=${searchText}`)
         }
+    }
 
-        const filtered = allProducts.filter(product =>
-            product.name.toLowerCase().includes(value.toLowerCase())
-        );
-        setSearchResults(filtered);
-    };
+    const handleSuggestionClick = (id) => {
+        navigate(`/products/${id}`)
+        setSearchText("")
+        setSuggestions([])
+    }
 
-    // Render header cho khách hàng
-    const renderCustomerHeader = () => (
-        <header className="bg-white shadow-sm sticky top-0 py-3 border border-blue-300 z-40">
-            <div className="container mx-auto flex items-center justify-between">
-                {/* Logo khách hàng */}
-                <div className="flex items-center">
-                    <Link to="/" className=" text-pink-600 text-lg font-bold ml-2 items-center">
-                        <i className="fa fa-heart text-pink-600 text-3xl"></i>
-                        <span className="text-2xl font-bold">HomeCraft</span>
-                    </Link>
-                </div>
-
-                {/* Search cho khách hàng */}
-                <div className="hidden md:flex flex-1 mx-4 relative">
-                    <input
-                        type="text"
-                        value={searchInput}
-                        onChange={handleSearchChange}
-                        placeholder="Tìm kiếm sản phẩm..."
-                        className="border border-gray-300 rounded-lg p-2 flex-1"
-                    />
-                    {searchInput && searchResults.length > 0 && (
-                        <div className="absolute top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md w-full z-50 max-h-60 overflow-y-auto">
-                            {searchResults.map(product => (
-                                <div
-                                    key={product.id}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
-                                    onClick={() => window.location.href = `/product/${product.id}`}
-                                >
-                                    <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded" />
-                                    <span className="text-sm text-gray-700">{product.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Nav khách hàng */}
-                <nav className="hidden md:flex items-center space-x-8 relative">
-                    <Link to="/products" className="text-gray-700 hover:text-blue-600">Sản Phẩm</Link>
-                    <Link to="/collections" className="text-gray-700 hover:text-blue-600">Bộ Sưu Tập</Link>
-                    <Link to="/sale" className="text-red-500 hover:text-blue-600">Khuyến Mãi</Link>
-
-                    <button onClick={onCartClick} className="text-gray-700 hover:text-blue-600 relative">
-                        <i className="fa fa-shopping-cart text-xl"></i>
-                        {totalItems > 0 && (
-                            <span
-                                className="absolute bottom-5 left-5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                                {totalItems > 99 ? '99+' : totalItems}
-                            </span>
-                        )}
-                    </button>
-
-                    <div className="relative">
-                        <button onClick={toggleDropdown}
-                                className="text-gray-700 font-medium flex items-center space-x-2">
-                            <span>{username ? `Hi, ${username}` : 'Tài khoản'}</span>
-                            <i className="fa fa-caret-down ml-1"></i>
-                        </button>
-                        {showDropdown && (
-                            <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg py-2 z-50">
-                                <Link to="/customer/profile" className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                    Thông tin cá nhân
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
-                                >
-                                    Đăng xuất
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                </nav>
-
-                {/* Actions */}
-                <div className="flex items-center space-x-4">
-                    {/* Cart Button */}
-                    <div className="relative">
-                        <button onClick={onCartClick} className="text-gray-700 hover:text-blue-500 relative">
-                            <i className="fa fa-shopping-cart text-xl"></i>
-                            <span
-                                id="cartBadge"
-                                className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-xs rounded-full transform translate-x-1/2 -translate-y-1/2"
-                            >
-                0
-              </span>
-                        </button>
-                    </div>
-
-                    {/* Mobile Menu Button */}
-                    <button onClick={toggleMobileMenu} className="md:hidden text-gray-700">
-                        <i className="fa fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-
-            {/* Mobile Menu */}
-            <div
-                className={`md:hidden absolute top-full left-0 w-full bg-white shadow-lg transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen ? "block" : "hidden"
-                }`}
-            >
-                <a href="#" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
-                    Trang chủ
-                </a>
-                <a href="#products" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
-                    Sản phẩm
-                </a>
-                <a href="#categories" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
-                    Danh mục
-                </a>
-                <a href="#about" className="block py-3 px-4 text-gray-700 hover:bg-gray-100">
-                    Giới thiệu
-                </a>
-            </div>
-        </header>
-    );
-
-    // Render header cho admin
-    const renderAdminHeader = () => (
-        <header className="bg-gray-800 shadow-md sticky top-0 py-3 border border-red-500 z-40">
-            <div className="container mx-auto flex items-center justify-between">
-                {/* Logo admin */}
-                <div className="flex items-center">
-                    <Link to="/" className=" text-pink-600 text-lg font-bold ml-2 items-center">
-                        <i className="fa fa-heart text-pink-600 text-3xl"></i>
-                        <span className="text-2xl font-bold">HomeCraft</span>
-                    </Link>
-                </div>
-
-                {/* Search cho khách hàng */}
-                <div className="hidden md:flex flex-1 mx-4 relative">
-                    <input
-                        type="text"
-                        value={searchInput}
-                        onChange={handleSearchChange}
-                        placeholder="Tìm kiếm sản phẩm..."
-                        className="border border-gray-300 rounded-lg p-2 flex-1"
-                    />
-                    {searchInput && searchResults.length > 0 && (
-                        <div
-                            className="absolute top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md w-full z-50 max-h-60 overflow-y-auto">
-                            {searchResults.map(product => (
-                                <div
-                                    key={product.id}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
-                                    onClick={() => window.location.href = `/product/${product.id}`}
-                                >
-                                    <img src={product.image} alt={product.name}
-                                         className="w-10 h-10 object-cover rounded"/>
-                                    <span className="text-sm text-gray-700">{product.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Nav admin */}
-                <nav className="hidden md:flex items-center space-x-8 relative text-black">
-
-                    <Link to="/admin/products" className=" text-black">Sản phẩm</Link>
-                    <Link to="/admin/orders" className="text-black">Đơn hàng</Link>
-                    <Link to="/admin/customers" className="text-black">Khách hàng</Link>
-                    <Link to="/admin/reports" className="text-black">Báo cáo</Link>
-                    <div className="relative">
-                        <button onClick={toggleDropdown}
-                                className="text-black font-medium flex items-center space-x-2">
-                            <span>Hi, {username} (Admin)</span>
-                            <i className="fa fa-caret-down ml-1"></i>
-                        </button>
-                        {showDropdown && (
-                            <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg py-2 z-50">
-                                <Link to="/admin/profile"
-                                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                    Thông tin cá nhân
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
-                                >
-                                    Đăng xuất
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </nav>
-            </div>
-        </header>
-    );
 
     return (
-        <>
-            {role === 'admin' ? renderAdminHeader() : (username ? renderCustomerHeader() : (
-                <header className="bg-white shadow-sm sticky top-0 py-3 justify-between border border-amber-600 z-40">
-                    <div className="container mx-auto flex items-center justify-between">
-                        {/* Logo chung */}
-                        <div className="flex items-center">
-                            <Link to="/" className=" text-pink-600 text-lg font-bold ml-2 items-center"><i
-                                className="fa fa-heart text-pink-600 text-3xl"></i> <span
-                                className="text-2xl font-bold">HomeCraft</span></Link>
-                        </div>
+        <header className="bg-white shadow-md sticky top-0 z-50">
+            {/* Top bar */}
+            <div className="bg-gray-900 py-2 px-4 flex justify-between items-center ">
+                <div className="font-medium text-white">Home Craft</div>
+                <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1 text-white">
+                        <span className="text-white">0326-829-327</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-white">
+                        <span>08:00 - 18:00</span>
+                    </div>
+                </div>
+            </div>
 
-                        {/* Search chung */}
-                        <div className="hidden md:flex flex-1 mx-4 relative">
-                            <input
-                                type="text"
-                                value={searchInput}
-                                onChange={handleSearchChange}
-                                placeholder="Search..."
-                                className="border border-gray-300 rounded-lg p-2 flex-1"
-                            />
-                            {searchInput && searchResults.length > 0 && (
-                                <div className="absolute top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md w-full z-50 max-h-60 overflow-y-auto">
-                                    {searchResults.map(product => (
-                                        <div
-                                            key={product.id}
-                                            className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
-                                            onClick={() => window.location.href = `/product/${product.id}`}
-                                        >
-                                            <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded" />
-                                            <span className="text-sm text-gray-700">{product.name}</span>
-                                        </div>
-                                    ))}
+            {/* Main header */}
+            <div className="bg-white text-gray-900 py-4 px-4 flex justify-between items-center shadow-sm relative">
+                {/* Search */}
+                <div className="flex-1 max-w-xl relative">
+                    <form onSubmit={handleSearchSubmit} className="relative">
+                        <input
+                            type="text"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            placeholder="Tìm kiếm sản phẩm..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                        />
+                        <button
+                            type="submit"
+                            className="absolute right-0 top-0 h-full bg-gray-900 hover:bg-gray-800 text-white px-4 rounded-r-md"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </form>
+
+                    {/* Suggestions dropdown */}
+                    {suggestions.length > 0 && (
+                        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
+                            {suggestions.map((suggestion) => (
+                                <li
+                                    key={suggestion.id}
+                                    onClick={() => handleSuggestionClick(suggestion.id)}
+                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                                >
+                                    {suggestion.image && (
+                                        <img
+                                            src={suggestion.image || "/placeholder.svg"}
+                                            alt={suggestion.name}
+                                            className="w-8 h-8 mr-2 rounded object-cover"
+                                        />
+                                    )}
+                                    <span>{suggestion.name}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                </div>
+
+                {/* Navigation */}
+                <div className="hidden md:flex items-center space-x-6 ml-6">
+                    <Link to="/" className="py-2 font-medium hover:text-blue-600">
+                        Trang chủ
+                    </Link>
+                    <Link to="/products" className="py-2 font-medium hover:text-blue-600">
+                        Sản phẩm
+                    </Link>
+                    <Link to="/contact" className="py-2 font-medium hover:text-blue-600">
+                        Liên hệ
+                    </Link>
+                    <Link to="/about" className="py-2 font-medium hover:text-blue-600">
+                        Giới thiệu
+                    </Link>
+                    {/* Hide Register and Login when logged in */}
+                    {!isLoggedIn && (
+                        <>
+                            <Link to="/register" className="py-2 font-medium hover:text-blue-600">
+                                Đăng ký
+                            </Link>
+                            <Link to="/login" className="py-2 font-medium hover:text-blue-600">
+                                Đăng nhập
+                            </Link>
+                        </>
+                    )}
+                    {isLoggedIn && user && (
+                        <div className="relative">
+                            <button onClick={toggleUserMenu} className="py-2 font-medium hover:text-blue-600 focus:outline-none">
+                                {user.fullName}
+                            </button>
+                            {isUserMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20">
+                                    <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                        Thông tin cá nhân
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
+                                    >
+                                        Đăng xuất
+                                    </button>
                                 </div>
                             )}
                         </div>
+                    )}
 
-                        {/* Nav chưa đăng nhập */}
-                        <nav className="hidden md:flex items-center space-x-12 relative">
-                            <Link to="/recipes" className="text-gray-700 hover:text-pink-600">Recipes</Link>
-                            <Link to="/ingredients" className="text-gray-700 hover:text-pink-600">Ingredients</Link>
-                            <Link to="/categories" className="text-gray-700 hover:text-pink-600">Categories</Link>
-                            <Link to="/about" className="text-gray-700 hover:text-pink-600">About</Link>
+                </div>
 
-                            <button onClick={onCartClick} className="text-gray-700 hover:text-pink-600 relative">
-                                <i className="fa fa-shopping-cart text-xl"></i>
-                                {totalItems > 0 && (
-                                    <span
-                                        className="absolute bottom-5 left-5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                                        {totalItems > 99 ? '99+' : totalItems}
-                                    </span>
-                                )}
+                {/* Cart */}
+                <div className="ml-4">
+                    <Link
+                        to="/cart"
+                        className="flex items-center px-4 py-2 border border-gray-300 text-gray-900 rounded-md hover:bg-gray-100 relative"
+                    >
+                        🛒
+                        {cartCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount}
+              </span>
+                        )}
+                        <span className="ml-2">GIỎ HÀNG</span>
+                    </Link>
+                </div>
+
+                {/* Mobile menu button */}
+                <div className="md:hidden ml-4">
+                    <button className="p-2 hover:bg-gray-100 rounded-md" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        ☰
+
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile menu */}
+            {isMenuOpen && (
+                <div className="md:hidden bg-white border-t border-gray-200 py-2">
+                    <Link to="/" className="block px-4 py-2 text-gray-900 hover:bg-gray-100">
+                        Trang chủ
+                    </Link>
+                    <Link to="/products" className="block px-4 py-2 text-gray-900 hover:bg-gray-100">
+                        Sản phẩm
+                    </Link>
+                    <Link to="/contact" className="block px-4 py-2 text-gray-900 hover:bg-gray-100">
+                        Liên hệ
+                    </Link>
+                    <Link to="/about" className="block px-4 py-2 text-gray-900 hover:bg-gray-100">
+                        Giới thiệu
+                    </Link>
+                    {!isLoggedIn && (
+                        <>
+                            <Link to="/register" className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100">
+                                Đăng ký
+                            </Link>
+                            <Link to="/login" className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100">
+                                Đăng nhập
+                            </Link>
+                        </>
+                    )}
+                    {isLoggedIn && user && (
+                        <div className="relative">
+                            <button
+                                onClick={toggleUserMenu}
+                                className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100 focus:outline-none"
+                            >
+                                {user.fullName}
                             </button>
+                            {isUserMenuOpen && (
+                                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20">
+                                    <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                        Thông tin cá nhân
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
+                                    >
+                                        Đăng xuất
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                            <button onClick={() => setShowLoginModal(true)}
-                                    className="text-gray-700 hover:text-pink-600">Đăng nhập
-                            </button>
-                            <button onClick={() => setShowSubscribeModal(true)}
-                                    className="bg-pink-600 text-white rounded-lg px-4 py-2">Đăng ký
-                            </button>
-                        </nav>
-                    </div>
-                </header>
-            ))}
-
-            {showLoginModal && (
-                <ModalLogin
-                    onClose={() => setShowLoginModal(false)}
-                    onLogin={handleLogin}
-                />
+                </div>
             )}
+        </header>
+    )
+}
 
-            {showSubscribeModal && (
-                <ModalSubscribe
-                    onClose={() => setShowSubscribeModal(false)}
-                    onRegister={handleRegister}
-                />
-            )}
-        </>
-    );
-};
+export default Header
 
-export default Header;

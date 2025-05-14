@@ -1,91 +1,130 @@
-import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { motion } from "framer-motion";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
+"use client"
 
-// Import hình ảnh
-import img1 from "../assets/img.png";
-import img2 from "../assets/img.png";
-import img3 from "../assets/img.png";
-import img4 from "../assets/img.png";
+import { useState, useEffect } from "react"
+
+import { Swiper, SwiperSlide } from "swiper/react"
+import { motion } from "framer-motion"
+import "swiper/css"
+import "swiper/css/pagination"
+import { Pagination } from "swiper/modules"
+import { Link } from "react-router-dom"
+
+import { products } from "../assets/js/productData.jsx" // import data sản phẩm
+
+
+// Import images
+import img1 from "../assets/img.png"
+import img2 from "../assets/img.png"
+import img3 from "../assets/img.png"
+import img4 from "../assets/img.png"
 
 const HomePage = () => {
-    const images = [img1, img2, img3, img4];
+    const [activeIndex, setActiveIndex] = useState(0)
+    const [productList, setProductList] = useState([])
+
+    const images = [img1, img2, img3, img4]
+
+    useEffect(() => {
+        setProductList(products) // Load sản phẩm
+    }, [])
 
     return (
-        <section
-            className="hero-section d-flex justify-content-between px-5"
-            style={{
-                background: "linear-gradient(135deg, #ff9a9e, #fad0c4)",
-                minHeight: "100vh",
-                display: "flex",
-                alignItems: "center",
-            }}
-        >
-            <div className="container d-flex justify-content-between align-items-start">
-                {/* Phần chữ - Chiếm 40% */}
-                <div className="w-40 text-left">
-                    <h1 className="fw-bold display-4 mb-3">
-                        Thiết kế không gian sống
-                    </h1>
-                    <h2
-                        className="fw-bold"
-                        style={{
-                            color: "#FFD700",
-                            fontSize: "2rem",
-                            textShadow: "1px 1px 4px rgba(0,0,0,0.3)",
-                        }}
-                    >
-                        Hiện đại & Tinh tế
-                    </h2>
-                    <p className="lead mt-3">
-                        Khám phá bộ sưu tập nội thất cao cấp giúp nâng tầm không gian sống của bạn.
-                    </p>
-                    <motion.a
-                        href="#products"
-                        className="btn btn-lg btn-light text-dark fw-bold px-4 py-2 mt-3"
-                        whileHover={{ scale: 1.1, backgroundColor: "#ffffff" }}
-                        whileTap={{ scale: 0.9 }}
-                        style={{
-                            borderRadius: "30px",
-                            boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-                        }}
-                    >
-                        Mua sắm ngay
-                    </motion.a>
-                </div>
+        <>
 
-                {/* Ảnh - Chiếm 60% */}
-                <div className="w-60 d-flex justify-content-end">
-                    <Swiper
-                        modules={[Pagination]}
-                        slidesPerView={1}
-                        pagination={{ clickable: true }}
-                        style={{ maxWidth: "450px", borderRadius: "20px" }}
-                    >
-                        {images.map((img, index) => (
-                            <SwiperSlide key={index}>
-                                <motion.img
-                                    src={img}
-                                    alt={`Slide ${index + 1}`}
-                                    className="img-fluid rounded shadow-lg"
-                                    initial={{ scale: 0.8, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ duration: 1 }}
-                                    style={{
-                                        borderRadius: "20px",
-                                        boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-                                    }}
-                                />
-                            </SwiperSlide>
+            {/* Hero Section */}
+            <section
+                className="hero-section text-white flex items-center"
+                style={{
+                    background: "#000000",
+                    minHeight: "45vh",
+                    padding: "50px 0",
+                }}
+            >
+                <div className="container mx-auto px-4">
+                    <div className="flex flex-col md:flex-row items-center">
+                        {/* Text Section */}
+                        <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
+                            <h1 className="font-bold text-4xl mb-3">Thiết kế không gian sống</h1>
+                            <h2 className="font-bold text-2xl text-blue-500 mb-3">Hiện đại & Tinh tế</h2>
+                            <p className="text-lg mt-3 py-3 opacity-90">
+                                Khám phá bộ sưu tập nội thất cao cấp giúp nâng tầm không gian sống của bạn.
+                            </p>
+                            <motion.a
+                                href="#products"
+                                className="inline-flex items-center justify-center px-6 py-3 mt-3 font-medium bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Mua sắm ngay
+                            </motion.a>
+                        </div>
+
+                        {/* Image Slider Section */}
+                        <div className="md:w-1/2 flex justify-center">
+                            <Swiper
+                                modules={[Pagination]}
+                                slidesPerView={1}
+                                pagination={{
+                                    clickable: true,
+                                    renderBullet: (index, className) => {
+                                        return `<span class="${className}" style="background: ${index === activeIndex ? "#FFF" : "rgba(255,255,255,0.5)"}; width: 10px; height: 10px; border-radius: 50%; margin: 5px; cursor: pointer;"></span>`
+                                    },
+                                }}
+                                onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                                style={{ maxWidth: "450px", width: "100%" }}
+                                className="rounded-lg overflow-hidden"
+                            >
+                                {images.map((img, index) => (
+                                    <SwiperSlide key={index}>
+                                        <motion.div
+                                            className="p-2"
+                                            initial={{ scale: 0.9, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <img
+                                                src={img || "/placeholder.svg"}
+                                                alt={`Nội thất ${index + 1}`}
+                                                className="w-full h-auto rounded-lg shadow-lg"
+                                                style={{
+                                                    borderRadius: "12px",
+                                                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.3)",
+                                                    border: "4px solid #333333",
+                                                }}
+                                            />
+                                        </motion.div>
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Products Section */}
+            <section id="products" className="py-10 bg-gray-100">
+                <div className="container mx-auto px-4">
+                    <h2 className="text-3xl font-bold mb-6 text-center">Sản phẩm nổi bật</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {productList.map((product) => (
+                            <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
+                                <Link to={`/product/${product.id}`} className="block">
+                                    <img
+                                        src={product.imageUrl || "/placeholder.svg"}
+                                        alt={product.productName}
+                                        className="w-full h-48 object-contain rounded-md mb-4"
+                                    />
+                                    <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
+                                    <p className="text-gray-600 text-sm mb-2">{product.description.slice(0, 60)}...</p>
+                                    <div className="text-blue-600 font-bold text-lg">{product.salePrice.toLocaleString("vi-VN")}₫</div>
+                                </Link>
+                            </div>
                         ))}
-                    </Swiper>
+                    </div>
                 </div>
-            </div>
-        </section>
-    );
-};
+            </section>
+        </>
+    )
+}
 
-export default HomePage;
+export default HomePage

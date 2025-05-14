@@ -1,39 +1,34 @@
-import React from "react";
-import { formatPrice, generateRatingStars } from "../assets/js/utils.jsx";
+import React from 'react';
+import { formatPrice, generateRatingStars } from '../assets/js/utils.jsx';
 
-const ProductCard = ({ product, onClick }) => {
+const ProductCard = ({ product }) => {
     return (
         <div
-            className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition"
-            onClick={() => onClick(product)}
+            className="product-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105"
         >
-            {/* Product Image */}
-            <div className="h-40 overflow-hidden">
-                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+            <div className="bg-gray-100 h-48 flex items-center justify-center">
+                <img
+                    src={product.imageUrl}
+                    alt={product.productName}
+                    className="object-contain h-full"
+                />
             </div>
-
-            {/* Product Details */}
             <div className="p-4">
-                <h3 className="text-lg font-semibold">{product.name}</h3>
+                <h3 className="text-lg font-medium">{product.productName}</h3>
 
-                {/* Rating */}
-                <div className="flex items-center space-x-2 text-yellow-500 mt-2">
-                    <div dangerouslySetInnerHTML={{ __html: generateRatingStars(product.rating) }}></div>
-                    <span className="text-gray-500 text-sm">({product.reviewCount})</span>
+                {/* Nếu bạn không có rating hoặc reviewCount thì có thể ẩn phần này hoặc để mặc định */}
+                <div className="flex items-center mb-2">
+                    {/*<div*/}
+                    {/*    className="text-yellow-500 mr-2"*/}
+                    {/*    dangerouslySetInnerHTML={{ __html: generateRatingStars(4.5) }} // mặc định 4.5 sao*/}
+                    {/*></div>*/}
+                    <span className="text-gray-500 text-sm">Số lượng tồn: {product.quantityInStock}</span>
                 </div>
 
-                {/* Price & View Button */}
-                <div className="flex items-center justify-between mt-4">
-                    <span className="text-xl font-bold text-blue-600">{formatPrice(product.price)}</span>
-                    <button
-                        className="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onClick(product);
-                        }}
-                    >
-                        <i className="fa fa-eye text-gray-700"></i>
-                    </button>
+                <div className="flex items-center justify-between">
+                    <span className="font-bold text-blue-600">
+                        {formatPrice(product.salePrice)}
+                    </span>
                 </div>
             </div>
         </div>
