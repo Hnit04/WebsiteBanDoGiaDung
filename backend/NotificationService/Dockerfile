@@ -10,6 +10,7 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 COPY --from=builder /app/build/libs/NotificationService-0.0.1-SNAPSHOT.jar app.jar
 COPY src/main/resources/application.yml .
-EXPOSE 8089
 ENV JAVA_OPTS="-Xmx256m -Xms128m"
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+EXPOSE ${PORT:-8089}
+CMD ["java", "-jar", "/app/app.jar", "--server.port=$PORT"]
