@@ -97,7 +97,7 @@ const LoginPage = () => {
             if (storedRole === "admin") {
                 navigate("/admin")
             } else {
-                navigate("/") // Đã sửa từ "/login" thành "/" để chuyển đến trang chủ
+                navigate("/login")
             }
         }
 

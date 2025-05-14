@@ -18,6 +18,8 @@ import CartPage from './pages/CartPage.jsx'
 import { setupDarkMode } from './assets/js/utils.jsx';
 import { getCart } from './assets/js/cartManager.jsx';
 import { getUserFromLocalStorage } from "./assets/js/userData"
+import CheckoutPage from "@/pages/CheckoutPage.jsx";
+import ProfilePage from "@/pages/ProfilePage.jsx";
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -103,6 +105,8 @@ export default function App() {
                         <Route path="/product/:id" element={<ProductDetailPage />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/cart" element={<CartPage />} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
+                        <Route path="/profile" element={<ProfilePage />} />
                     </Route>
 
                     {/* Route cho admin với AdminLayout */}

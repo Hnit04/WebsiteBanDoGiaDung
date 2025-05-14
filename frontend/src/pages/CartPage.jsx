@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { getUserFromLocalStorage } from "../assets/js/userData"
 import { products } from "../assets/js/productData.jsx"
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, RefreshCw, AlertTriangle, CheckCircle, X } from "lucide-react"
@@ -14,9 +14,11 @@ const CartPage = () => {
     const [showConfirmDelete, setShowConfirmDelete] = useState(false)
     const [itemToDelete, setItemToDelete] = useState(null)
     const [notification, setNotification] = useState(null)
+    const [selectedItems, setSelectedItems] = useState(new Set())
 
     const user = getUserFromLocalStorage()
     const userId = user?.id || null
+    const navigate = useNavigate()
 
     // Fetch cart items for the current user
     useEffect(() => {
@@ -46,14 +48,13 @@ const CartPage = () => {
 
         fetchCartItems()
     }, [userId])
-    // console.log(cartItems)
+
     // Update cart item quantity
     const updateQuantity = async (cartItemId, newQuantity) => {
         if (newQuantity < 1) return
 
         try {
             setIsUpdating(true)
-            // console.log("hung"+cartItemId)
             const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${cartItemId}`, {
                 method: "PUT",
                 headers: {
@@ -66,12 +67,9 @@ const CartPage = () => {
                 throw new Error("Failed to update cart")
             }
 
-            // Update local state
             setCartItems((prevItems) =>
                 prevItems.map((item) => (item.id === cartItemId ? { ...item, quantity: newQuantity } : item)),
             )
-
-            // showNotification("success", "Số lượng đã được cập nhật")
         } catch (err) {
             console.error("Error updating cart:", err)
             showNotification("error", "Không thể cập nhật số lượng. Vui lòng thử lại.")
@@ -106,13 +104,13 @@ const CartPage = () => {
                 throw new Error("Failed to remove item from cart")
             }
 
-            // Get product details for notification
             const product = getProductDetails(itemToDelete.productId)
-
-            // Update local state
             setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemToDelete.id))
-
-            // Show success notification
+            setSelectedItems((prev) => {
+                const newSet = new Set(prev)
+                newSet.delete(itemToDelete.id)
+                return newSet
+            })
             showNotification("success", `Đã xóa ${product.productName} khỏi giỏ hàng`)
         } catch (err) {
             console.error("Error removing item:", err)
@@ -127,8 +125,6 @@ const CartPage = () => {
     // Show notification
     const showNotification = (type, message) => {
         setNotification({ type, message })
-
-        // Auto hide after 3 seconds
         setTimeout(() => {
             setNotification(null)
         }, 3000)
@@ -147,12 +143,47 @@ const CartPage = () => {
         )
     }
 
-    // Calculate total price
-    const calculateTotal = () => {
-        return cartItems.reduce((total, item) => {
+    // Calculate total price and total items for selected items only
+    const calculateSelectedSummary = () => {
+        const selectedCartItems = cartItems.filter((item) => selectedItems.has(item.id))
+        const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0)
+        const subtotal = selectedCartItems.reduce((total, item) => {
             const product = getProductDetails(item.productId)
             return total + product.salePrice * item.quantity
         }, 0)
+        return { totalItems, subtotal }
+    }
+
+    // Toggle selection of an item
+    const toggleItemSelection = (itemId) => {
+        setSelectedItems((prev) => {
+            const newSet = new Set(prev)
+            if (newSet.has(itemId)) {
+                newSet.delete(itemId)
+            } else {
+                newSet.add(itemId)
+            }
+            return newSet
+        })
+    }
+
+    // Toggle select all items
+    const toggleSelectAll = () => {
+        if (selectedItems.size === cartItems.length) {
+            setSelectedItems(new Set())
+        } else {
+            setSelectedItems(new Set(cartItems.map((item) => item.id)))
+        }
+    }
+
+    // Navigate to checkout with selected items
+    const handleCheckout = () => {
+        if (selectedItems.size === 0) {
+            showNotification("error", "Vui lòng chọn ít nhất một sản phẩm để thanh toán.")
+            return
+        }
+        const itemIds = Array.from(selectedItems)
+        navigate(`/checkout?items=${itemIds.join(",")}`)
     }
 
     // If user is not logged in
@@ -243,9 +274,13 @@ const CartPage = () => {
         )
     }
 
+    // Calculate summary for selected items
+    const { totalItems, subtotal } = calculateSelectedSummary()
+    const shippingFee = 30000
+    const total = subtotal + shippingFee
+
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-            {/* Notification */}
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
@@ -268,9 +303,8 @@ const CartPage = () => {
                 </div>
             )}
 
-            {/* Delete confirmation modal */}
             {showConfirmDelete && itemToDelete && (
-                <div className="fixed inset-0 bg-black/20  flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-fade-in">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Xác nhận xóa sản phẩm</h3>
                         <p className="text-gray-600 mb-6">
@@ -312,11 +346,19 @@ const CartPage = () => {
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">Giỏ hàng của bạn</h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Cart items */}
                     <div className="lg:w-2/3">
                         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                            <div className="p-6 border-b border-gray-200">
+                            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                                 <h2 className="text-xl font-semibold text-gray-800">Sản phẩm ({cartItems.length})</h2>
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedItems.size === cartItems.length}
+                                        onChange={toggleSelectAll}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700">Chọn tất cả</span>
+                                </div>
                             </div>
 
                             <div className="divide-y divide-gray-200">
@@ -324,8 +366,15 @@ const CartPage = () => {
                                     const product = getProductDetails(item.productId)
                                     return (
                                         <div key={item.id} className="p-6 flex flex-col sm:flex-row items-center">
-                                            {/* Product image */}
-                                            <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+                                            <div className="w-6 flex-shrink-0">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedItems.has(item.id)}
+                                                    onChange={() => toggleItemSelection(item.id)}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                />
+                                            </div>
+                                            <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
                                                 <img
                                                     src={product.imageUrl || "/placeholder.svg?height=96&width=96"}
                                                     alt={product.productName}
@@ -333,7 +382,6 @@ const CartPage = () => {
                                                 />
                                             </div>
 
-                                            {/* Product details */}
                                             <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
                                                 <div className="flex flex-col sm:flex-row sm:justify-between">
                                                     <div>
@@ -347,58 +395,57 @@ const CartPage = () => {
                                                     </p>
                                                 </div>
 
-                                                {/* Quantity and actions */}
                                                 <div className="flex items-center justify-between mt-4">
-                                                    <div
-                                                        className="flex items-center border border-gray-300 rounded-md">
+                                                    <div className="flex items-center border border-gray-300 rounded-md">
                                                         <button
                                                             onClick={() => {
-                                                                const newQuantity = item.quantity - 1;
+                                                                const newQuantity = item.quantity - 1
                                                                 if (newQuantity >= 1) {
-                                                                    setCartItems(prev =>
-                                                                        prev.map(cartItem =>
+                                                                    setCartItems((prev) =>
+                                                                        prev.map((cartItem) =>
                                                                             cartItem.productId === item.productId
-                                                                                ? {...cartItem, quantity: newQuantity}
-                                                                                : cartItem
-                                                                        )
-                                                                    );
-                                                                    updateQuantity(item.id, newQuantity);
+                                                                                ? { ...cartItem, quantity: newQuantity }
+                                                                                : cartItem,
+                                                                        ),
+                                                                    )
+                                                                    updateQuantity(item.id, newQuantity)
                                                                 }
                                                             }}
                                                             className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                                                             aria-label="Giảm số lượng"
                                                         >
-                                                            <Minus size={16}/>
+                                                            <Minus size={16} />
                                                         </button>
 
                                                         <input
                                                             type="text"
                                                             value={item.quantity === 0 ? "" : item.quantity}
                                                             onChange={(e) => {
-                                                                const val = e.target.value;
-
-                                                                // Cho phép người dùng xóa hoàn toàn để nhập lại
+                                                                const val = e.target.value
                                                                 if (val === "") {
-                                                                    setCartItems(prev =>
-                                                                        prev.map(cartItem =>
+                                                                    setCartItems((prev) =>
+                                                                        prev.map((cartItem) =>
                                                                             cartItem.productId === item.productId
-                                                                                ? {...cartItem, quantity: 0}
-                                                                                : cartItem
-                                                                        )
-                                                                    );
-                                                                    return;
+                                                                                ? { ...cartItem, quantity: 0 }
+                                                                                : cartItem,
+                                                                        ),
+                                                                    )
+                                                                    return
                                                                 }
-
-                                                                const newQuantity = parseInt(val);
-                                                                if (!isNaN(newQuantity) && newQuantity >= 1 && newQuantity <= product.quantityInStock) {
-                                                                    setCartItems(prev =>
-                                                                        prev.map(cartItem =>
+                                                                const newQuantity = parseInt(val)
+                                                                if (
+                                                                    !isNaN(newQuantity) &&
+                                                                    newQuantity >= 1 &&
+                                                                    newQuantity <= product.quantityInStock
+                                                                ) {
+                                                                    setCartItems((prev) =>
+                                                                        prev.map((cartItem) =>
                                                                             cartItem.productId === item.productId
-                                                                                ? {...cartItem, quantity: newQuantity}
-                                                                                : cartItem
-                                                                        )
-                                                                    );
-                                                                    updateQuantity(item.id, newQuantity);
+                                                                                ? { ...cartItem, quantity: newQuantity }
+                                                                                : cartItem,
+                                                                        ),
+                                                                    )
+                                                                    updateQuantity(item.id, newQuantity)
                                                                 }
                                                             }}
                                                             className="w-16 text-center border-x border-gray-300 py-1 outline-none"
@@ -406,25 +453,24 @@ const CartPage = () => {
 
                                                         <button
                                                             onClick={() => {
-                                                                const newQuantity = item.quantity + 1;
+                                                                const newQuantity = item.quantity + 1
                                                                 if (newQuantity <= product.quantityInStock) {
-                                                                    setCartItems(prev =>
-                                                                        prev.map(cartItem =>
+                                                                    setCartItems((prev) =>
+                                                                        prev.map((cartItem) =>
                                                                             cartItem.productId === item.productId
-                                                                                ? {...cartItem, quantity: newQuantity}
-                                                                                : cartItem
-                                                                        )
-                                                                    );
-                                                                    updateQuantity(item.id, newQuantity);
+                                                                                ? { ...cartItem, quantity: newQuantity }
+                                                                                : cartItem,
+                                                                        ),
+                                                                    )
+                                                                    updateQuantity(item.id, newQuantity)
                                                                 }
                                                             }}
                                                             className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                                                             aria-label="Tăng số lượng"
                                                         >
-                                                            <Plus size={16}/>
+                                                            <Plus size={16} />
                                                         </button>
                                                     </div>
-
 
                                                     <button
                                                         onClick={() => confirmDelete(item)}
@@ -432,19 +478,19 @@ const CartPage = () => {
                                                         className="text-red-600 hover:text-red-800 flex items-center disabled:opacity-50"
                                                         aria-label="Xóa sản phẩm"
                                                     >
-                                                        <Trash2 size={18} className="mr-1"/>
+                                                        <Trash2 size={18} className="mr-1" />
                                                         <span>Xóa</span>
                                                     </button>
                                                 </div>
 
-                                                {/* Stock information */}
                                                 {product.quantityInStock > 0 && (
                                                     <p className="text-sm text-green-600 mt-2">
                                                         Còn {product.quantityInStock} sản phẩm trong kho
                                                     </p>
                                                 )}
-                                                {product.quantityInStock <= 0 &&
-                                                    <p className="text-sm text-red-600 mt-2">Hết hàng</p>}
+                                                {product.quantityInStock <= 0 && (
+                                                    <p className="text-sm text-red-600 mt-2">Hết hàng</p>
+                                                )}
                                             </div>
                                         </div>
                                     )
@@ -453,46 +499,47 @@ const CartPage = () => {
 
                             <div className="p-6 border-t border-gray-200">
                                 <Link to="/products" className="text-blue-600 hover:text-blue-800 flex items-center">
-                                    <ArrowLeft size={18} className="mr-2"/>
+                                    <ArrowLeft size={18} className="mr-2" />
                                     Tiếp tục mua sắm
                                 </Link>
                             </div>
                         </div>
                     </div>
 
-                    {/* Order summary */}
                     <div className="lg:w-1/3">
                         <div className="bg-white shadow-md rounded-lg p-6 sticky top-24">
                             <h2 className="text-xl font-semibold text-gray-800 mb-6">Tóm tắt đơn hàng</h2>
 
                             <div className="space-y-4">
                                 <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    Tạm tính ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} sản phẩm)
-                  </span>
+                                    <span className="text-gray-600">
+                                        Tạm tính ({totalItems} sản phẩm)
+                                    </span>
                                     <span className="text-gray-800 font-medium">
-                    {new Intl.NumberFormat("vi-VN", {style: "currency", currency: "VND"}).format(calculateTotal())}
-                  </span>
+                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(subtotal)}
+                                    </span>
                                 </div>
 
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Phí vận chuyển</span>
                                     <span className="text-gray-800 font-medium">
-                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(30000)}
-                  </span>
+                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(shippingFee)}
+                                    </span>
                                 </div>
 
                                 <div className="border-t border-gray-200 pt-4 flex justify-between">
                                     <span className="text-lg font-semibold text-gray-800">Tổng cộng</span>
                                     <span className="text-lg font-bold text-blue-600">
-                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                        calculateTotal() + 30000,
-                    )}
-                  </span>
+                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(total)}
+                                    </span>
                                 </div>
                             </div>
 
-                            <button className="w-full mt-6 bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors">
+                            <button
+                                onClick={handleCheckout}
+                                disabled={isUpdating || selectedItems.size === 0}
+                                className="w-full mt-6 bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 Tiến hành thanh toán
                             </button>
 
