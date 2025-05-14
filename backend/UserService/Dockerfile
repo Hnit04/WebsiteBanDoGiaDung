@@ -1,17 +1,15 @@
-# Sử dụng JDK 21 nhẹ
-FROM eclipse-temurin:21-jdk-alpine
-
-# Tạo thư mục làm việc trong container
+# Stage 1: Build JAR
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
+COPY . .
+RUN ./gradlew build
 
-# Copy file jar đã build từ Gradle
-COPY build/libs/UserService-0.0.1-SNAPSHOT.jar app.jar
-
+# Stage 2: Run application
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=builder /app/build/libs/UserService-0.0.1-SNAPSHOT.jar app.jar
 COPY src/main/resources/application.yml .
-
-# Mở cổng 8082
-EXPOSE 8082
-
-# Lệnh chạy app
+EXPOSE 8080
 ENV JAVA_OPTS="-Xmx256m -Xms128m"
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+
