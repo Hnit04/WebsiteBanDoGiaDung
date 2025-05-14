@@ -23,6 +23,9 @@ import CheckoutPage from "@/pages/CheckoutPage.jsx";
 import ProfilePage from "@/pages/ProfilePage.jsx";
 import ProductsAdminPage from "@/pages/ProductsAdminPage.jsx";
 import OrderAdminPage from "@/pages/OrderAdminPage.jsx"
+import CustomerAdminPage from "@/pages/CustomerAdminPage.jsx";
+import Statistical from "@/pages/Statistical.jsx"
+import Transport from "@/pages/Transport.jsx"
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -132,6 +135,18 @@ export default function App() {
                         <Route
                             path="/admin/orders"
                             element={<AdminRoute element={<OrderAdminPage />} />}
+                        />
+                        <Route
+                            path="/admin/customers"
+                            element={<AdminRoute element={<CustomerAdminPage />} />}
+                        />
+                        <Route
+                            path="/admin/analytics"
+                            element={<AdminRoute element={<Statistical />} />}
+                        />
+                        <Route
+                            path="/admin/shipping"
+                            element={<AdminRoute element={<Transport />} />}
                         />
                     </Route>
 

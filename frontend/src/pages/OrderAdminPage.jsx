@@ -75,13 +75,8 @@ export default function OrdersAdminPage() {
 
                 // Process and combine data
                 const processedOrders = ordersData.map((order) => {
-                    // Find user information
                     const user = users.find((u) => u.id === Number(order.userId)) || { fullName: "Không xác định", email: "N/A" }
-
-                    // Find order details for this order
                     const details = orderDetailsData.filter((detail) => detail.orderId === order.id)
-
-                    // Enrich details with product information
                     const enrichedDetails = details.map((detail) => {
                         const product = productsData.find((p) => p.id === detail.productId) || null
                         return {
@@ -100,7 +95,6 @@ export default function OrdersAdminPage() {
                     }
                 })
 
-                // Calculate stats
                 const statsData = {
                     total: ordersData.length,
                     pending: ordersData.filter((o) => o.status === "pending").length,
@@ -114,7 +108,6 @@ export default function OrdersAdminPage() {
                 setOrderDetails(orderDetailsData)
                 setStats(statsData)
 
-                // Select first order by default
                 if (processedOrders.length > 0) {
                     setSelectedOrder(processedOrders[0])
                 }
@@ -129,12 +122,10 @@ export default function OrdersAdminPage() {
         fetchData()
     }, [])
 
-    // Handle order selection
     const handleSelectOrder = (order) => {
         setSelectedOrder(order)
     }
 
-    // Filter orders based on search query, date filter, and status filter
     const filteredOrders = orders.filter((order) => {
         const matchesSearch =
             order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -160,11 +151,12 @@ export default function OrdersAdminPage() {
                 : new Date(b.deliveryDate) - new Date(a.deliveryDate)
         }
 
-        // Default sort by ID
-        return sortConfig.direction === "asc" ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id)
+        // Default sort by ID in descending order
+        return sortConfig.direction === "asc"
+            ? b.id.localeCompare(a.id) // Newest first
+            : a.id.localeCompare(b.id) // Oldest first
     })
 
-    // Handle sort
     const handleSort = (key) => {
         setSortConfig((prevConfig) => ({
             key,
@@ -172,22 +164,28 @@ export default function OrdersAdminPage() {
         }))
     }
 
-    // Format currency
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
     }
 
-    // Format date
     const formatDate = (dateString) => {
-        const date = new Date(dateString)
+        if (!dateString) {
+            return "Không xác định";
+        }
+
+        const date = new Date(dateString);
+
+        if (isNaN(date.getTime())) {
+            return "Không xác định";
+        }
+
         return date.toLocaleDateString("vi-VN", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-        })
-    }
+        });
+    };
 
-    // Get status badge color
     const getStatusBadgeColor = (status) => {
         switch (status) {
             case "pending":
@@ -205,7 +203,6 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Get status background color
     const getStatusBgColor = (status) => {
         switch (status) {
             case "pending":
@@ -223,7 +220,6 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Get status text
     const getStatusText = (status) => {
         switch (status) {
             case "pending":
@@ -241,7 +237,6 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Get status icon
     const getStatusIcon = (status) => {
         switch (status) {
             case "pending":
@@ -259,7 +254,6 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Get payment method text
     const getPaymentMethodText = (methodId) => {
         switch (methodId) {
             case "PM001":
@@ -275,7 +269,6 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Get payment method icon
     const getPaymentMethodIcon = (methodId) => {
         switch (methodId) {
             case "PM001":
@@ -291,15 +284,13 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Export orders to CSV
     const exportToCSV = () => {
-        const headers = ["Mã đơn hàng", "Khách hàng", "Địa chỉ", "Tổng tiền", "Ngày giao", "Trạng thái"]
+        const headers = ["Khách hàng", "Địa chỉ", "Tổng tiền", "Ngày giao", "Trạng thái"]
 
         const csvContent = [
             headers.join(","),
             ...filteredOrders.map((order) =>
                 [
-                    order.id,
                     order.userFullName,
                     `"${order.deliveryAddress.replace(/"/g, '""')}"`,
                     order.totalAmount,
@@ -319,14 +310,11 @@ export default function OrdersAdminPage() {
         document.body.removeChild(link)
     }
 
-    // Handle print invoice
     const handlePrintInvoice = () => {
         if (!selectedOrder) return
 
-        // Create a new window for printing
         const printWindow = window.open("", "_blank", "width=800,height=600")
 
-        // Generate invoice HTML
         const invoiceHtml = `
       <!DOCTYPE html>
       <html lang="vi">
@@ -430,7 +418,6 @@ export default function OrdersAdminPage() {
       <body>
         <div class="invoice-header">
           <h1>HÓA ĐƠN BÁN HÀNG</h1>
-          <p>Mã đơn hàng: #${selectedOrder.id}</p>
           <p>Ngày đặt hàng: ${formatDate(selectedOrder.deliveryDate)}</p>
         </div>
         
@@ -504,12 +491,10 @@ export default function OrdersAdminPage() {
       </html>
     `
 
-        // Write to the new window and print
         printWindow.document.open()
         printWindow.document.write(invoiceHtml)
         printWindow.document.close()
 
-        // Wait for content to load before printing
         printWindow.onload = () => {
             setTimeout(() => {
                 printWindow.focus()
@@ -518,37 +503,27 @@ export default function OrdersAdminPage() {
         }
     }
 
-    // Handle refresh data
     const handleRefresh = async () => {
         try {
             setLoading(true)
 
-            // Fetch orders
             const ordersResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/order")
             if (!ordersResponse.ok) throw new Error("Không thể tải dữ liệu đơn hàng")
             const ordersData = await ordersResponse.json()
 
-            // Fetch order details
             const orderDetailsResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail")
             if (!orderDetailsResponse.ok) throw new Error("Không thể tải dữ liệu chi tiết đơn hàng")
             const orderDetailsData = await orderDetailsResponse.json()
 
-            // Fetch products directly from the provided API
             const productsResponse = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
             if (!productsResponse.ok) throw new Error("Không thể tải dữ liệu sản phẩm")
             const productsData = await productsResponse.json()
 
             setProducts(productsData)
 
-            // Process and combine data
             const processedOrders = ordersData.map((order) => {
-                // Find user information
                 const user = users.find((u) => u.id === Number(order.userId)) || { fullName: "Không xác định", email: "N/A" }
-
-                // Find order details for this order
                 const details = orderDetailsData.filter((detail) => detail.orderId === order.id)
-
-                // Enrich details with product information
                 const enrichedDetails = details.map((detail) => {
                     const product = productsData.find((p) => p.id === detail.productId) || null
                     return {
@@ -567,7 +542,6 @@ export default function OrdersAdminPage() {
                 }
             })
 
-            // Calculate stats
             const statsData = {
                 total: ordersData.length,
                 pending: ordersData.filter((o) => o.status === "pending").length,
@@ -581,7 +555,6 @@ export default function OrdersAdminPage() {
             setOrderDetails(orderDetailsData)
             setStats(statsData)
 
-            // Maintain selected order if possible
             if (selectedOrder) {
                 const updatedSelectedOrder = processedOrders.find((o) => o.id === selectedOrder.id)
                 setSelectedOrder(updatedSelectedOrder || (processedOrders.length > 0 ? processedOrders[0] : null))
@@ -612,7 +585,7 @@ export default function OrdersAdminPage() {
 
     if (error && orders.length === 0) {
         return (
-            <div className="flex items-center justify-center h-screen bg-gradient-to-br from-red-50 to-orange-50">
+            <div className="flex items-center justify-center h-screen bg-gradient-to-br from=red-50 to-orange-50">
                 <div className="bg-white text-red-800 p-8 rounded-xl shadow-lg max-w-md">
                     <div className="flex items-center mb-6">
                         <div className="bg-red-100 p-3 rounded-full">
@@ -672,7 +645,6 @@ export default function OrdersAdminPage() {
                     </div>
                 </div>
 
-                {/* Stats Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
                         <div className="p-5">
@@ -834,7 +806,6 @@ export default function OrdersAdminPage() {
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Order List */}
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
                             <div className="border-b px-6 py-4">
@@ -844,24 +815,10 @@ export default function OrdersAdminPage() {
                                 </p>
                             </div>
 
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto max-h-168">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                     <tr>
-                                        <th
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                            onClick={() => handleSort("id")}
-                                        >
-                                            <div className="flex items-center">
-                                                Mã đơn hàng
-                                                {sortConfig.key === "id" &&
-                                                    (sortConfig.direction === "asc" ? (
-                                                        <ChevronUp className="h-4 w-4 ml-1" />
-                                                    ) : (
-                                                        <ChevronDown className="h-4 w-4 ml-1" />
-                                                    ))}
-                                            </div>
-                                        </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Khách hàng
                                         </th>
@@ -869,6 +826,7 @@ export default function OrdersAdminPage() {
                                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                             onClick={() => handleSort("totalAmount")}
                                         >
+                                            necks
                                             <div className="flex items-center">
                                                 Tổng tiền
                                                 {sortConfig.key === "totalAmount" &&
@@ -909,9 +867,6 @@ export default function OrdersAdminPage() {
                                                 onClick={() => handleSelectOrder(order)}
                                             >
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-medium text-indigo-600">#{order.id}</div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center">
                                                         <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
                                 <span className="text-indigo-600 font-medium text-lg">
@@ -932,14 +887,14 @@ export default function OrdersAdminPage() {
                                                     <div className="text-sm text-gray-900">{formatDate(order.deliveryDate)}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
-                                    order.status,
-                                )}`}
-                            >
-                              {getStatusIcon(order.status)}
-                                <span className="ml-1">{getStatusText(order.status)}</span>
-                            </span>
+                                                    <span
+                                                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                                                            order.status,
+                                                        )}`}
+                                                    >
+                                                      {getStatusIcon(order.status)}
+                                                        <span className="ml-1">{getStatusText(order.status)}</span>
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))
@@ -960,7 +915,6 @@ export default function OrdersAdminPage() {
                         </div>
                     </div>
 
-                    {/* Order Details */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-xl shadow-md h-full border border-gray-100">
                             <div className="border-b px-6 py-4">
