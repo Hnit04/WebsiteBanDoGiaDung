@@ -13,4 +13,5 @@ COPY src/main/resources/application.yml .
 EXPOSE 8082
 
 # Lệnh chạy app
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV JAVA_OPTS="-Xmx256m -Xms128m"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
