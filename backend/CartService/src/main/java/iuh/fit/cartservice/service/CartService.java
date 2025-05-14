@@ -3,6 +3,7 @@ package iuh.fit.cartservice.service;
 import iuh.fit.cartservice.dto.ProductDTO;
 import iuh.fit.cartservice.dto.request.AddCartItemRequest;
 import iuh.fit.cartservice.dto.request.RemoveCartItemRequest;
+import iuh.fit.cartservice.dto.request.UpdateCartItemRequest;
 import iuh.fit.cartservice.dto.response.CartResponse;
 import iuh.fit.cartservice.mapper.CartMapper;
 import iuh.fit.cartservice.model.Cart;
@@ -43,37 +44,84 @@ public class CartService {
             cart.setUserId(request.getUserId());
             cart.setTotalAmount(0.0);
             cart.setCartItems(new ArrayList<>());
-            cart = cartRepository.save(cart); // Lưu cart để sinh cartId
+            cart = cartRepository.save(cart);
         } else {
             cart = optionalCart.get();
         }
 
         Optional<CartItem> optionalCartItem = cartItemRepository.findByCartIdAndProductId(cart.getCartId(), request.getProductId());
         CartItem cartItem;
+        boolean isNewItem = false;
         if (optionalCartItem.isPresent()) {
             cartItem = optionalCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + request.getQuantity());
         } else {
             cartItem = new CartItem();
-            cartItem.setCartId(cart.getCartId()); // Gán cartId sau khi cart đã có ID
+            cartItem.setCartId(cart.getCartId());
             cartItem.setProductId(request.getProductId());
             cartItem.setQuantity(request.getQuantity());
-            cart.getCartItems().add(cartItem);
+            isNewItem = true;
         }
 
-        // Gọi ProductService để lấy giá và tên sản phẩm
         String url = PRODUCT_SERVICE_URL + request.getProductId();
         ProductDTO product = restTemplate.getForObject(url, ProductDTO.class);
         if (product == null || product.getSalePrice() <= 0) {
             throw new RuntimeException("Product not found or invalid price for product: " + request.getProductId());
         }
+        if (product.getQuantityInStock() < cartItem.getQuantity()) {
+            throw new RuntimeException("Insufficient stock for product: " + request.getProductId());
+        }
         cartItem.setProductName(product.getProductName());
         cartItem.setSubtotal(cartItem.getQuantity() * product.getSalePrice());
 
-        cart.setTotalAmount(calculateTotalAmount(cart.getCartItems()));
+        cartItem = cartItemRepository.save(cartItem);
+
+        if (isNewItem) {
+            cart.getCartItems().add(cartItem);
+        }
+
+        List<CartItem> updatedCartItems = cartItemRepository.findByCartId(cart.getCartId());
+        cart.setCartItems(updatedCartItems);
+        cart.setTotalAmount(calculateTotalAmount(updatedCartItems));
 
         cartRepository.save(cart);
-        cartItemRepository.save(cartItem);
+
+        return cartMapper.toCartResponse(cart);
+    }
+
+    public CartResponse updateCartItem(String cartItemId, UpdateCartItemRequest request) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("CartItem not found with id: " + cartItemId));
+
+        // Lưu cartId thành một biến final để sử dụng trong lambda
+        final String cartId = cartItem.getCartId();
+
+        if (request.getQuantity() != null) {
+            if (request.getQuantity() < 0) {
+                throw new IllegalArgumentException("Quantity cannot be negative");
+            }
+            cartItem.setQuantity(request.getQuantity());
+
+            String url = PRODUCT_SERVICE_URL + cartItem.getProductId();
+            ProductDTO product = restTemplate.getForObject(url, ProductDTO.class);
+            if (product == null) {
+                throw new RuntimeException("Product not found for product: " + cartItem.getProductId());
+            }
+            if (product.getQuantityInStock() < request.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for product: " + cartItem.getProductId());
+            }
+            cartItem.setSubtotal(cartItem.getQuantity() * product.getSalePrice());
+        }
+
+        cartItem = cartItemRepository.save(cartItem);
+
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + cartId));
+        List<CartItem> updatedCartItems = cartItemRepository.findByCartId(cart.getCartId());
+        cart.setCartItems(updatedCartItems);
+        cart.setTotalAmount(calculateTotalAmount(updatedCartItems));
+
+        cartRepository.save(cart);
 
         return cartMapper.toCartResponse(cart);
     }
@@ -85,20 +133,22 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getCartId(), request.getProductId())
                 .orElseThrow(() -> new RuntimeException("CartItem not found for product: " + request.getProductId()));
 
-        // Xóa cartItem khỏi cơ sở dữ liệu
         cartItemRepository.delete(cartItem);
 
-        // Tải lại danh sách cartItems từ cơ sở dữ liệu để đảm bảo dữ liệu chính xác
         List<CartItem> updatedCartItems = cartItemRepository.findByCartId(cart.getCartId());
         cart.setCartItems(updatedCartItems);
-
-        // Tính toán lại totalAmount dựa trên danh sách cartItems mới
         cart.setTotalAmount(calculateTotalAmount(updatedCartItems));
 
-        // Lưu cart đã cập nhật
         cartRepository.save(cart);
 
         return cartMapper.toCartResponse(cart);
+    }
+
+    public void clearCart(String userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
+        cartItemRepository.deleteByCartId(cart.getCartId());
+        cartRepository.delete(cart);
     }
 
     public CartResponse getCartByUserId(String userId) {
