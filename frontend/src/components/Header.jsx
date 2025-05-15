@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
-import { getUserFromLocalStorage } from "../assets/js/userData"
-import { clearUserFromLocalStorage } from "../assets/js/userData"
+import { getUserFromLocalStorage, clearUserFromLocalStorage } from "../assets/js/userData"
+import debounce from "lodash/debounce"
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -21,16 +21,14 @@ const Header = () => {
         if (loggedInUser) {
             setUser(loggedInUser)
             setIsLoggedIn(true)
-            // Fetch cart count when user is logged in
             fetchCartCount(loggedInUser.id)
         } else {
             setUser(null)
             setIsLoggedIn(false)
             setCartCount(0)
         }
-    }, [location.pathname]) // Re-check when route changes
+    }, [location.pathname])
 
-    // Lắng nghe sự kiện cartUpdated để cập nhật số lượng giỏ hàng
     useEffect(() => {
         const handleCartUpdated = () => {
             const loggedInUser = getUserFromLocalStorage()
@@ -39,23 +37,45 @@ const Header = () => {
             }
         }
 
-        window.addEventListener('cartUpdated', handleCartUpdated)
+        window.addEventListener("cartUpdated", handleCartUpdated)
         return () => {
-            window.removeEventListener('cartUpdated', handleCartUpdated)
+            window.removeEventListener("cartUpdated", handleCartUpdated)
         }
-    }, []) // Chạy một lần khi component mount/unmount
+    }, [])
+
+    // Đóng user menu khi nhấp ra ngoài
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            const userMenu = document.querySelector(".user-menu")
+            const userMenuButton = document.querySelector(".user-menu-button")
+
+            if (
+                userMenu &&
+                userMenuButton &&
+                !userMenu.contains(event.target) &&
+                !userMenuButton.contains(event.target)
+            ) {
+                setIsUserMenuOpen(false)
+            }
+        }
+
+        if (isUserMenuOpen) {
+            document.addEventListener("click", handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener("click", handleClickOutside)
+        }
+    }, [isUserMenuOpen])
 
     // Fetch cart count
     const fetchCartCount = async (userId) => {
         try {
             const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart?userId=${userId}`)
-
             if (!response.ok) {
                 throw new Error("Không thể lấy dữ liệu giỏ hàng")
             }
-
             const cartData = await response.json()
-            // Tính tổng số lượng sản phẩm trong giỏ
             const totalItems = cartData.length
             setCartCount(totalItems)
         } catch (error) {
@@ -64,9 +84,48 @@ const Header = () => {
         }
     }
 
+    // Fetch product suggestions
+    const fetchSuggestions = useCallback(
+        debounce(async (query) => {
+            if (!query.trim()) {
+                setSuggestions([])
+                return
+            }
+
+            try {
+                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
+                if (!response.ok) {
+                    throw new Error("Không thể lấy dữ liệu sản phẩm")
+                }
+                const products = await response.json()
+                const filteredProducts = products
+                    .filter((product) =>
+                        product.productName.toLowerCase().includes(query.toLowerCase())
+                    )
+                    .slice(0, 5) // Limit to 5 suggestions
+                    .map((product) => ({
+                        id: product.id,
+                        name: product.productName,
+                        image: product.imageUrl,
+                    }))
+                setSuggestions(filteredProducts)
+            } catch (error) {
+                console.error("Lỗi khi lấy gợi ý sản phẩm:", error)
+                setSuggestions([])
+            }
+        }, 300),
+        []
+    )
+
+    useEffect(() => {
+        fetchSuggestions(searchText)
+    }, [searchText, fetchSuggestions])
+
     const handleLogout = () => {
         clearUserFromLocalStorage()
         setUser(null)
+        setIsLoggedIn(false)
+        setCartCount(0)
         navigate("/login")
     }
 
@@ -81,25 +140,26 @@ const Header = () => {
     const handleSearchSubmit = (e) => {
         e.preventDefault()
         if (searchText.trim()) {
-            navigate(`/products?search=${searchText}`)
+            navigate(`/products?search=${encodeURIComponent(searchText)}`)
+            setSearchText("")
+            setSuggestions([])
         }
     }
 
     const handleSuggestionClick = (id) => {
-        navigate(`/products/${id}`)
+        navigate(`/product/${id}`)
         setSearchText("")
         setSuggestions([])
     }
 
-
     return (
         <header className="bg-white shadow-md sticky top-0 z-50">
             {/* Top bar */}
-            <div className="bg-gray-900 py-2 px-4 flex justify-between items-center ">
+            <div className="bg-gray-900 py-2 px-4 flex justify-between items-center">
                 <div className="font-medium text-white">Home Craft</div>
                 <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1 text-white">
-                        <span className="text-white">0326-829-327</span>
+                        <span>0326-829-327</span>
                     </div>
                     <div className="flex items-center gap-1 text-white">
                         <span>08:00 - 18:00</span>
@@ -133,7 +193,6 @@ const Header = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             >
-
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
@@ -142,7 +201,7 @@ const Header = () => {
 
                     {/* Suggestions dropdown */}
                     {suggestions.length > 0 && (
-                        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
+                        <ul className="absolute z-20 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
                             {suggestions.map((suggestion) => (
                                 <li
                                     key={suggestion.id}
@@ -151,17 +210,16 @@ const Header = () => {
                                 >
                                     {suggestion.image && (
                                         <img
-                                            src={suggestion.image || "/placeholder.svg"}
+                                            src={"/" + suggestion.image || "/placeholder.svg"}
                                             alt={suggestion.name}
                                             className="w-8 h-8 mr-2 rounded object-cover"
                                         />
                                     )}
-                                    <span>{suggestion.name}</span>
+                                    <span className="truncate">{suggestion.name}</span>
                                 </li>
                             ))}
                         </ul>
                     )}
-
                 </div>
 
                 {/* Navigation */}
@@ -178,25 +236,25 @@ const Header = () => {
                     <Link to="/about" className="py-2 font-medium hover:text-blue-600">
                         Giới thiệu
                     </Link>
-                    {/* Hide Register and Login when logged in */}
                     {!isLoggedIn && (
-                        <>
-                            <Link to="/register" className="py-2 font-medium hover:text-blue-600">
-                                Đăng ký
-                            </Link>
-                            <Link to="/login" className="py-2 font-medium hover:text-blue-600">
-                                Đăng nhập
-                            </Link>
-                        </>
+                        <Link to="/login" className="py-2 font-medium hover:text-blue-600">
+                            Đăng nhập
+                        </Link>
                     )}
                     {isLoggedIn && user && (
                         <div className="relative">
-                            <button onClick={toggleUserMenu} className="py-2 font-medium hover:text-blue-600 focus:outline-none">
+                            <button
+                                onClick={toggleUserMenu}
+                                className="py-2 font-medium hover:text-blue-600 focus:outline-none user-menu-button"
+                            >
                                 {user.fullName}
                             </button>
                             {isUserMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20">
-                                    <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20 user-menu">
+                                    <Link
+                                        to="/profile"
+                                        className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                                    >
                                         Thông tin cá nhân
                                     </Link>
                                     <button
@@ -209,7 +267,6 @@ const Header = () => {
                             )}
                         </div>
                     )}
-
                 </div>
 
                 {/* Cart */}
@@ -221,8 +278,8 @@ const Header = () => {
                         🛒
                         {cartCount > 0 && (
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartCount}
-              </span>
+                                {cartCount}
+                            </span>
                         )}
                         <span className="ml-2">GIỎ HÀNG</span>
                     </Link>
@@ -230,9 +287,11 @@ const Header = () => {
 
                 {/* Mobile menu button */}
                 <div className="md:hidden ml-4">
-                    <button className="p-2 hover:bg-gray-100 rounded-md" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    <button
+                        className="p-2 hover:bg-gray-100 rounded-md"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
                         ☰
-
                     </button>
                 </div>
             </div>
@@ -253,26 +312,27 @@ const Header = () => {
                         Giới thiệu
                     </Link>
                     {!isLoggedIn && (
-                        <>
-                            <Link to="/register" className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100">
-                                Đăng ký
-                            </Link>
-                            <Link to="/login" className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100">
-                                Đăng nhập
-                            </Link>
-                        </>
+                        <Link
+                            to="/login"
+                            className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100"
+                        >
+                            Đăng nhập
+                        </Link>
                     )}
                     {isLoggedIn && user && (
                         <div className="relative">
                             <button
                                 onClick={toggleUserMenu}
-                                className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100 focus:outline-none"
+                                className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100 focus:outline-none user-menu-button"
                             >
                                 {user.fullName}
                             </button>
                             {isUserMenuOpen && (
-                                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20">
-                                    <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20 user-menu">
+                                    <Link
+                                        to="/profile"
+                                        className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                                    >
                                         Thông tin cá nhân
                                     </Link>
                                     <button
@@ -285,7 +345,6 @@ const Header = () => {
                             )}
                         </div>
                     )}
-
                 </div>
             )}
         </header>
@@ -293,4 +352,3 @@ const Header = () => {
 }
 
 export default Header
-
