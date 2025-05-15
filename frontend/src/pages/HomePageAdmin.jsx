@@ -1,27 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { users } from "../assets/js/userData"
 import {
-    BarChart3,
-    Bell,
-    Calendar,
     ChevronDown,
     CreditCard,
     DollarSign,
     Download,
-    HelpCircle,
     Layers,
-    LayoutDashboard,
-    LogOut,
-    Menu,
-    MessageSquare,
     Package,
-    PieChart,
     Plus,
-    Search,
-    Settings,
     ShoppingBag,
     ShoppingCart,
     Truck,
@@ -29,6 +18,10 @@ import {
     X,
     AlertTriangle,
     CheckCircle,
+    Clock,
+    XCircle,
+    PackageCheck,
+    PackageX,
 } from "lucide-react"
 import { Bar, Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js"
@@ -37,13 +30,12 @@ import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, T
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
 const HomePageAdmin = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [activeTab, setActiveTab] = useState("overview")
-    const [user, setUser] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [notification, setNotification] = useState(null)
     const [orders, setOrders] = useState([])
+    const [orderDetails, setOrderDetails] = useState([])
     const [products, setProducts] = useState([])
     const [customers, setCustomers] = useState([])
     const [stats, setStats] = useState({ orders: 0, customers: 0, revenue: 0, transactions: 0 })
@@ -52,7 +44,6 @@ const HomePageAdmin = () => {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false)
     const [newProduct, setNewProduct] = useState({ productName: "", salePrice: "", categoryId: "", imageUrl: "" })
     const ordersPerPage = 5
-    const navigate = useNavigate()
 
     // Show notification
     const showNotification = (type, message) => {
@@ -60,17 +51,112 @@ const HomePageAdmin = () => {
         setTimeout(() => setNotification(null), 3000)
     }
 
-    // Validate admin user and fetch data
-    useEffect(() => {
-        // Find admin user from hardcoded users array
-        const adminUser = users.find((u) => u.role === "admin")
-        if (!adminUser) {
-            setError("Không tìm thấy tài khoản admin. Vui lòng đăng nhập.")
-            navigate("/login")
-            return
+    // Get status background color
+    const getStatusBgColor = (status) => {
+        switch (status) {
+            case "pending":
+                return "bg-amber-500"
+            case "ready_to_pick":
+                return "bg-blue-500"
+            case "shipping":
+                return "bg-purple-500"
+            case "delivered":
+                return "bg-green-500"
+            case "returned":
+                return "bg-orange-500"
+            case "cancelled":
+                return "bg-rose-500"
+            default:
+                return "bg-gray-500"
         }
-        setUser(adminUser)
+    }
 
+    // Get status text
+    const getStatusText = (status) => {
+        switch (status) {
+            case "pending":
+                return "Chờ xác nhận"
+            case "ready_to_pick":
+                return "Chờ lấy hàng"
+            case "shipping":
+                return "Chờ giao hàng"
+            case "delivered":
+                return "Đã giao"
+            case "returned":
+                return "Trả hàng"
+            case "cancelled":
+                return "Đã hủy"
+            default:
+                return "Không xác định"
+        }
+    }
+
+    // Get status badge color
+    const getStatusBadgeColor = (status) => {
+        switch (status) {
+            case "pending":
+                return "bg-amber-100 text-amber-800 border border-amber-200"
+            case "ready_to_pick":
+                return "bg-blue-100 text-blue-800 border border-blue-200"
+            case "shipping":
+                return "bg-purple-100 text-purple-800 border border-purple-200"
+            case "delivered":
+                return "bg-green-100 text-green-800 border border-green-200"
+            case "returned":
+                return "bg-orange-100 text-orange-800 border border-orange-200"
+            case "cancelled":
+                return "bg-rose-100 text-rose-800 border border-rose-200"
+            default:
+                return "bg-gray-100 text-gray-800 border border-gray-200"
+        }
+    }
+
+    // Get status icon
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case "pending":
+                return <Clock className="h-4 w-4" />
+            case "ready_to_pick":
+                return <PackageCheck className="h-4 w-4" />
+            case "shipping":
+                return <Truck className="h-4 w-4" />
+            case "delivered":
+                return <Package className="h-4 w-4" />
+            case "returned":
+                return <PackageX className="h-4 w-4" />
+            case "cancelled":
+                return <XCircle className="h-4 w-4" />
+            default:
+                return <AlertTriangle className="h-4 w-4" />
+        }
+    }
+
+    // Format date
+    const formatDate = (dateString) => {
+        if (!dateString) {
+            return "Không xác định"
+        }
+
+        const date = new Date(dateString)
+
+        if (isNaN(date.getTime())) {
+            return "Không xác định"
+        }
+
+        return date.toLocaleDateString("vi-VN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        })
+    }
+
+    // Format currency
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
+    }
+
+    // Fetch data
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true)
@@ -81,18 +167,19 @@ const HomePageAdmin = () => {
                 const orderData = await orderResponse.json()
                 setOrders(orderData)
 
-                // Fetch products (placeholder API)
-                const productResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/products")
-                const productData = productResponse.ok ? await productResponse.json() : [
-                    // Fallback placeholder products
-                    { id: "1", productName: "Điện thoại iPhone 14", salePrice: 29990000, categoryId: "Điện thoại", sold: 125, imageUrl: "/placeholder.svg" },
-                    { id: "2", productName: "Laptop MacBook Air", salePrice: 25990000, categoryId: "Laptop", sold: 98, imageUrl: "/placeholder.svg" },
-                    { id: "3", productName: "Tai nghe AirPods Pro", salePrice: 5990000, categoryId: "Phụ kiện", sold: 210, imageUrl: "/placeholder.svg" },
-                    { id: "4", productName: "iPad Air 5", salePrice: 15990000, categoryId: "Máy tính bảng", sold: 87, imageUrl: "/placeholder.svg" },
-                ]
+                // Fetch order details
+                const orderDetailResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail")
+                if (!orderDetailResponse.ok) throw new Error("Không thể tải chi tiết đơn hàng")
+                const orderDetailData = await orderDetailResponse.json()
+                setOrderDetails(orderDetailData)
+
+                // Fetch products
+                const productResponse = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
+                if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
+                const productData = await productResponse.json()
                 setProducts(productData)
 
-                // Fetch customers (using users array)
+                // Fetch customers
                 setCustomers(users.filter((u) => u.role !== "admin"))
 
                 // Calculate stats
@@ -112,15 +199,7 @@ const HomePageAdmin = () => {
         }
 
         fetchData()
-    }, [navigate])
-
-    // Toggle sidebar
-    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
-
-    // Handle logout
-    const handleLogout = () => {
-        navigate("/login")
-    }
+    }, [])
 
     // Handle search
     const handleSearch = (e) => {
@@ -129,22 +208,34 @@ const HomePageAdmin = () => {
     }
 
     // Filter orders based on search query
-    const filteredOrders = orders.filter(
-        (order) => {
-            const user = users.find(u => u.id === parseInt(order.userId));
-            return (
-                order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
-        }
-    );
+    const filteredOrders = orders.filter((order) => {
+        const user = users.find((u) => u.id === parseInt(order.userId))
+        return (
+            order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+    })
 
     // Pagination
     const indexOfLastOrder = currentPage * ordersPerPage
     const indexOfFirstOrder = indexOfLastOrder - ordersPerPage
     const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder)
     const totalPages = Math.ceil(filteredOrders.length / ordersPerPage)
+
+    // Calculate top selling products
+    const topSellingProducts = products
+        .map((product) => {
+            const totalSold = orderDetails
+                .filter((detail) => detail.productId === product.id)
+                .reduce((sum, detail) => sum + detail.quantity, 0)
+            return {
+                ...product,
+                sold: totalSold,
+            }
+        })
+        .sort((a, b) => b.sold - a.sold)
+        .slice(0, 4)
 
     // Export report as CSV
     const exportReport = () => {
@@ -155,9 +246,9 @@ const HomePageAdmin = () => {
                 return [
                     order.id,
                     user ? user.fullName : "Unknown User",
-                    order.deliveryDate,
-                    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount),
-                    order.status,
+                    formatDate(order.deliveryDate),
+                    formatCurrency(order.totalAmount),
+                    getStatusText(order.status),
                 ]
             }),
         ]
@@ -180,7 +271,7 @@ const HomePageAdmin = () => {
         }
 
         try {
-            const response = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/products", {
+            const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -222,65 +313,104 @@ const HomePageAdmin = () => {
     }
 
     const orderStatusChartData = {
-        labels: ["Hoàn thành", "Đang xử lý", "Đã hủy"],
+        labels: ["Chờ xác nhận", "Chờ lấy hàng", "Chờ giao hàng", "Đã giao", "Trả hàng", "Đã hủy"],
         datasets: [
             {
                 data: orders.reduce(
                     (acc, order) => {
-                        if (order.status === "confirmed") acc[0]++
-                        else if (order.status === "pending") acc[1]++
-                        else acc[2]++
+                        switch (order.status) {
+                            case "pending":
+                                acc[0]++
+                                break
+                            case "ready_to_pick":
+                                acc[1]++
+                                break
+                            case "shipping":
+                                acc[2]++
+                                break
+                            case "delivered":
+                                acc[3]++
+                                break
+                            case "returned":
+                                acc[4]++
+                                break
+                            case "cancelled":
+                                acc[5]++
+                                break
+                            default:
+                                break
+                        }
                         return acc
                     },
-                    [0, 0, 0]
+                    [0, 0, 0, 0, 0, 0]
                 ),
-                backgroundColor: ["#10B981", "#3B82F6", "#EF4444"],
-                borderColor: ["#059669", "#2563EB", "#DC2626"],
+                backgroundColor: ["#F59E0B", "#3B82F6", "#06B6D4", "#10B981", "#F97316", "#EF4444"],
+                borderColor: ["#D97706", "#2563EB", "#0891B2", "#059669", "#EA580C", "#DC2626"],
                 borderWidth: 1,
             },
         ],
     }
 
+    // Get recent activities
+    const recentActivities = [
+        {
+            icon: <Package className="h-4 w-4" />,
+            title: "Sản phẩm mới được thêm",
+            description: products[products.length - 1]?.productName || "Nồi cơm điện thông minh",
+            time: "5 phút trước",
+            color: "text-blue-600 bg-blue-100",
+        },
+        {
+            icon: <ShoppingBag className="h-4 w-4" />,
+            title: "Đơn hàng mới",
+            description: `Từ khách hàng ${users.find((u) => u.id === parseInt(orders[orders.length - 1]?.userId))?.fullName || "Nguyễn Văn A"}`,
+            time: "15 phút trước",
+            color: "text-green-600 bg-green-100",
+        },
+        {
+            icon: <Users className="h-4 w-4" />,
+            title: "Khách hàng mới đăng ký",
+            description: customers[customers.length - 1]?.fullName || "Trần Thị B",
+            time: "1 giờ trước",
+            color: "text-purple-600 bg-purple-100",
+        },
+    ]
+
     // If loading
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+                <div className="flex flex-col items-center bg-white p-8 rounded-xl shadow-lg">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+                    <p className="mt-6 text-lg font-medium text-gray-700">Đang tải dữ liệu...</p>
+                    <p className="text-sm text-gray-500 mt-2">Vui lòng đợi trong giây lát</p>
+                </div>
             </div>
         )
     }
 
-    // If error or no admin user
-    if (error || !user) {
+    // If error
+    if (error) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="bg-white shadow-md rounded-lg p-8 text-center max-w-md">
-                    <div className="flex justify-center mb-6">
-                        <AlertTriangle size={64} className="text-red-400" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">Lỗi</h1>
-                    <p className="text-gray-600 mb-6">{error || "Không tìm thấy tài khoản admin."}</p>
-                    <Link
-                        to="/login"
-                        className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        Đăng nhập
-                    </Link>
+            <div className="flex items-center justify-center">
+                <div className="bg-red-50 text-red-800 p-4 rounded-md">
+                    <p className="font-medium">Lỗi</p>
+                    <p>{error}</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="flex h-screen bg-gray-100 text-gray-800">
+        <div className="mx-auto max-w-7xl">
             {/* Notification */}
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
-                        notification.type === "success"
-                            ? "bg-green-50 text-green-800 border border-green-200"
-                            : "bg-red-50 text-red-800 border border-red-200"
-                    }`}
+    notification.type === "success"
+        ? "bg-green-50 text-green-800 border border-green-200"
+        : "bg-red-50 text-red-800 border border-red-200"
+}`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -299,562 +429,270 @@ const HomePageAdmin = () => {
                 </div>
             )}
 
-            {/* Sidebar */}
-            <div
-                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
-                    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-                } lg:relative lg:translate-x-0`}
-            >
-                <div className="flex h-full flex-col">
-                    <div className="flex h-16 items-center justify-between border-b px-4">
-                        <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                <Layers className="h-5 w-5" />
-                            </div>
-                            <span className="text-lg font-bold">ShopAdmin</span>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-2xl font-bold">Dashboard</h1>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={exportReport}
+                        className="inline-flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 border border-gray-300"
+                    >
+                        <Download className="h-4 w-4" />
+                        <span>Xuất báo cáo</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                            <ShoppingCart className="h-6 w-6" />
                         </div>
-                        <button
-                            onClick={toggleSidebar}
-                            className="rounded-md p-1.5 hover:bg-gray-100 lg:hidden"
-                        >
-                            <X className="h-5 w-5" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Đơn hàng</p>
+                            <p className="text-3xl font-bold">{stats.orders}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                            <Users className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Khách hàng</p>
+                            <p className="text-3xl font-bold">{stats.customers}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                            <DollarSign className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Doanh thu</p>
+                            <p className="text-3xl font-bold">{formatCurrency(stats.revenue)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                            <CreditCard className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Giao dịch</p>
+                            <p className="text-3xl font-bold">{stats.transactions}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">Doanh số bán hàng</h2>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setActiveTab("overview")}
+                                className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
+    activeTab === "overview" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+}`}
+                            >
+                                Tổng quan
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("monthly")}
+                                className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
+    activeTab === "monthly" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+}`}
+                            >
+                                Theo tháng
+                            </button>
+                        </div>
+                    </div>
+                    <div className="h-64 w-full">
+                        <Bar data={salesChartData} options={{ maintainAspectRatio: false }} />
+                    </div>
+                </div>
+                <div className="rounded-lg border bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">Trạng thái đơn hàng</h2>
+                        <button className="rounded-md text-sm text-gray-500 hover:text-gray-700">
+                            <ChevronDown className="h-5 w-5" />
                         </button>
                     </div>
-                    <div className="flex-1 overflow-auto py-4">
-                        <nav className="space-y-1 px-2">
-                            <p className="px-3 text-xs font-semibold uppercase text-gray-500">Tổng quan</p>
-                            <Link
-                                to="/admin"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50"
-                            >
-                                <LayoutDashboard className="h-5 w-5" />
-                                <span>Dashboard</span>
-                            </Link>
-                            <Link
-                                to="/admin/analytics"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <BarChart3 className="h-5 w-5" />
-                                <span>Phân tích</span>
-                            </Link>
-                            <Link
-                                to="/admin/calendar"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <Calendar className="h-5 w-5" />
-                                <span>Lịch</span>
-                            </Link>
-                            <p className="mt-6 px-3 text-xs font-semibold uppercase text-gray-500">Quản lý</p>
+                    <div className="h-64 w-full">
+                        <Pie data={orderStatusChartData} options={{ maintainAspectRatio: false }} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Recent Orders */}
+            <div className="mt-6">
+                <div className="rounded-lg border bg-white shadow-sm">
+                    <div className="border-b px-4 py-3 sm:px-6">
+                        <h2 className="text-lg font-semibold">Đơn hàng gần đây</h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Mã đơn hàng
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Khách hàng
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Ngày đặt
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Tổng tiền
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Trạng thái
+                                    </th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        Thao tác
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 bg-white">
+                                {currentOrders.map((order) => {
+                                    const customer = users.find((u) => u.id === parseInt(order.userId))
+                                    return (
+                                        <tr key={order.id} className="hover:bg-gray-50">
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm font-medium text-gray-900">{order.id}</div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm text-gray-900">
+                                                    {customer ? customer.fullName : "Unknown User"}
+                                                </div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm text-gray-500">{formatDate(order.deliveryDate)}</div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {formatCurrency(order.totalAmount)}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+    order.status
+)}`}
+                                                >
+                                                    {getStatusIcon(order.status)}
+                                                    <span className="ml-1">{getStatusText(order.status)}</span>
+                                                </span>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                                <Link to={`/admin/orders`} className="text-blue-600 hover:text-blue-900">
+                                                    Chi tiết
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="border-t px-4 py-3 sm:px-6">
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-700">
+                                Hiển thị <span className="font-medium">{currentOrders.length}</span> trong tổng số{" "}
+                                <span className="font-medium">{filteredOrders.length}</span> đơn hàng
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                >
+                                    Trước
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                >
+                                    Tiếp
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Recent Activity and Top Products */}
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="md:col-span-1">
+                    <div className="rounded-lg border bg-white shadow-sm">
+                        <div className="border-b px-4 py-3">
+                            <h2 className="text-lg font-semibold">Hoạt động gần đây</h2>
+                        </div>
+                        <div className="divide-y">
+                            {recentActivities.map((activity, index) => (
+                                <div key={index} className="flex items-start gap-3 px-4 py-3">
+                                    <div className={`mt-1 flex h-8 w-8 items-center justify-center rounded-full ${activity.color}`}>
+                                        {activity.icon}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium">{activity.title}</p>
+                                        <p className="text-xs text-gray-500">{activity.description}</p>
+                                        <p className="mt-1 text-xs text-gray-400">{activity.time}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="border-t p-4">
+                            <button className="w-full rounded-md bg-white px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 border border-blue-200">
+                                Xem tất cả
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div className="md:col-span-2">
+                    <div className="rounded-lg border bg-white shadow-sm">
+                        <div className="border-b px-4 py-3">
+                            <h2 className="text-lg font-semibold">Sản phẩm bán chạy</h2>
+                        </div>
+                        <div className="divide-y">
+                            {topSellingProducts.map((product) => (
+                                <div key={product.id} className="flex items-center gap-4 px-4 py-3">
+                                    <img
+                                        src={"/"+product.imageUrl || "/placeholder.svg"}
+                                        alt={product.productName}
+                                        className="h-12 w-12 rounded-md object-cover border"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="truncate text-sm font-medium">{product.productName}</p>
+                                        <p className="text-xs text-gray-500">{product.categoryId}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-medium">{formatCurrency(product.salePrice)}</p>
+                                        <p className="text-xs text-gray-500">{product.sold} đã bán</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="border-t p-4">
                             <Link
                                 to="/admin/products"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                                className="inline-block w-full rounded-md bg-white px-3 py-1.5 text-center text-sm font-medium text-blue-600 hover:bg-blue-50 border border-blue-200"
                             >
-                                <Package className="h-5 w-5" />
-                                <span>Sản phẩm</span>
+                                Xem tất cả sản phẩm
                             </Link>
-                            <Link
-                                to="/admin/orders"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <ShoppingBag className="h-5 w-5" />
-                                <span>Đơn hàng</span>
-                            </Link>
-                            <Link
-                                to="/admin/customers"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <Users className="h-5 w-5" />
-                                <span>Khách hàng</span>
-                            </Link>
-                            <Link
-                                to="/admin/inventory"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <Layers className="h-5 w-5" />
-                                <span>Kho hàng</span>
-                            </Link>
-                            <Link
-                                to="/admin/shipping"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <Truck className="h-5 w-5" />
-                                <span>Vận chuyển</span>
-                            </Link>
-                            <p className="mt-6 px-3 text-xs font-semibold uppercase text-gray-500">Cài đặt</p>
-                            <Link
-                                to="/admin/settings"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <Settings className="h-5 w-5" />
-                                <span>Thiết lập</span>
-                            </Link>
-                            <Link
-                                to="/admin/help"
-                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                                <HelpCircle className="h-5 w-5" />
-                                <span>Trợ giúp</span>
-                            </Link>
-                        </nav>
-                    </div>
-                    <div className="border-t p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span className="font-medium text-blue-600">{user.fullName.charAt(0)}</span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium">{user.fullName}</p>
-                                <p className="text-xs text-gray-500">{user.role}</p>
-                            </div>
-                            <div className="ml-auto">
-                                <button
-                                    onClick={handleLogout}
-                                    className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
-                                >
-                                    <LogOut className="h-4 w-4" />
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* Main Content */}
-            <div className="flex flex-1 flex-col overflow-hidden">
-                <header className="flex h-16 items-center justify-between border-b bg-white px-4 lg:px-6">
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={toggleSidebar}
-                            className="rounded-md p-1.5 hover:bg-gray-100 lg:hidden"
-                        >
-                            <Menu className="h-5 w-5" />
-                        </button>
-                        <div className="relative hidden md:block">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                            <input
-                                type="search"
-                                placeholder="Tìm kiếm đơn hàng..."
-                                value={searchQuery}
-                                onChange={handleSearch}
-                                className="rounded-md border border-gray-300 bg-white pl-8 pr-4 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-64"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button className="relative rounded-full p-1.5 text-gray-500 hover:bg-gray-100">
-                            <Bell className="h-5 w-5" />
-                            <span className="absolute right-1 top-1 flex h-2 w-2 rounded-full bg-red-500"></span>
-                        </button>
-                        <button className="relative rounded-full p-1.5 text-gray-500 hover:bg-gray-100">
-                            <MessageSquare className="h-5 w-5" />
-                            <span className="absolute right-1 top-1 flex h-2 w-2 rounded-full bg-blue-500"></span>
-                        </button>
-                        <div className="relative">
-                            <button className="flex items-center gap-2 rounded-full hover:bg-gray-100 p-1.5">
-                                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                    <span className="font-medium text-blue-600">{user.fullName.charAt(0)}</span>
-                                </div>
-                                <span className="hidden md:block font-medium">{user.fullName}</span>
-                                <ChevronDown className="h-4 w-4" />
-                            </button>
-                        </div>
-                    </div>
-                </header>
-
-                <main className="flex-1 overflow-auto p-4 lg:p-6">
-                    <div className="mx-auto max-w-7xl">
-                        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <h1 className="text-2xl font-bold">Dashboard</h1>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={exportReport}
-                                    className="inline-flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 border border-gray-300"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    <span>Xuất báo cáo</span>
-                                </button>
-                                <button
-                                    onClick={() => setIsAddProductModalOpen(true)}
-                                    className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                    <span>Thêm sản phẩm</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Stats Cards */}
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                            <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                                        <ShoppingCart className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Đơn hàng</p>
-                                        <p className="text-3xl font-bold">{stats.orders}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                                        <Users className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Khách hàng</p>
-                                        <p className="text-3xl font-bold">{stats.customers}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-50 text-green-600">
-                                        <DollarSign className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Doanh thu</p>
-                                        <p className="text-3xl font-bold">
-                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(stats.revenue)}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                                        <CreditCard className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Giao dịch</p>
-                                        <p className="text-3xl font-bold">{stats.transactions}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Charts Section */}
-                        <div className="mt-6 grid gap-4 md:grid-cols-2">
-                            <div className="rounded-lg border bg-white p-4 shadow-sm">
-                                <div className="mb-4 flex items-center justify-between">
-                                    <h2 className="text-lg font-semibold">Doanh số bán hàng</h2>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => setActiveTab("overview")}
-                                            className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                                                activeTab === "overview" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-                                            }`}
-                                        >
-                                            Tổng quan
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveTab("monthly")}
-                                            className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                                                activeTab === "monthly" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-                                            }`}
-                                        >
-                                            Theo tháng
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="h-64 w-full">
-                                    <Bar data={salesChartData} options={{ maintainAspectRatio: false }} />
-                                </div>
-                            </div>
-                            <div className="rounded-lg border bg-white p-4 shadow-sm">
-                                <div className="mb-4 flex items-center justify-between">
-                                    <h2 className="text-lg font-semibold">Trạng thái đơn hàng</h2>
-                                    <button className="rounded-md text-sm text-gray-500 hover:text-gray-700">
-                                        <ChevronDown className="h-5 w-5" />
-                                    </button>
-                                </div>
-                                <div className="h-64 w-full">
-                                    <Pie data={orderStatusChartData} options={{ maintainAspectRatio: false }} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Recent Orders */}
-                        <div className="mt-6">
-                            <div className="rounded-lg border bg-white shadow-sm">
-                                <div className="border-b px-4 py-3 sm:px-6">
-                                    <h2 className="text-lg font-semibold">Đơn hàng gần đây</h2>
-                                </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Mã đơn hàng
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Khách hàng
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Ngày đặt
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Tổng tiền
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Trạng thái
-                                            </th>
-                                            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Thao tác
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200 bg-white">
-                                        {currentOrders.map((order) => {
-                                            const customer = users.find((u) => u.id === parseInt(order.userId))
-                                            return (
-                                                <tr key={order.id} className="hover:bg-gray-50">
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        <div className="text-sm text-gray-900">
-                                                            {customer ? customer.fullName : "Unknown User"}
-                                                        </div>
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        <div className="text-sm text-gray-500">{order.deliveryDate}</div>
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        <div className="text-sm font-medium text-gray-900">
-                                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                                order.totalAmount
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                            <span
-                                                                className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                                    order.status === "confirmed"
-                                                                        ? "bg-green-100 text-green-800"
-                                                                        : order.status === "pending"
-                                                                            ? "bg-blue-100 text-blue-800"
-                                                                            : "bg-red-100 text-red-800"
-                                                                }`}
-                                                            >
-                                                                {order.status === "pending" ? "Mới" : order.status}
-                                                            </span>
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                                        <Link to={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-900">
-                                                            Chi tiết
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div className="border-t px-4 py-3 sm:px-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-sm text-gray-700">
-                                            Hiển thị <span className="font-medium">{currentOrders.length}</span> trong tổng số{" "}
-                                            <span className="font-medium">{filteredOrders.length}</span> đơn hàng
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <button
-                                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                                disabled={currentPage === 1}
-                                                className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                            >
-                                                Trước
-                                            </button>
-                                            <button
-                                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                                disabled={currentPage === totalPages}
-                                                className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                            >
-                                                Tiếp
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Recent Activity and Top Products */}
-                        <div className="mt-6 grid gap-4 md:grid-cols-3">
-                            <div className="md:col-span-1">
-                                <div className="rounded-lg border bg-white shadow-sm">
-                                    <div className="border-b px-4 py-3">
-                                        <h2 className="text-lg font-semibold">Hoạt động gần đây</h2>
-                                    </div>
-                                    <div className="divide-y">
-                                        {[
-                                            {
-                                                icon: <Package className="h-4 w-4" />,
-                                                title: "Sản phẩm mới được thêm",
-                                                description: "Điện thoại Samsung Galaxy S23",
-                                                time: "5 phút trước",
-                                                color: "text-blue-600 bg-blue-100",
-                                            },
-                                            {
-                                                icon: <ShoppingBag className="h-4 w-4" />,
-                                                title: "Đơn hàng mới",
-                                                description: "Từ khách hàng Nguyễn Văn A",
-                                                time: "15 phút trước",
-                                                color: "text-green-600 bg-green-100",
-                                            },
-                                            {
-                                                icon: <Users className="h-4 w-4" />,
-                                                title: "Khách hàng mới đăng ký",
-                                                description: "Trần Thị B",
-                                                time: "1 giờ trước",
-                                                color: "text-purple-600 bg-purple-100",
-                                            },
-                                        ].map((activity, index) => (
-                                            <div key={index} className="flex items-start gap-3 px-4 py-3">
-                                                <div className={`mt-1 flex h-8 w-8 items-center justify-center rounded-full ${activity.color}`}>
-                                                    {activity.icon}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="text-sm font-medium">{activity.title}</p>
-                                                    <p className="text-xs text-gray-500">{activity.description}</p>
-                                                    <p className="mt-1 text-xs text-gray-400">{activity.time}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="border-t p-4">
-                                        <button className="w-full rounded-md bg-white px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 border border-blue-200">
-                                            Xem tất cả
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="md:col-span-2">
-                                <div className="rounded-lg border bg-white shadow-sm">
-                                    <div className="border-b px-4 py-3">
-                                        <h2 className="text-lg font-semibold">Sản phẩm bán chạy</h2>
-                                    </div>
-                                    <div className="divide-y">
-                                        {products
-                                            .sort((a, b) => (b.sold || 0) - (a.sold || 0))
-                                            .slice(0, 4)
-                                            .map((product) => (
-                                                <div key={product.id} className="flex items-center gap-4 px-4 py-3">
-                                                    <img
-                                                        src={product.imageUrl || "/placeholder.svg"}
-                                                        alt={product.productName}
-                                                        className="h-12 w-12 rounded-md object-cover border"
-                                                    />
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="truncate text-sm font-medium">{product.productName}</p>
-                                                        <p className="text-xs text-gray-500">{product.categoryId}</p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="text-sm font-medium">
-                                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                                product.salePrice
-                                                            )}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500">{product.sold || 0} đã bán</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                    </div>
-                                    <div className="border-t p-4">
-                                        <Link
-                                            to="/admin/products"
-                                            className="inline-block w-full rounded-md bg-white px-3 py-1.5 text-center text-sm font-medium text-blue-600 hover:bg-blue-50 border border-blue-200"
-                                        >
-                                            Xem tất cả sản phẩm
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
-
-            {/* Add Product Modal */}
-            {isAddProductModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-semibold">Thêm sản phẩm mới</h2>
-                            <button
-                                onClick={() => setIsAddProductModalOpen(false)}
-                                className="text-gray-500 hover:text-gray-700"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <form onSubmit={handleAddProduct} className="space-y-4">
-                            <div>
-                                <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
-                                    Tên sản phẩm
-                                </label>
-                                <input
-                                    type="text"
-                                    id="productName"
-                                    value={newProduct.productName}
-                                    onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="salePrice" className="block text-sm font-medium text-gray-700">
-                                    Giá bán (VND)
-                                </label>
-                                <input
-                                    type="number"
-                                    id="salePrice"
-                                    value={newProduct.salePrice}
-                                    onChange={(e) => setNewProduct({ ...newProduct, salePrice: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700">
-                                    Danh mục
-                                </label>
-                                <input
-                                    type="text"
-                                    id="categoryId"
-                                    value={newProduct.categoryId}
-                                    onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                                    URL hình ảnh
-                                </label>
-                                <input
-                                    type="text"
-                                    id="imageUrl"
-                                    value={newProduct.imageUrl}
-                                    onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                            <div className="flex justify-end gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsAddProductModalOpen(false)}
-                                    className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
-                                >
-                                    Thêm sản phẩm
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

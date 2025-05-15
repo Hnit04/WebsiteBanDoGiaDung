@@ -1,13 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { products } from '../assets/js/productData.jsx';
 import ProductCard from '../components/ProductCard.jsx';
-import { Link } from "react-router-dom" // Import Link
-
+import { Link } from "react-router-dom";
 
 const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
-    const [filteredProducts, setFilteredProducts] = useState(products);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [currentCategory, setCurrentCategory] = useState(selectedCategory);
     const [currentSort, setCurrentSort] = useState('default');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [allProducts, setAllProducts] = useState([]);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product");
+                if (!response.ok) {
+                    throw new Error("Không thể lấy dữ liệu sản phẩm");
+                }
+                const data = await response.json();
+                const visibleProducts = data.filter(product => product.show === true);
+                setAllProducts(visibleProducts);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     useEffect(() => {
         setCurrentCategory(selectedCategory);
@@ -15,27 +37,27 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
 
     useEffect(() => {
         filterProducts();
-    }, [currentCategory, currentSort]);
+    }, [currentCategory, currentSort, allProducts]);
 
     const filterProducts = () => {
-        let result = [...products];
+        let result = [...allProducts];
 
         if (currentCategory !== 'all') {
-            result = result.filter(product => product.category === currentCategory);
+            result = result.filter(product => product.categoryId === currentCategory);
         }
 
         switch (currentSort) {
             case 'priceLow':
-                result.sort((a, b) => a.price - b.price);
+                result.sort((a, b) => a.salePrice - b.salePrice);
                 break;
             case 'priceHigh':
-                result.sort((a, b) => b.price - a.price);
+                result.sort((a, b) => b.salePrice - a.salePrice);
                 break;
             case 'nameAZ':
-                result.sort((a, b) => a.name.localeCompare(b.name));
+                result.sort((a, b) => a.productName.localeCompare(b.productName));
                 break;
             case 'nameZA':
-                result.sort((a, b) => b.name.localeCompare(a.name));
+                result.sort((a, b) => b.productName.localeCompare(a.productName));
                 break;
             default:
                 break;
@@ -51,6 +73,22 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const handleSortChange = (e) => {
         setCurrentSort(e.target.value);
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-red-500 text-lg">Lỗi: {error}</p>
+            </div>
+        );
+    }
 
     return (
         <section id="products" className="py-5 bg-gray-100">
@@ -91,14 +129,23 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                         </div>
                     ) : (
                         filteredProducts.map(product => (
-                            <div key={product.id} className="col">
+                            <div key={product.id} className="col relative">
                                 <Link to={`/product/${product.id}`} className="block">
-                                <ProductCard
-                                    product={product}
-                                />
-                                </Link>
+                                    {/* Vùng bị làm mờ */}
+                                    <div className={`${product.quantityInStock === 0 ? 'opacity-50' : ''}`}>
+                                        <ProductCard product={product}/>
+                                    </div>
 
+                                    {/* Dòng chữ nằm trên, không bị mờ */}
+                                    {product.quantityInStock === 0 && (
+                                        <div
+                                            className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded">
+                                            Hết hàng
+                                        </div>
+                                    )}
+                                </Link>
                             </div>
+
                         ))
                     )}
                 </div>
