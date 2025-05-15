@@ -3,67 +3,55 @@ package iuh.fit.userservice.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Tạo khóa bí mật
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 giờ
 
-    @Value("${jwt.expiration}")
-    private long expirationTime;
-
-    // Tạo token
-    public String generateToken(String email, String role) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
-
+    public String generateToken(String email, String role, String userId) {
         return Jwts.builder()
-                .setClaims(claims)
                 .setSubject(email)
+                .claim("role", role)
+                .claim("userId", userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Lấy email từ token
     public String extractEmail(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return getClaims(token).getSubject();
     }
 
-    // Lấy role từ token
+    public String extractUserId(String token) {
+        return getClaims(token).get("userId", String.class);
+    }
+
     public String extractRole(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
-        return (String) claims.get("role");
+        return getClaims(token).get("role", String.class);
     }
 
-    // Kiểm tra token có hợp lệ không
     public boolean validateToken(String token, String email) {
         final String extractedEmail = extractEmail(token);
         return (extractedEmail.equals(email) && !isTokenExpired(token));
     }
 
-    // Kiểm tra token hết hạn
-    private boolean isTokenExpired(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .before(new Date());
+                .getBody();
+    }
+
+    private boolean isTokenExpired(String token) {
+        return getClaims(token).getExpiration().before(new Date());
     }
 }

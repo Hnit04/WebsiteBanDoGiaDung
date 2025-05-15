@@ -130,10 +130,10 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
                         <div className="border-t p-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                    <span className="font-medium text-blue-600">{user.fullName.charAt(0)}</span>
+                                    <span className="font-medium text-blue-600">{user.username.charAt(0)}</span>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium">{user.fullName}</p>
+                                    <p className="text-sm font-medium">{user.username}</p>
                                     <p className="text-xs text-gray-500">{getrole(user.role)}</p>
                                 </div>
                                 <div className="ml-auto">
