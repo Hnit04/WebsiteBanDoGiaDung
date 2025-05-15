@@ -4,7 +4,13 @@ import { BarChart3, Calendar, HelpCircle, Layers, LayoutDashboard, LogOut, Packa
 
 const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
     const [activeLink, setActiveLink] = useState("/admin"); // State để theo dõi link active, mặc định là "/admin"
-
+    const getrole = (role) => {
+        switch (role) {
+            case "customer": return "Khách hàng"
+            case "admin": return "Quản lý"
+            default: return role
+        }
+    }
     return (
         <div
             className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
@@ -18,7 +24,7 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                             <Layers className="h-5 w-5" />
                         </div>
-                        <span className="text-lg font-bold">THTStore Admin</span>
+                        <span className="text-lg font-bold">HomeCraft Admin</span>
                     </div>
                     <button
                         onClick={toggleSidebar}
@@ -52,16 +58,6 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
                             <BarChart3 className="h-5 w-5" />
                             <span>Phân tích</span>
                         </Link>
-                        <Link
-                            to="/admin/calendar"
-                            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium ${
-                                activeLink === "/admin/calendar" ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-gray-100"
-                            }`}
-                            onClick={() => setActiveLink("/admin/calendar")}
-                        >
-                            <Calendar className="h-5 w-5" />
-                            <span>Lịch</span>
-                        </Link>
                         <p className="mt-6 px-3 text-xs font-semibold uppercase text-gray-500">Quản lý</p>
                         <Link
                             to="/admin/products"
@@ -92,16 +88,6 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
                         >
                             <Users className="h-5 w-5" />
                             <span>Khách hàng</span>
-                        </Link>
-                        <Link
-                            to="/admin/inventory"
-                            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium ${
-                                activeLink === "/admin/inventory" ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-gray-100"
-                            }`}
-                            onClick={() => setActiveLink("/admin/inventory")}
-                        >
-                            <Layers className="h-5 w-5" />
-                            <span>Kho hàng</span>
                         </Link>
                         <Link
                             to="/admin/shipping"
@@ -139,25 +125,29 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
 
                 {/* User Info (Existing Footer) */}
                 {user && (
-                    <div className="border-t p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span className="font-medium text-blue-600">{user.fullName.charAt(0)}</span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium">{user.fullName}</p>
-                                <p className="text-xs text-gray-500">{user.role}</p>
-                            </div>
-                            <div className="ml-auto">
-                                <button
-                                    onClick={handleLogout}
-                                    className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
-                                >
-                                    <LogOut className="h-4 w-4" />
-                                </button>
+                    <Link
+                        to="/admin/profile">
+                        <div className="border-t p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <span className="font-medium text-blue-600">{user.fullName.charAt(0)}</span>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium">{user.fullName}</p>
+                                    <p className="text-xs text-gray-500">{getrole(user.role)}</p>
+                                </div>
+                                <div className="ml-auto">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
+                                    >
+                                        <LogOut className="h-4 w-4"/>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+
+                    </Link>
                 )}
             </div>
         </div>

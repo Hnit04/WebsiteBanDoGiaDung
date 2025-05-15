@@ -4,7 +4,71 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage } from "../assets/js/userData"
 import { products } from "../assets/js/productData.jsx"
-import { CheckCircle, AlertTriangle, X, ArrowLeft, ShoppingBag } from "lucide-react"
+import { CheckCircle, AlertTriangle, X, ArrowLeft, ShoppingBag, ChevronDown } from "lucide-react"
+
+// Dữ liệu địa phương Việt Nam (giả lập)
+const vietnamLocations = {
+    provinces: [
+        { id: "01", name: "Hà Nội" },
+        { id: "02", name: "TP. Hồ Chí Minh" },
+        { id: "03", name: "Đà Nẵng" },
+    ],
+    districts: {
+        "01": [
+            { id: "001", name: "Quận Ba Đình" },
+            { id: "002", name: "Quận Hoàn Kiếm" },
+            { id: "003", name: "Quận Hai Bà Trưng" },
+        ],
+        "02": [
+            { id: "004", name: "Quận 1" },
+            { id: "005", name: "Quận 3" },
+            { id: "006", name: "Quận 7" },
+        ],
+        "03": [
+            { id: "007", name: "Quận Hải Châu" },
+            { id: "008", name: "Quận Thanh Khê" },
+            { id: "009", name: "Quận Sơn Trà" },
+        ],
+    },
+    wards: {
+        "001": [
+            { id: "00001", name: "Phường Đội Cấn" },
+            { id: "00002", name: "Phường Ngọc Hà" },
+        ],
+        "002": [
+            { id: "00003", name: "Phường Hàng Bông" },
+            { id: "00004", name: "Phường Cửa Đông" },
+        ],
+        "003": [
+            { id: "00005", name: "Phường Bạch Đằng" },
+            { id: "00006", name: "Phường Thanh Lương" },
+        ],
+        "004": [
+            { id: "00007", name: "Phường Bến Nghé" },
+            { id: "00008", name: "Phường Bến Thành" },
+        ],
+        "005": [
+            { id: "00009", name: "Phường Lý Thái Tổ" },
+            { id: "00010", name: "Phường Võ Thị Sáu" },
+        ],
+        "006": [
+            { id: "00011", name: "Phường Tân Phú" },
+            { id: "00012", name: "Phường Tân Thuận Đông" },
+        ],
+        "007": [
+            { id: "00013", name: "Phường Thạch Thang" },
+            { id: "00014", name: "Phường Hải Châu 1" },
+        ],
+        "008": [
+            { id: "00015", name: "Phường Thanh Khê Đông" },
+            { id: "00016", name: "Phường Xuân Hà" },
+        ],
+        "009": [
+            { id: "00017", name: "Phường An Hải Bắc" },
+            { id: "00018", name: "Phường Mân Thái" },
+        ],
+    },
+}
 
 const CheckoutPage = () => {
     const [cartItems, setCartItems] = useState([])
@@ -15,6 +79,11 @@ const CheckoutPage = () => {
     const [deliveryAddress, setDeliveryAddress] = useState("")
     const [paymentMethod, setPaymentMethod] = useState("")
     const [orderSuccess, setOrderSuccess] = useState(null)
+    const [selectedProvince, setSelectedProvince] = useState("")
+    const [selectedDistrict, setSelectedDistrict] = useState("")
+    const [selectedWard, setSelectedWard] = useState("")
+    const [detailedAddress, setDetailedAddress] = useState("")
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
 
     const user = getUserFromLocalStorage()
     const userId = user?.id || null
@@ -57,24 +126,40 @@ const CheckoutPage = () => {
         fetchCartItems()
     }, [userId, location.search])
 
-    // Get product details by ID
-    const getProductDetails = (productId) => {
-        return (
-            products.find((product) => product.id.toString() === productId) || {
+    // Get product details by ID from API
+    const getProductDetails = async (productId) => {
+        try {
+            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${productId}`)
+            if (!response.ok) {
+                throw new Error("Failed to fetch product details")
+            }
+            const product = await response.json()
+            return product || {
                 productName: "Sản phẩm không tồn tại",
                 originalPrice: 0,
                 salePrice: 0,
                 imageUrl: "/placeholder.svg",
                 categoryId: "",
+                quantityInStock: 0,
             }
-        )
+        } catch (err) {
+            console.error("Error fetching product details:", err)
+            return products.find((product) => product.id.toString() === productId) || {
+                productName: "Sản phẩm không tồn tại",
+                originalPrice: 0,
+                salePrice: 0,
+                imageUrl: "/placeholder.svg",
+                categoryId: "",
+                quantityInStock: 0,
+            }
+        }
     }
 
     // Calculate order summary
     const calculateSummary = () => {
         const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
         const subtotal = cartItems.reduce((total, item) => {
-            const product = getProductDetails(item.productId)
+            const product = products.find((p) => p.id.toString() === item.productId) || { salePrice: 0 }
             return total + product.salePrice * item.quantity
         }, 0)
         const shippingFee = 30000
@@ -104,8 +189,58 @@ const CheckoutPage = () => {
             return `${newId.toString().padStart(1, "0")}`
         } catch (err) {
             console.error("Error generating order ID:", err)
-            return `ORD${Date.now()}` // Fallback to timestamp if API fails
+            return `ORD${Date.now()}`
         }
+    }
+
+    // Update product stock after order
+    const updateProductStock = async (productId, quantity) => {
+        try {
+            const product = await getProductDetails(productId)
+            const newStock = product.quantityInStock - quantity
+
+            if (newStock < 0) {
+                throw new Error(`Sản phẩm "${product.productName}" không đủ hàng tồn kho.`)
+            }
+
+            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${productId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...product, quantityInStock: newStock })
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to update product stock")
+            }
+        } catch (err) {
+            throw err
+        }
+    }
+
+    // Check stock availability before placing order
+    const checkStockAvailability = async () => {
+        for (const item of cartItems) {
+            const product = await getProductDetails(item.productId)
+            if (product.quantityInStock < item.quantity) {
+                throw new Error(`Sản phẩm "${product.productName}" không đủ hàng tồn kho. Chỉ còn ${product.quantityInStock} sản phẩm.`)
+            }
+        }
+    }
+
+    // Handle location selection
+    const handleLocationSelect = () => {
+        if (!selectedProvince || !selectedDistrict || !selectedWard || !detailedAddress.trim()) {
+            showNotification("error", "Vui lòng chọn đầy đủ thông tin địa chỉ giao hàng")
+            return
+        }
+
+        const provinceName = vietnamLocations.provinces.find(p => p.id === selectedProvince)?.name || ""
+        const districtName = vietnamLocations.districts[selectedProvince]?.find(d => d.id === selectedDistrict)?.name || ""
+        const wardName = vietnamLocations.wards[selectedDistrict]?.find(w => w.id === selectedWard)?.name || ""
+
+        const fullAddress = `${detailedAddress}, ${wardName}, ${districtName}, ${provinceName}`
+        setDeliveryAddress(fullAddress)
+        setIsLocationModalOpen(false)
     }
 
     // Handle order submission
@@ -122,6 +257,9 @@ const CheckoutPage = () => {
         try {
             setIsSubmitting(true)
 
+            // Check stock availability
+            await checkStockAvailability()
+
             // Generate sequential order ID
             const orderId = await generateOrderId()
 
@@ -129,12 +267,12 @@ const CheckoutPage = () => {
             const orderData = {
                 id: orderId,
                 userId,
-                promotionId: null, // No promotion in this implementation
+                promotionId: null,
                 totalAmount: calculateSummary().total,
-                status: "confirmed",
+                status: "pending",
                 deliveryAddress,
                 deliveryStatus: "pending",
-                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 2 days from now
+                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                 paymentMethodId: paymentMethod
             }
 
@@ -150,7 +288,7 @@ const CheckoutPage = () => {
 
             // Create order details
             for (const item of cartItems) {
-                const product = getProductDetails(item.productId)
+                const product = await getProductDetails(item.productId)
                 const orderDetailData = {
                     orderDetailId: `OD${Date.now()}${item.id}`,
                     quantity: item.quantity,
@@ -170,6 +308,9 @@ const CheckoutPage = () => {
                     throw new Error("Failed to create order detail")
                 }
 
+                // Update product stock
+                await updateProductStock(item.productId, item.quantity)
+
                 // Remove item from cart
                 await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${item.id}`, {
                     method: "DELETE"
@@ -180,10 +321,234 @@ const CheckoutPage = () => {
             showNotification("success", "Đặt hàng thành công!")
         } catch (err) {
             console.error("Error submitting order:", err)
-            showNotification("error", "Không thể đặt hàng. Vui lòng thử lại.")
+            showNotification("error", err.message || "Không thể đặt hàng. Vui lòng thử lại.")
         } finally {
             setIsSubmitting(false)
         }
+    }
+
+    // Show order details in a new window
+    const showOrderDetails = () => {
+        if (!orderSuccess || !user || !cartItems.length) return
+
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
+        }
+
+        const formatDate = (dateString) => {
+            const date = new Date(dateString)
+            return date.toLocaleDateString("vi-VN", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            })
+        }
+
+        const getPaymentMethodText = (methodId) => {
+            switch (methodId) {
+                case "PM001": return "Thẻ VISA/MasterCard"
+                case "PM002": return "MoMo"
+                case "PM003": return "Thanh toán khi nhận hàng (COD)"
+                default: return "Không xác định"
+            }
+        }
+
+        const printWindow = window.open("", "_blank", "width=800,height=600")
+
+        const invoiceHtml = `
+      <!DOCTYPE html>
+      <html lang="vi">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hóa đơn #${orderSuccess}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+          }
+          .invoice-header h1 {
+            color: #4338ca;
+            margin-bottom: 5px;
+          }
+          .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+          }
+          .invoice-info-block {
+            max-width: 50%;
+          }
+          .invoice-info-block h4 {
+            margin-bottom: 5px;
+            color: #4338ca;
+          }
+          .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+          }
+          .invoice-table th {
+            background-color: #f3f4f6;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+          }
+          .invoice-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+          }
+          .invoice-table .amount {
+            text-align: right;
+          }
+          .invoice-total {
+            margin-top: 20px;
+            text-align: right;
+          }
+          .invoice-total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+          }
+          .invoice-total-row .label {
+            width: 150px;
+            text-align: left;
+          }
+          .invoice-total-row .value {
+            width: 150px;
+            text-align: right;
+          }
+          .invoice-total-row.final {
+            font-weight: bold;
+            font-size: 1.2em;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+            color: #4338ca;
+          }
+          .invoice-footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+          }
+          .close-btn {
+            margin-top: 20px;
+            text-align: center;
+          }
+          .close-btn button {
+            padding: 10px 20px;
+            background-color: #4338ca;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+          .close-btn button:hover {
+            background-color: #3730a3;
+          }
+          @media print {
+            .close-btn {
+              display: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-header">
+          <h1>HÓA ĐƠN BÁN HÀNG</h1>
+          <p>Ngày đặt hàng: ${formatDate(new Date().toISOString().split("T")[0])}</p>
+        </div>
+        
+        <div class="invoice-info">
+          <div class="invoice-info-block">
+            <h4>Thông tin khách hàng</h4>
+            <p><strong>Khách hàng:</strong> ${user.fullName}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Địa chỉ giao hàng:</strong> ${deliveryAddress}</p>
+          </div>
+          <div class="invoice-info-block">
+            <h4>Thông tin thanh toán</h4>
+            <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(paymentMethod)}</p>
+            <p><strong>Trạng thái đơn hàng:</strong> Chờ xác nhận</p>
+          </div>
+        </div>
+        
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Sản phẩm</th>
+              <th>Đơn giá</th>
+              <th>Số lượng</th>
+              <th class="amount">Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cartItems
+            .map(
+                (item, index) => {
+                    const product = products.find((p) => p.id.toString() === item.productId) || {
+                        productName: "Sản phẩm không tồn tại",
+                        salePrice: 0
+                    }
+                    return `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${product.productName}</td>
+                <td>${formatCurrency(product.salePrice)}</td>
+                <td>${item.quantity}</td>
+                <td class="amount">${formatCurrency(product.salePrice * item.quantity)}</td>
+              </tr>
+            `
+                },
+            )
+            .join("")}
+          </tbody>
+        </table>
+        
+        <div class="invoice-total">
+          <div class="invoice-total-row">
+            <div class="label">Tổng tiền hàng:</div>
+            <div class="value">${formatCurrency(calculateSummary().subtotal)}</div>
+          </div>
+          <div class="invoice-total-row">
+            <div class="label">Phí vận chuyển:</div>
+            <div class="value">${formatCurrency(calculateSummary().shippingFee)}</div>
+          </div>
+          <div class="invoice-total-row final">
+            <div class="label">Tổng thanh toán:</div>
+            <div class="value">${formatCurrency(calculateSummary().total)}</div>
+          </div>
+        </div>
+        
+        <div class="invoice-footer">
+          <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
+          <p>Mọi thắc mắc xin vui lòng liên hệ: tranngochung19112004@gmail.com | 0393465113</p>
+        </div>
+        
+        <div class="close-btn">
+          <button onclick="window.close()">Đóng</button>
+        </div>
+      </body>
+      </html>
+    `
+
+        printWindow.document.open()
+        printWindow.document.write(invoiceHtml)
+        printWindow.document.close()
     }
 
     // If user is not logged in
@@ -269,12 +634,12 @@ const CheckoutPage = () => {
                             >
                                 Tiếp tục mua sắm
                             </Link>
-                            <Link
-                                to="/orders"
-                                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                            <button
+                                onClick={showOrderDetails}
+                                className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors"
                             >
-                                Xem đơn hàng
-                            </Link>
+                                Xem chi tiết đơn hàng
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -317,20 +682,117 @@ const CheckoutPage = () => {
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Thông tin giao hàng</h2>
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="deliveryAddress" className="block text-sm font-medium text-gray-700">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Địa chỉ giao hàng
                                     </label>
-                                    <input
-                                        type="text"
-                                        id="deliveryAddress"
-                                        value={deliveryAddress}
-                                        onChange={(e) => setDeliveryAddress(e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Ví dụ: 123 Lê Lợi, Quận 1, TP.HCM"
-                                    />
+                                    <div
+                                        onClick={() => setIsLocationModalOpen(true)}
+                                        className="border border-gray-300 rounded-md shadow-sm py-2 px-3 cursor-pointer flex items-center justify-between bg-gray-50 hover:bg-gray-100"
+                                    >
+                                        <span className="text-gray-600">
+                                            {deliveryAddress || "Chọn tỉnh/thành, quận/huyện, phường/xã"}
+                                        </span>
+                                        <ChevronDown size={18} className="text-gray-500" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Location Selection Modal */}
+                        {isLocationModalOpen && (
+                            <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold">Chọn địa chỉ giao hàng</h3>
+                                        <button onClick={() => setIsLocationModalOpen(false)}>
+                                            <X size={20} className="text-gray-500" />
+                                        </button>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Tỉnh/Thành phố
+                                            </label>
+                                            <select
+                                                value={selectedProvince}
+                                                onChange={(e) => {
+                                                    setSelectedProvince(e.target.value)
+                                                    setSelectedDistrict("")
+                                                    setSelectedWard("")
+                                                }}
+                                                className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="">Chọn tỉnh/thành</option>
+                                                {vietnamLocations.provinces.map((province) => (
+                                                    <option key={province.id} value={province.id}>
+                                                        {province.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Quận/Huyện
+                                            </label>
+                                            <select
+                                                value={selectedDistrict}
+                                                onChange={(e) => {
+                                                    setSelectedDistrict(e.target.value)
+                                                    setSelectedWard("")
+                                                }}
+                                                className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                disabled={!selectedProvince}
+                                            >
+                                                <option value="">Chọn quận/huyện</option>
+                                                {selectedProvince &&
+                                                    vietnamLocations.districts[selectedProvince]?.map((district) => (
+                                                        <option key={district.id} value={district.id}>
+                                                            {district.name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Phường/Xã
+                                            </label>
+                                            <select
+                                                value={selectedWard}
+                                                onChange={(e) => setSelectedWard(e.target.value)}
+                                                className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                disabled={!selectedDistrict}
+                                            >
+                                                <option value="">Chọn phường/xã</option>
+                                                {selectedDistrict &&
+                                                    vietnamLocations.wards[selectedDistrict]?.map((ward) => (
+                                                        <option key={ward.id} value={ward.id}>
+                                                            {ward.name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Địa chỉ chi tiết
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={detailedAddress}
+                                                onChange={(e) => setDetailedAddress(e.target.value)}
+                                                className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="Ví dụ: Số 123, Đường Lê Lợi"
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleLocationSelect}
+                                        className="w-full mt-4 bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+                                    >
+                                        Xác nhận
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Phương thức thanh toán</h2>
@@ -362,7 +824,11 @@ const CheckoutPage = () => {
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Sản phẩm ({totalItems})</h2>
                             <div className="divide-y divide-gray-200">
                                 {cartItems.map((item) => {
-                                    const product = getProductDetails(item.productId)
+                                    const product = products.find((p) => p.id.toString() === item.productId) || {
+                                        productName: "Sản phẩm không tồn tại",
+                                        imageUrl: "/placeholder.svg",
+                                        salePrice: 0
+                                    }
                                     return (
                                         <div key={item.id} className="py-4 flex items-center">
                                             <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">

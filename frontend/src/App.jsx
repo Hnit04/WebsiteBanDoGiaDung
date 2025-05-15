@@ -148,6 +148,10 @@ export default function App() {
                             path="/admin/shipping"
                             element={<AdminRoute element={<Transport />} />}
                         />
+                        <Route
+                            path="/admin/profile"
+                            element={<AdminRoute element={<ProfilePage />} />}
+                        />
                     </Route>
 
                     {/* Chuyển hướng các đường dẫn không xác định về trang chủ */}
