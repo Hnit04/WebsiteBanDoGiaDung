@@ -76,7 +76,7 @@ const HomePageAdmin = () => {
         switch (status) {
             case "pending":
                 return "Chờ xác nhận"
-            case "ready_to_pick":
+            case "confirmed":
                 return "Chờ lấy hàng"
             case "shipping":
                 return "Chờ giao hàng"
@@ -96,7 +96,7 @@ const HomePageAdmin = () => {
         switch (status) {
             case "pending":
                 return "bg-amber-100 text-amber-800 border border-amber-200"
-            case "ready_to_pick":
+            case "confirmed":
                 return "bg-blue-100 text-blue-800 border border-blue-200"
             case "shipping":
                 return "bg-purple-100 text-purple-800 border border-purple-200"
@@ -116,7 +116,7 @@ const HomePageAdmin = () => {
         switch (status) {
             case "pending":
                 return <Clock className="h-4 w-4" />
-            case "ready_to_pick":
+            case "confirmed":
                 return <PackageCheck className="h-4 w-4" />
             case "shipping":
                 return <Truck className="h-4 w-4" />
@@ -207,15 +207,17 @@ const HomePageAdmin = () => {
         setCurrentPage(1)
     }
 
-    // Filter orders based on search query
-    const filteredOrders = orders.filter((order) => {
-        const user = users.find((u) => u.id === parseInt(order.userId))
-        return (
-            order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
-        )
-    })
+    // Filter orders based on search query and sort to bring the last order in JSON to the top
+    const filteredOrders = orders
+        .filter((order) => {
+            const user = users.find((u) => u.id === parseInt(order.userId))
+            return (
+                order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
+            )
+        })
+        .sort((a, b) => orders.indexOf(b) - orders.indexOf(a))
 
     // Pagination
     const indexOfLastOrder = currentPage * ordersPerPage
@@ -262,36 +264,6 @@ const HomePageAdmin = () => {
         link.click()
     }
 
-    // Handle add product
-    const handleAddProduct = async (e) => {
-        e.preventDefault()
-        if (!newProduct.productName || !newProduct.salePrice || !newProduct.categoryId) {
-            showNotification("error", "Vui lòng điền đầy đủ thông tin sản phẩm")
-            return
-        }
-
-        try {
-            const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...newProduct,
-                    salePrice: parseFloat(newProduct.salePrice),
-                    sold: 0,
-                }),
-            })
-            if (!response.ok) throw new Error("Không thể thêm sản phẩm")
-            const addedProduct = await response.json()
-            setProducts([...products, addedProduct])
-            setIsAddProductModalOpen(false)
-            setNewProduct({ productName: "", salePrice: "", categoryId: "", imageUrl: "" })
-            showNotification("success", "Thêm sản phẩm thành công")
-        } catch (err) {
-            console.error("Error adding product:", err)
-            showNotification("error", "Không thể thêm sản phẩm. Vui lòng thử lại.")
-        }
-    }
-
     // Chart data
     const salesChartData = {
         labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5"],
@@ -322,7 +294,7 @@ const HomePageAdmin = () => {
                             case "pending":
                                 acc[0]++
                                 break
-                            case "ready_to_pick":
+                            case "confirmed":
                                 acc[1]++
                                 break
                             case "shipping":
@@ -407,10 +379,10 @@ const HomePageAdmin = () => {
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
-    notification.type === "success"
-        ? "bg-green-50 text-green-800 border border-green-200"
-        : "bg-red-50 text-red-800 border border-red-200"
-}`}
+                        notification.type === "success"
+                            ? "bg-green-50 text-green-800 border border-green-200"
+                            : "bg-red-50 text-red-800 border border-red-200"
+                    }`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -499,16 +471,16 @@ const HomePageAdmin = () => {
                             <button
                                 onClick={() => setActiveTab("overview")}
                                 className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
-    activeTab === "overview" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-}`}
+                                    activeTab === "overview" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+                                }`}
                             >
                                 Tổng quan
                             </button>
                             <button
                                 onClick={() => setActiveTab("monthly")}
                                 className={`rounded-md px-2.5 py-1.5 text-sm font-medium ${
-    activeTab === "monthly" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
-}`}
+                                    activeTab === "monthly" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"
+                                }`}
                             >
                                 Theo tháng
                             </button>
@@ -540,66 +512,60 @@ const HomePageAdmin = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                        Mã đơn hàng
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                        Khách hàng
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                        Ngày đặt
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                        Tổng tiền
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                        Trạng thái
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                                        Thao tác
-                                    </th>
-                                </tr>
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Mã đơn hàng
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Khách hàng
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Ngày đặt
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Tổng tiền
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Trạng thái
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    Thao tác
+                                </th>
+                            </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                                {currentOrders.map((order) => {
-                                    const customer = users.find((u) => u.id === parseInt(order.userId))
-                                    return (
-                                        <tr key={order.id} className="hover:bg-gray-50">
-                                            <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm text-gray-900">
-                                                    {customer ? customer.fullName : "Unknown User"}
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm text-gray-500">{formatDate(order.deliveryDate)}</div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {formatCurrency(order.totalAmount)}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
-    order.status
-)}`}
-                                                >
-                                                    {getStatusIcon(order.status)}
-                                                    <span className="ml-1">{getStatusText(order.status)}</span>
-                                                </span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                                <Link to={`/admin/orders`} className="text-blue-600 hover:text-blue-900">
-                                                    Chi tiết
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
+                            {currentOrders.map((order) => {
+                                const customer = users.find((u) => u.id === parseInt(order.userId))
+                                return (
+                                    <tr key={order.id} className="hover:bg-gray-50">
+                                        <td className="whitespace-nowrap px-6 py-4">
+                                            <div className="text-sm font-medium text-gray-900">{order.id}</div>
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4">
+                                            <div className="text-sm text-gray-900">
+                                                {customer ? customer.fullName : "Unknown User"}
+                                            </div>
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4">
+                                            <div className="text-sm text-gray-500">{formatDate(order.deliveryDate)}</div>
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {formatCurrency(order.totalAmount)}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap"><span
+                                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(order.status)}`}>{getStatusIcon(order.status)}<span
+                                            className="ml-1">{getStatusText(order.status)}</span></span>
+                                        </td>
+                                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                            <Link to={`/admin/orders`} className="text-blue-600 hover:text-blue-900">
+                                                Chi tiết
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
                             </tbody>
                         </table>
                     </div>

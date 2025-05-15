@@ -46,8 +46,12 @@ const HomePage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+                <div className="flex flex-col items-center bg-white p-8 rounded-xl shadow-lg">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+                    <p className="mt-6 text-lg font-medium text-gray-700">Đang tải dữ liệu...</p>
+                    <p className="text-sm text-gray-500 mt-2">Vui lòng đợi trong giây lát</p>
+                </div>
             </div>
         )
     }
@@ -71,7 +75,7 @@ const HomePage = () => {
                     padding: "50px 0",
                 }}
             >
-                <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center">
                         {/* Text Section */}
                         <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
