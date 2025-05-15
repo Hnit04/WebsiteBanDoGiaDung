@@ -1,6 +1,7 @@
 package iuh.fit.productservice.controller;
 
 import iuh.fit.productservice.dto.request.AddReviewRequest;
+import iuh.fit.productservice.dto.request.CreateCategoryRequest;
 import iuh.fit.productservice.dto.request.CreateProductRequest;
 import iuh.fit.productservice.dto.request.UpdateProductRequest;
 import iuh.fit.productservice.dto.response.CategoryResponse;
@@ -96,6 +97,10 @@ public class ProductController {
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(productService.getAllCategories());
+    }
+    @PostMapping("/categories")
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CreateCategoryRequest request) {
+        return ResponseEntity.ok(productService.createCategory(request));
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
