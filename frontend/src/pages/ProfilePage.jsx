@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { CheckCircle, AlertTriangle, X, Clock, Truck, Package, XCircle, Search } from "lucide-react";
+import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("personal");
@@ -70,22 +71,23 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const storedUser = JSON.parse(localStorage.getItem("user"));
-                if (!storedUser?.userId) {
+                const storedUser = getUserFromLocalStorage()
+                if (!storedUser?.email) {
                     throw new Error("Vui lòng đăng nhập để xem thông tin cá nhân");
                 }
 
                 // Lấy thông tin người dùng
-                const userResponse = await api.get(`/users/${storedUser.userId}`);
-                const userData = userResponse.data;
-                setUser(userData);
-                setUsername(userData.username);
-                setEmail(userData.email);
-                setPhone(userData.phone || "");
-                setAddress(userData.address || "");
-
+                const userResponse = getUserFromLocalStorage();
+                console.log(userResponse)
+                setUser(userResponse);
+                setUsername(userResponse.username);
+                setEmail(userResponse.email);
+                setPhone(userResponse.phone || "");
+                setAddress(userResponse.address || "");
+                console.log("Hung"+ userResponse.id)
                 // Lấy danh sách đơn hàng (giả định endpoint /api/orders)
-                const orderResponse = await api.get(`/orders?userId=${storedUser.userId}`);
+                const orderResponse = await api.get(`/orders/all/user/${userResponse.id}`);
+                console.log(orderResponse)
                 const ordersData = orderResponse.data.content || [];
                 setOrders(ordersData);
 
