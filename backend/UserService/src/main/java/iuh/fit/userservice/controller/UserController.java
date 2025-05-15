@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -28,22 +29,31 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        UserResponse user = userService.createUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<Map<String, Object>> createUser(@Valid @RequestBody CreateUserRequest request) {
+        try {
+            Map<String, Object> response = userService.createUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>(); // Đổi thành Map<String, Object>
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
     public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable String id,
             @Valid @RequestBody CreateUserRequest request) {
@@ -51,6 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -64,6 +75,7 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
         Map<String, Object> response = userService.login(request.getEmail(), request.getPassword());

@@ -1,39 +1,33 @@
+"use client";
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react";
-import api from "../services/api"; // Import api.js
+import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
-        username: "", // Đổi fullName thành username để khớp với CreateUserRequest
+        username: "",
         email: "",
         phone: "",
         password: "",
         confirmPassword: "",
-        role: "CUSTOMER", // Mặc định là CUSTOMER, khớp với backend
-        address: "", // Thêm address (tùy chọn)
+        role: "CUSTOMER",
+        address: "",
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const [verificationCode, setVerificationCode] = useState("");
-    const [userInputCode, setUserInputCode] = useState("");
-    const [showVerificationModal, setShowVerificationModal] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-
+        setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: "",
-            }));
+            setErrors((prev) => ({ ...prev, [name]: "" }));
         }
     };
 
@@ -76,15 +70,6 @@ const RegisterPage = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const generateVerificationCode = () => {
-        return Math.floor(100000 + Math.random() * 900000).toString(); // Mã 6 chữ số
-    };
-
-    const sendVerificationEmail = (email, code) => {
-        console.log(`Gửi mã xác nhận ${code} đến email: ${email}`);
-        // Trong thực tế, NotificationService sẽ gửi email
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -95,7 +80,6 @@ const RegisterPage = () => {
         setIsLoading(true);
 
         try {
-            // Gửi yêu cầu đăng ký đến backend
             const payload = {
                 username: formData.username,
                 email: formData.email,
@@ -104,16 +88,26 @@ const RegisterPage = () => {
                 address: formData.address,
                 role: formData.role,
             };
-            await api.post("/users", payload);
+            const response = await api.post("/users", payload);
+            console.log("Response:", response.data); // Log response để kiểm tra
 
-            // Tạo mã xác nhận và gửi qua email
-            const code = generateVerificationCode();
-            setVerificationCode(code);
-            sendVerificationEmail(formData.email, code);
+            // Kiểm tra response.data trước khi destructuring
+            const { user, token } = response.data || {};
+            if (!user || !token) {
+                throw new Error("Response không chứa user hoặc token");
+            }
 
-            // Hiển thị modal nhập mã xác nhận
-            setShowVerificationModal(true);
+            // Lưu thông tin người dùng và token vào localStorage
+            localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("token", token);
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userRole", user.role);
+
+            setIsLoading(false);
+            alert("Đăng ký thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập.");
+            navigate("/login");
         } catch (err) {
+            console.error("Lỗi đăng ký:", err.message, err.response?.data); // Log lỗi chi tiết
             setErrors({
                 api: err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.",
             });
@@ -122,22 +116,7 @@ const RegisterPage = () => {
         }
     };
 
-    const handleVerifyCode = () => {
-        if (userInputCode === verificationCode) {
-            setShowVerificationModal(false);
-            setIsLoading(true);
-
-            setTimeout(() => {
-                setIsLoading(false);
-                alert("Đăng ký thành công! Vui lòng đăng nhập.");
-                window.location.href = "/login";
-            }, 1500);
-        } else {
-            alert("Mã xác nhận không đúng. Vui lòng thử lại!");
-            setUserInputCode("");
-        }
-    };
-
+    // Giữ nguyên phần render (JSX) vì không cần sửa
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
             <motion.div
@@ -147,7 +126,6 @@ const RegisterPage = () => {
                 className="w-full max-w-md"
             >
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    {/* Header */}
                     <div className="bg-blue-600 p-6 relative">
                         <a href="/login" className="absolute top-6 left-6 text-white hover:text-blue-200 transition-colors">
                             <ArrowLeft size={20} />
@@ -158,12 +136,9 @@ const RegisterPage = () => {
                             <p className="text-blue-100 mt-2">Tạo tài khoản để mua sắm dễ dàng hơn</p>
                         </div>
                     </div>
-
-                    {/* Form */}
                     <div className="p-6">
                         <form onSubmit={handleSubmit}>
                             <div className="space-y-4">
-                                {/* Username field */}
                                 <div>
                                     <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                                         Tên người dùng
@@ -188,8 +163,6 @@ const RegisterPage = () => {
                                     </div>
                                     {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
                                 </div>
-
-                                {/* Email field */}
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                                         Email
@@ -214,8 +187,6 @@ const RegisterPage = () => {
                                     </div>
                                     {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                                 </div>
-
-                                {/* Phone field */}
                                 <div>
                                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                                         Số điện thoại (tùy chọn)
@@ -239,8 +210,6 @@ const RegisterPage = () => {
                                     </div>
                                     {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
                                 </div>
-
-                                {/* Address field */}
                                 <div>
                                     <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                                         Địa chỉ (tùy chọn)
@@ -256,8 +225,6 @@ const RegisterPage = () => {
                                         placeholder="123 Đường ABC, Quận 1"
                                     />
                                 </div>
-
-                                {/* Password field */}
                                 <div>
                                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                                         Mật khẩu
@@ -291,8 +258,6 @@ const RegisterPage = () => {
                                     </div>
                                     {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                                 </div>
-
-                                {/* Confirm Password field */}
                                 <div>
                                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                                         Xác nhận mật khẩu
@@ -326,8 +291,6 @@ const RegisterPage = () => {
                                     </div>
                                     {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
                                 </div>
-
-                                {/* Role field */}
                                 <div>
                                     <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
                                         Vai trò
@@ -343,8 +306,6 @@ const RegisterPage = () => {
                                         <option value="ADMIN">Quản trị viên</option>
                                     </select>
                                 </div>
-
-                                {/* Terms and conditions checkbox */}
                                 <div className="flex items-start">
                                     <div className="flex items-center h-5">
                                         <input
@@ -377,11 +338,7 @@ const RegisterPage = () => {
                                     </div>
                                 </div>
                                 {errors.agreeTerms && <p className="mt-1 text-sm text-red-600">{errors.agreeTerms}</p>}
-
-                                {/* API Error */}
                                 {errors.api && <p className="mt-1 text-sm text-red-600">{errors.api}</p>}
-
-                                {/* Submit button */}
                                 <div>
                                     <button
                                         type="submit"
@@ -421,15 +378,11 @@ const RegisterPage = () => {
                                 </div>
                             </div>
                         </form>
-
-                        {/* Divider */}
                         <div className="mt-6 flex items-center">
                             <div className="flex-grow border-t border-gray-200"></div>
                             <span className="flex-shrink mx-4 text-sm text-gray-400">hoặc đăng ký với</span>
                             <div className="flex-grow border-t border-gray-200"></div>
                         </div>
-
-                        {/* Social registration */}
                         <div className="mt-6 grid grid-cols-2 gap-3">
                             <button
                                 type="button"
@@ -478,8 +431,6 @@ const RegisterPage = () => {
                                 Facebook
                             </button>
                         </div>
-
-                        {/* Login link */}
                         <div className="mt-6 text-center">
                             <p className="text-sm text-gray-600">
                                 Đã có tài khoản?{" "}
@@ -490,48 +441,8 @@ const RegisterPage = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* Footer */}
-                <p className="mt-4 text-center text-xs text-gray-500">© 2023 Home Craft. Tất cả các quyền được bảo lưu.</p>
+                <p className="mt-4 text-center text-xs text-gray-500">© 2025 Home Craft. Tất cả các quyền được bảo lưu.</p>
             </motion.div>
-
-            {/* Verification Modal */}
-            {showVerificationModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="bg-white rounded-lg p-6 w-full max-w-sm"
-                    >
-                        <h2 className="text-lg font-semibold text-gray-800 mb-4">Xác nhận Email</h2>
-                        <p className="text-sm text-gray-600 mb-4">
-                            Chúng tôi đã gửi một mã xác nhận đến email <strong>{formData.email}</strong>. Vui lòng nhập mã để tiếp tục.
-                        </p>
-                        <input
-                            type="text"
-                            value={userInputCode}
-                            onChange={(e) => setUserInputCode(e.target.value)}
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Nhập mã xác nhận"
-                        />
-                        <div className="mt-4 flex justify-end space-x-2">
-                            <button
-                                onClick={() => setShowVerificationModal(false)}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={handleVerifyCode}
-                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                Xác nhận
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
         </div>
     );
 };
