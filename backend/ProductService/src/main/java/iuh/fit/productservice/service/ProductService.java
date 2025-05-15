@@ -1,6 +1,7 @@
 package iuh.fit.productservice.service;
 
 import iuh.fit.productservice.dto.request.AddReviewRequest;
+import iuh.fit.productservice.dto.request.CreateCategoryRequest;
 import iuh.fit.productservice.dto.request.CreateProductRequest;
 import iuh.fit.productservice.dto.request.UpdateProductRequest;
 import iuh.fit.productservice.dto.response.CategoryResponse;
@@ -274,6 +275,17 @@ public class ProductService {
             logger.error("Error validating user ID: {} - {}", userId, e.getMessage());
             throw new IllegalArgumentException("Error validating user ID: " + userId, e);
         }
+    }
+    @Transactional
+    public CategoryResponse createCategory(CreateCategoryRequest request) {
+        logger.info("Creating category: {}", request.getCategoryName());
+
+        Category category = new Category();
+        category.setCategoryName(request.getCategoryName());
+
+        Category savedCategory = categoryRepository.save(category);
+        logger.info("Category saved with ID: {}", savedCategory.getCategoryId());
+        return productMapper.toCategoryResponse(savedCategory);
     }
 }
 
