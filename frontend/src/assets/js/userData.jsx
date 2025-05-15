@@ -250,10 +250,11 @@ export const saveUserToLocalStorage = (user) => {
     localStorage.setItem(
         "user",
         JSON.stringify({
-            id: user.id,
-            fullName: user.fullName,
+            userId: user.userId,
+            username: user.username,
             email: user.email,
             role: user.role,
+            phone: user.phone,
         }),
     )
 

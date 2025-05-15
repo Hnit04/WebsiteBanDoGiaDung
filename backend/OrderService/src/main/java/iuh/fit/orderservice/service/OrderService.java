@@ -343,6 +343,9 @@ public class OrderService {
         logger.info("Order detail updated for orderId: {}, total now: {}", orderId, totalAmount);
         return orderMapper.toOrderResponse(updatedOrder);
     }
+    public List<Order> getAllOrdersByUserId(String userId) {
+        return orderRepository.findByUserId(userId);
+    }
 
     @Data
     private static class PaymentRequest {

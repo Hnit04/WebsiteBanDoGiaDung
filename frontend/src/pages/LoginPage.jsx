@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { saveUserToLocalStorage } from "../assets/js/userData.jsx"
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -55,7 +56,8 @@ const LoginPage = () => {
 
             setEmail("");
             setPassword("");
-
+            saveUserToLocalStorage(user)
+            console.log("hung1"+user.userId)
             // Chuyển hướng dựa trên vai trò
             if (user.role === "ADMIN") {
                 navigate("/admin");
@@ -81,7 +83,7 @@ const LoginPage = () => {
             if (storedRole === "ADMIN") {
                 navigate("/admin");
             } else {
-                navigate("/");
+                navigate("/login");
             }
         }
         setCheckingAuth(false);
