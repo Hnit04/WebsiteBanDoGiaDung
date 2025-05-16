@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { saveUserToLocalStorage } from "../assets/js/userData.jsx"
 
@@ -48,7 +47,6 @@ const LoginPage = () => {
             const response = await api.post("/users/login", { email, password });
             const { user, token } = response.data;
 
-            // Lưu thông tin vào localStorage
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("token", token);
             localStorage.setItem("isLoggedIn", "true");
@@ -56,9 +54,9 @@ const LoginPage = () => {
 
             setEmail("");
             setPassword("");
-            saveUserToLocalStorage(user)
-            console.log("hung1"+user.userId)
-            // Chuyển hướng dựa trên vai trò
+            saveUserToLocalStorage(user);
+            console.log("hung1" + user.userId);
+
             if (user.role === "ADMIN") {
                 navigate("/admin");
             } else {
@@ -144,8 +142,8 @@ const LoginPage = () => {
                                                 }
                                             }}
                                             className={`block w-full pl-10 pr-3 py-2.5 border ${
-    errors.email ? "border-red-500" : "border-gray-300"
-} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                                errors.email ? "border-red-500" : "border-gray-300"
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                             placeholder="your.email@example.com"
                                         />
                                     </div>
@@ -156,9 +154,9 @@ const LoginPage = () => {
                                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                             Mật khẩu
                                         </label>
-                                        <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
+                                        <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
                                             Quên mật khẩu?
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -178,8 +176,8 @@ const LoginPage = () => {
                                                 }
                                             }}
                                             className={`block w-full pl-10 pr-10 py-2.5 border ${
-    errors.password ? "border-red-500" : "border-gray-300"
-} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                                errors.password ? "border-red-500" : "border-gray-300"
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                             placeholder="••••••••"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -212,8 +210,8 @@ const LoginPage = () => {
                                         type="submit"
                                         disabled={isLoading}
                                         className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-    isLoading ? "opacity-70 cursor-not-allowed" : ""
-}`}
+                                            isLoading ? "opacity-70 cursor-not-allowed" : ""
+                                        }`}
                                     >
                                         {isLoading ? (
                                             <>

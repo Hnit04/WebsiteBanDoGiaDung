@@ -10,6 +10,7 @@ import ProductsPage from './pages/ProductsPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'; // Thêm import
 import ProductDetailPage from "@/pages/ProductDetailPage.jsx";
 import Contact from './pages/Contact.jsx';
 import HomePageAdmin from './pages/HomePageAdmin.jsx';
@@ -54,7 +55,6 @@ export default function App() {
         return () => {
             window.removeEventListener('storage', updateTotalItems);
             clearTimeout(timer);
-
         };
     }, []);
 
@@ -105,9 +105,9 @@ export default function App() {
                 <Routes>
                     {/* Các route công khai với UserLayout */}
                     <Route element={<UserLayout onCartClick={toggleCart} totalItems={totalItems} />}>
-
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Thêm tuyến đường */}
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/products" element={<ProductsPage onProductClick={handleProductClick} />} />
                         <Route path="/about" element={<AboutPage />} />
@@ -159,7 +159,6 @@ export default function App() {
                 </Routes>
 
                 {/* Các thành phần dùng chung */}
-
                 <ProductModal
                     product={currentProduct}
                     isOpen={isModalOpen}
