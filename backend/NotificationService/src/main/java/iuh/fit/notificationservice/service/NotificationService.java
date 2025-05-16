@@ -110,21 +110,58 @@ public class NotificationService {
 
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            helper.setFrom("trancongtinh20042004@gmail.com", "Bán đồ gia dụng");
+            helper.setFrom("trancongtinh20042004@gmail.com", "Bán Đồ Gia Dụng");
             helper.setTo(userEmail);
             helper.setReplyTo("trancongtinh20042004@gmail.com");
             helper.setSubject("🎉 Chào mừng bạn đến với Bán Đồ Gia Dụng!");
-            helper.setText(
-                    "<p>Xin chào,</p>" +
-                            "<p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Bán Đồ Gia Dụng</strong>.</p>" +
-                            "<p>" + message.getMessage() + "</p>" +
-                            "<hr/>" +
-                            "<p style='font-size: 12px;'>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ <a href='mailto:trancongtinh20042004@gmail.com'>trancongtinh20042004@gmail.com</a>.</p>",
-                    true
-            );
 
+            String htmlContent = """
+            <!DOCTYPE html>
+            <html lang="vi">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Chào mừng bạn đến với Bán Đồ Gia Dụng</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4;">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 20px auto;">
+                    <tr>
+                        <td style="background-color: #2c3e50; padding: 20px; text-align: center; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Bán Đồ Gia Dụng</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px; text-align: center;">
+                            <h2 style="color: #2c3e50; font-size: 22px; margin: 0 0 20px;">Chào mừng bạn đến với chúng tôi!</h2>
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin: 0 0 20px;">
+                                Cảm ơn bạn đã đăng ký tài khoản tại <strong>Bán Đồ Gia Dụng</strong>. 
+                                Chúng tôi rất vui được chào đón bạn đến với cộng đồng của chúng tôi!
+                            </p>
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin: 0 0 20px;">
+                                """ + message.getMessage() + """
+                            </p>
+                            <a href="https://your-website.com" style="display: inline-block; padding: 12px 24px; background-color: #3498db; color: #ffffff; text-decoration: none; font-size: 16px; border-radius: 5px; margin: 20px 0;">Khám phá cửa hàng</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #f4f4f4; padding: 20px; text-align: center; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                            <p style="color: #666666; font-size: 12px; margin: 0;">
+                                Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ qua 
+                                <a href="mailto:trancongtinh20042004@gmail.com" style="color: #3498db; text-decoration: none;">trancongtinh20042004@gmail.com</a>.
+                            </p>
+                            <p style="color: #666666; font-size: 12px; margin: 10px 0 0;">
+                                © 2025 Bán Đồ Gia Dụng. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+            """;
+
+            helper.setText(htmlContent, true);
             mailSender.send(mimeMessage);
             logger.info("📧 Email successfully sent to: {}", userEmail);
 
