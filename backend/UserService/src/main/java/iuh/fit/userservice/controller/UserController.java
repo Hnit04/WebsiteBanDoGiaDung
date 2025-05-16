@@ -2,6 +2,7 @@ package iuh.fit.userservice.controller;
 
 import iuh.fit.userservice.dto.request.CreateUserRequest;
 import iuh.fit.userservice.dto.request.LoginRequest;
+import iuh.fit.userservice.dto.request.VerifyCodeRequest;
 import iuh.fit.userservice.dto.response.UserResponse;
 import iuh.fit.userservice.service.UserService;
 import iuh.fit.userservice.util.JwtUtil;
@@ -35,6 +36,19 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> createUser(@Valid @RequestBody CreateUserRequest request) {
         try {
             Map<String, Object> response = userService.createUser(request);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<Map<String, Object>> verifyCodeAndCreateUser(@Valid @RequestBody VerifyCodeRequest request) {
+        try {
+            Map<String, Object> response = userService.verifyCodeAndCreateUser(
+                    request.getEmail(), request.getCode(), request.getUserRequest());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             Map<String, Object> error = new HashMap<>();
