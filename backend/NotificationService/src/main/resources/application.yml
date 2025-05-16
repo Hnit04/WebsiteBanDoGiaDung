@@ -11,10 +11,10 @@ spring:
       mail:
         debug: true
   rabbitmq:
-    host: rabbitmq
+    host: collie-01.lmq.cloudamqp.com
     port: 5672
-    username: guest
-    password: guest
+    username: vnpaefjo
+    password: hpihASB7lUCBPmoAb_DoYDZlW2EGnaZP
     virtual-host: /
     connection-timeout: 10000  # Tăng từ 5000ms lên 10000ms
     template:
