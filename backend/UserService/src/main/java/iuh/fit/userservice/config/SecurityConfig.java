@@ -35,8 +35,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/api/users/**").permitAll()
-                        .requestMatchers("/api/users/login", "/api/users").permitAll()
-                        .requestMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CUSTOMER") // Sửa hasAnyRole thành hasAnyAuthority
+                        .requestMatchers("/api/users/login", "/api/users", "/api/users/verify").permitAll() // Thêm /api/users/verify vào danh sách permitAll
+                        .requestMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CUSTOMER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -53,7 +53,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

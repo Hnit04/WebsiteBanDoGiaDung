@@ -12,11 +12,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5174, // Khớp với cổng trong lỗi
+    port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // API Gateway
+        target: 'http://localhost:8080',
         changeOrigin: true,
+        // Bỏ rewrite để giữ /api/users
       },
     },
   },
