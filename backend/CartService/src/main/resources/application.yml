@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: ${PORT:8084}
 
 spring:
   application:
@@ -7,20 +7,20 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://vinhthai2612:HoVinhThai%40123@cluster.8oclyud.mongodb.net/?retryWrites=true&w=majority&appName=Cluster}
+      uri: ${MONGODB_URI}
   rabbitmq:
-    host: rabbitmq
-    port: 5672
-    username: guest
-    password: guest
-    template:
-      retry:
-        enabled: true
-        initial-interval: 2000ms
-        max-attempts: 3
-        multiplier: 1.5
-    publisher-confirm-type: correlated
-    publisher-returns: true
+#    host: rabbitmq
+#    port: 5672
+#    username: guest
+#    password: guest
+#    template:
+#      retry:
+#        enabled: true
+#        initial-interval: 2000ms
+#        max-attempts: 3
+#        multiplier: 1.5
+#    publisher-confirm-type: correlated
+#    publisher-returns: true
 
 eureka:
   client:
