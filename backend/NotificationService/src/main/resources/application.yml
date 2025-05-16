@@ -15,7 +15,7 @@ spring:
     port: 5672
     username: vnpaefjo
     password: hpihASB7lUCBPmoAb_DoYDZlW2EGnaZP
-    virtual-host: /
+    virtual-host: vnpaefjo
     connection-timeout: 10000  # Tăng từ 5000ms lên 10000ms
     template:
       exchange: notification-exchange
@@ -46,7 +46,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://mongo:27017/notificationdb}
+      uri: ${MONGODB_URI}
 
 server:
   port: 8089
