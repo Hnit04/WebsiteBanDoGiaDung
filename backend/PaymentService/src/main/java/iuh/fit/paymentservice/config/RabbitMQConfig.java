@@ -3,6 +3,7 @@ package iuh.fit.paymentservice.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -47,5 +48,14 @@ public class RabbitMQConfig {
         });
 
         return rabbitTemplate;
+    }
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setHost("localhost"); // Thay bằng host RabbitMQ của bạn
+        connectionFactory.setPort(5672); // Thay bằng port của bạn
+        connectionFactory.setUsername("guest"); // Thay bằng username
+        connectionFactory.setPassword("guest"); // Thay bằng password
+        return connectionFactory;
     }
 }
