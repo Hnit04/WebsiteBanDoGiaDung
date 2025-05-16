@@ -1,19 +1,18 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { CheckCircle, AlertTriangle, X, Clock, Truck, Package, XCircle, Search } from "lucide-react";
-import { getUserFromLocalStorage } from "../assets/js/userData"
+import { getUserFromLocalStorage } from "../assets/js/userData";
 
 const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("personal");
     const [user, setUser] = useState(null);
     const [orders, setOrders] = useState([]);
-    const [orderDetails, setOrderDetails] = useState({});
     const [products, setProducts] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [globalLoading, setGlobalLoading] = useState(false);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
     const [oldPassword, setOldPassword] = useState("");
@@ -25,6 +24,9 @@ const ProfilePage = () => {
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
+    const [page, setPage] = useState(0);
+    const [pageSize] = useState(10);
+    const [hasMore, setHasMore] = useState(true);
     const navigate = useNavigate();
 
     const getStatusBadgeColor = (status) => {
@@ -69,65 +71,98 @@ const ProfilePage = () => {
     };
 
     useEffect(() => {
-        const fetchUserData = async () => {
+        const fetchData = async () => {
+            setGlobalLoading(true);
             try {
-                const storedUser = getUserFromLocalStorage()
-                if (!storedUser?.email) {
+                const storedUser = getUserFromLocalStorage();
+                if (!storedUser?.userId || !storedUser?.email) {
                     throw new Error("Vui lòng đăng nhập để xem thông tin cá nhân");
                 }
 
-                // Lấy thông tin người dùng
-                const userResponse = getUserFromLocalStorage();
-                console.log(userResponse)
-                setUser(userResponse);
-                setUsername(userResponse.username);
-                setEmail(userResponse.email);
-                setPhone(userResponse.phone || "");
-                setAddress(userResponse.address || "");
-                console.log("Hung"+ userResponse.id)
-                // Lấy danh sách đơn hàng (giả định endpoint /api/orders)
-                const orderResponse = await api.get(`/orders/all/user/${userResponse.id}`);
-                console.log(orderResponse)
-                const ordersData = orderResponse.data.content || [];
+                // Lấy thông tin người dùng từ backend
+                const userResponse = await api.get(`/users/${storedUser.userId}`);
+                const userData = userResponse.data;
+                setUser(userData);
+                setUsername(userData.username);
+                setEmail(userData.email);
+                setPhone(userData.phone || "");
+                setAddress(userData.address || "");
+                localStorage.setItem("user", JSON.stringify(userData));
+
+                // Lấy danh sách đơn hàng với phân trang
+                const orderResponse = await api.get(`/orders`, {
+                    params: { userId: userData.userId, page, size: pageSize }
+                });
+                const ordersData = orderResponse.data || [];
                 setOrders(ordersData);
+                setHasMore(ordersData.length === pageSize);
 
-                // Lấy chi tiết đơn hàng (giả định endpoint /api/order-details)
-                const detailsResponse = await api.get(`/order-details`);
-                const detailsData = detailsResponse.data.content || [];
-                const detailsByOrder = ordersData.reduce((acc, order) => {
-                    acc[order.id] = detailsData.filter(detail => detail.orderId === order.id);
-                    return acc;
-                }, {});
-                setOrderDetails(detailsByOrder);
-
-                // Lấy danh sách sản phẩm
-                const productsResponse = await api.get(`/products`, { params: { size: 100 } });
-                const productsData = productsResponse.data.content || [];
-                const productsById = productsData.reduce((acc, product) => {
-                    acc[product.productId] = product;
-                    return acc;
-                }, {});
-                setProducts(productsById);
+                // Lấy danh sách sản phẩm liên quan đến đơn hàng
+                const productIds = new Set();
+                ordersData.forEach(order => {
+                    order.orderDetails?.forEach(detail => productIds.add(detail.productId));
+                });
+                if (productIds.size > 0) {
+                    const productPromises = Array.from(productIds).map(id =>
+                        api.get(`/products/${id}`).catch(() => ({ data: { productId: id } }))
+                    );
+                    const productResponses = await Promise.all(productPromises);
+                    const productsById = productResponses.reduce((acc, res) => {
+                        if (res.data?.productId) {
+                            acc[res.data.productId] = res.data;
+                        }
+                        return acc;
+                    }, {});
+                    setProducts(productsById);
+                }
             } catch (err) {
                 console.error("Error fetching data:", err);
-                setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
+                if (err.response?.status === 401) {
+                    setError("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+                    navigate("/login");
+                } else {
+                    setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
+                }
             } finally {
+                setGlobalLoading(false);
                 setIsLoading(false);
             }
         };
 
-        fetchUserData();
-    }, []);
+        fetchData();
+    }, [page, navigate]);
+
+    const loadMoreOrders = () => {
+        if (hasMore && !globalLoading) {
+            setPage(prev => prev + 1);
+        }
+    };
 
     const showNotification = (type, message) => {
         setNotification({ type, message });
-        setTimeout(() => setNotification(null), 3000);
+        setTimeout(() => setNotification(null), 5000); // Tăng thời gian hiển thị
+    };
+
+    const validateEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    const validatePhone = (phone) => {
+        return phone ? /^\d{10,11}$/.test(phone) : true;
     };
 
     const handleUpdatePersonalInfo = async (e) => {
         e.preventDefault();
         if (!username.trim() || !email.trim()) {
-            showNotification("error", "Vui lòng điền đầy đủ thông tin");
+            showNotification("error", "Tên người dùng và email là bắt buộc");
+            return;
+        }
+        if (!validateEmail(email)) {
+            showNotification("error", "Email không hợp lệ");
+            return;
+        }
+        if (!validatePhone(phone)) {
+            showNotification("error", "Số điện thoại không hợp lệ (10-11 số)");
             return;
         }
 
@@ -155,7 +190,7 @@ const ProfilePage = () => {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
-        if (!newPassword || !confirmPassword) {
+        if (!oldPassword || !newPassword || !confirmPassword) {
             showNotification("error", "Vui lòng điền đầy đủ các trường");
             return;
         }
@@ -171,14 +206,11 @@ const ProfilePage = () => {
         try {
             setIsSubmitting(true);
             const payload = {
-                username: user.username,
-                email: user.email,
-                password: newPassword,
-                phone: user.phone,
-                address: user.address,
-                role: user.role,
+                oldPassword,
+                newPassword,
+                confirmPassword,
             };
-            await api.put(`/users/${user.userId}`, payload);
+            await api.post(`/users/change-password`, payload); // Giả định endpoint mới
             showNotification("success", "Đổi mật khẩu thành công");
             setOldPassword("");
             setNewPassword("");
@@ -192,11 +224,11 @@ const ProfilePage = () => {
     };
 
     const filteredOrders = orders.filter(order => {
-        const matchesOrder = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        const matchesOrder = order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchQuery.toLowerCase());
+            user?.username.toLowerCase().includes(searchQuery.toLowerCase());
 
-        const matchesProduct = orderDetails[order.id]?.some(detail => {
+        const matchesProduct = order.orderDetails?.some(detail => {
             const product = products[detail.productId] || {};
             return product.productName?.toLowerCase().includes(searchQuery.toLowerCase());
         }) || false;
@@ -235,7 +267,7 @@ const ProfilePage = () => {
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hóa đơn #${order.id}</title>
+    <title>Hóa đơn #${order.orderId}</title>
 <style>
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
     .invoice-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
@@ -256,7 +288,10 @@ const ProfilePage = () => {
     .close-btn { margin-top: 20px; text-align: center; }
     .close-btn button { padding: 10px 20px; background-color: #4338ca; color: white; border: none; border-radius: 5px; cursor: pointer; }
     .close-btn button:hover { background-color: #3730a3; }
-    @media print { .close-btn { display: none; } }
+    .print-btn { margin-top: 10px; text-align: center; }
+    .print-btn button { padding: 10px 20px; background-color: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .print-btn button:hover { background-color: #059669; }
+    @media print { .close-btn, .print-btn { display: none; } }
 </style>
 </head>
 <body>
@@ -288,10 +323,10 @@ const ProfilePage = () => {
     </tr>
     </thead>
     <tbody>
-    ${orderDetails[order.id]
-        .map((detail, index) => {
-            const product = products[detail.productId] || {};
-            return `
+    ${order.orderDetails
+            .map((detail, index) => {
+                const product = products[detail.productId] || {};
+                return `
               <tr>
                 <td>${index + 1}</td>
                 <td>${product.productName || "Sản phẩm không xác định"}</td>
@@ -300,18 +335,18 @@ const ProfilePage = () => {
                 <td class="amount">${formatCurrency(detail.subtotal)}</td>
               </tr>
             `;
-        })
-        .join("")}
+            })
+            .join("")}
     </tbody>
 </table>
 <div class="invoice-total">
     <div class="invoice-total-row">
         <div class="label">Tổng tiền hàng:</div>
-        <div class="value">${formatCurrency(order.totalAmount)}</div>
+        <div class="value">${formatCurrency(order.totalAmount - (order.shippingFee || 0))}</div>
     </div>
     <div class="invoice-total-row">
         <div class="label">Phí vận chuyển:</div>
-        <div class="value">${formatCurrency(0)}</div>
+        <div class="value">${formatCurrency(order.shippingFee || 0)}</div>
     </div>
     <div class="invoice-total-row final">
         <div class="label">Tổng thanh toán:</div>
@@ -321,6 +356,9 @@ const ProfilePage = () => {
 <div class="invoice-footer">
     <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
     <p>Mọi thắc mắc xin vui lòng liên hệ: support@homecraft.com | 0393465113</p>
+</div>
+<div class="print-btn">
+    <button onclick="window.print()">In hóa đơn</button>
 </div>
 <div class="close-btn">
     <button onclick="window.close()">Đóng</button>
@@ -334,7 +372,7 @@ const ProfilePage = () => {
         printWindow.document.close();
     };
 
-    if (!user) {
+    if (!user && !isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-3xl mx-auto">
@@ -378,6 +416,7 @@ const ProfilePage = () => {
                         </div>
                         <h1 className="text-2xl font-bold text-gray-800 mb-4">Lỗi</h1>
                         <p className="text-gray-600 mb-6">{error}</p>
+                        _suppressed
                         <Link
                             to="/"
                             className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all"
@@ -391,14 +430,19 @@ const ProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 relative">
+            {globalLoading && (
+                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
+                </div>
+            )}
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
-    notification.type === "success"
-        ? "bg-green-100 text-green-800 border border-green-300"
-        : "bg-red-100 text-red-800 border border-red-300"
-} animate-slide-in`}
+                        notification.type === "success"
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-red-100 text-red-800 border border-red-300"
+                    } animate-slide-in`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -424,10 +468,10 @@ const ProfilePage = () => {
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
                                         className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all ${
-    activeTab === tab
-        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md"
-        : "text-gray-700 hover:bg-gray-100"
-}`}
+                                            activeTab === tab
+                                                ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md"
+                                                : "text-gray-700 hover:bg-gray-100"
+                                        }`}
                                     >
                                         {tab === "personal" && "Thông tin cá nhân"}
                                         {tab === "orders" && "Lịch sử đơn hàng"}
@@ -524,7 +568,7 @@ const ProfilePage = () => {
                                     ) : (
                                         <div className="space-y-4 max-h-[750px] overflow-y-auto">
                                             {filteredOrders.map((order) => (
-                                                <div key={order.id} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
+                                                <div key={order.orderId} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
                                                     <div className="flex items-center justify-between mb-4">
                                                         <div className="flex items-center">
                                                             {getStatusIcon(order.status)}
@@ -546,7 +590,7 @@ const ProfilePage = () => {
                                                         </p>
                                                         <div className="mt-4">
                                                             <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản phẩm:</h4>
-                                                            {orderDetails[order.id]?.map((detail) => {
+                                                            {order.orderDetails?.map((detail) => {
                                                                 const product = products[detail.productId] || {};
                                                                 return (
                                                                     <div key={detail.orderDetailId} className="flex items-center space-x-4 mb-2">
@@ -568,6 +612,17 @@ const ProfilePage = () => {
                                                     </div>
                                                 </div>
                                             ))}
+                                            {hasMore && (
+                                                <div className="text-center mt-4">
+                                                    <button
+                                                        onClick={loadMoreOrders}
+                                                        disabled={globalLoading}
+                                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                                                    >
+                                                        {globalLoading ? "Đang tải..." : "Tải thêm đơn hàng"}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -576,6 +631,18 @@ const ProfilePage = () => {
                                 <div>
                                     <h2 className="text-2xl font-semibold text-gray-800 mb-6">Thay đổi mật khẩu</h2>
                                     <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
+                                        <div>
+                                            <label htmlFor="oldPassword" className="block font-semibold text-gray-700">
+                                                Mật khẩu cũ
+                                            </label>
+                                            <input
+                                                type="password"
+                                                id="oldPassword"
+                                                value={oldPassword}
+                                                onChange={(e) => setOldPassword(e.target.value)}
+                                                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                            />
+                                        </div>
                                         <div>
                                             <label htmlFor="newPassword" className="block font-semibold text-gray-700">
                                                 Mật khẩu mới
@@ -627,7 +694,7 @@ const ProfilePage = () => {
     to { transform: translateX(0); opacity: 1; }
 }
 .animate-slide-in { animation: slideIn 0.3s ease-out; }
-    `}</style>
+            `}</style>
         </div>
     );
 };

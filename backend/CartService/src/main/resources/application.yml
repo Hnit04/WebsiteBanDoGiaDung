@@ -7,7 +7,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://vinhthai2612:HoVinhThai%40123@cluster.8oclyud.mongodb.net/?retryWrites=true&w=majority&appName=Cluster}
+      uri: ${MONGODB_URI:mongodb://mongo:27017/cartdb}
   rabbitmq:
     host: rabbitmq
     port: 5672

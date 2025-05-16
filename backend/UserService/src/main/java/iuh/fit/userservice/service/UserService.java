@@ -64,15 +64,17 @@ public class UserService {
 
             if (request.getRole() != null) {
                 user.setRole(Role.valueOf(request.getRole()));
+            } else {
+                user.setRole(Role.CUSTOMER); // Mặc định là CUSTOMER
             }
 
             User savedUser = userRepository.save(user);
             logger.info("User created successfully with ID: {}", savedUser.getUserId());
 
-            // Tạo token JWT
-            String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole().name(), savedUser.getUserId());
+            // Chuyển đổi role thành ROLE_ADMIN hoặc ROLE_CUSTOMER cho token
+            String tokenRole = "ROLE_" + savedUser.getRole().name();
+            String token = jwtUtil.generateToken(savedUser.getEmail(), tokenRole, savedUser.getUserId());
 
-            // Chuẩn bị phản hồi
             Map<String, Object> response = new HashMap<>();
             response.put("user", userMapper.toUserResponse(savedUser));
             response.put("token", token);
@@ -84,7 +86,7 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists");
         } catch (IllegalArgumentException e) {
             logger.warn("Invalid role value: {}", request.getRole());
-            throw new IllegalArgumentException("Invalid role value: " + request.getRole());
+            throw new IllegalArgumentException("Role must be either CUSTOMER or ADMIN");
         }
     }
 
@@ -128,7 +130,7 @@ public class UserService {
                 user.setRole(Role.valueOf(request.getRole()));
             } catch (IllegalArgumentException e) {
                 logger.warn("Invalid role value: {}", request.getRole());
-                throw new IllegalArgumentException("Invalid role value: " + request.getRole());
+                throw new IllegalArgumentException("Role must be either CUSTOMER or ADMIN");
             }
         }
 
@@ -169,7 +171,6 @@ public class UserService {
             logger.info("Sent welcome notification for user: {}", user.getUserId());
         } catch (Exception e) {
             logger.error("Failed to send welcome notification: {}", e.getMessage());
-            // Không ném ngoại lệ, tiếp tục trả về phản hồi
         }
     }
 
@@ -187,8 +188,8 @@ public class UserService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        // Tạo token với userId
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getUserId());
+        String tokenRole = "ROLE_" + user.getRole().name();
+        String token = jwtUtil.generateToken(user.getEmail(), tokenRole, user.getUserId());
         Map<String, Object> response = new HashMap<>();
         response.put("user", userMapper.toUserResponse(user));
         response.put("token", token);
