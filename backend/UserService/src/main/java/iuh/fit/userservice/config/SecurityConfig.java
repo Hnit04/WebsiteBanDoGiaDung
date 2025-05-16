@@ -34,9 +34,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/users/**").permitAll() // Cho phép OPTIONS cho tất cả endpoint /api/users
-                        .requestMatchers("/api/users/login", "/api/users").permitAll() // Cho phép POST/GET cho đăng nhập và đăng ký
-                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "CUSTOMER") // Các endpoint khác yêu cầu quyền
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/users/**").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users").permitAll()
+                        .requestMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CUSTOMER") // Sửa hasAnyRole thành hasAnyAuthority
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

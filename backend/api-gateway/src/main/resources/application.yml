@@ -17,50 +17,43 @@ spring:
           uri: http://product-service:8081
           predicates:
             - Path=/api/products/**,/api/products/categories/**,/api/categories/**
-          filters:
-            - RemoveRequestHeader=Authorization
+          # Xóa filter RemoveRequestHeader=Authorization
 
         - id: user-service-route
           uri: http://user-service:8082
           predicates:
             - Path=/api/users/**
-          filters:
-            - RemoveRequestHeader=Authorization # Thêm filter để xóa token
+          # Xóa filter RemoveRequestHeader=Authorization
 
         - id: order-service-route
           uri: http://order-service:8083
           predicates:
             - Path=/api/orders/**
-          filters:
-            - RemoveRequestHeader=Authorization
+          # Xóa filter RemoveRequestHeader=Authorization
 
         - id: cart-service-route
           uri: http://cart-service:8084
           predicates:
             - Path=/api/carts/**
-          filters:
-            - RemoveRequestHeader=Authorization
+          # Xóa filter RemoveRequestHeader=Authorization
 
         - id: notification-service-route
           uri: http://notification-service:8089
           predicates:
             - Path=/api/notifications/**
-          filters:
-            - RemoveRequestHeader=Authorization
+          # Xóa filter RemoveRequestHeader=Authorization
 
         - id: payment-service-route
           uri: http://payment-service:8085
           predicates:
             - Path=/api/payments/**
-          filters:
-            - RemoveRequestHeader=Authorization
+          # Xóa filter RemoveRequestHeader=Authorization
 
         - id: promotion-service-route
           uri: http://promotion-service:8086
           predicates:
             - Path=/api/promotions/**
-          filters:
-            - RemoveRequestHeader=Authorization
+          # Xóa filter RemoveRequestHeader=Authorization
 
       discovery:
         enabled: false

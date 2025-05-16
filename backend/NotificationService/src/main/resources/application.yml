@@ -52,8 +52,8 @@ server:
 
 notification:
   service:
-    auth-token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0cmFuY29uZ3RpbmgyMDA0MjAwNEBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJ1c2VySWQiOiI2ODI2YTk4NzM0ODVjNzFlYmZlZjliYWUiLCJpYXQiOjE3NDczNjQyODUsImV4cCI6MTc0NzQwMDI4NX0.el_VLivYa3WYwdTy8tFOn6CQwYDrZYEoxEVGqwuUR68
+    auth-token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0cmFuY29uZ3RpbmgyMDA0MjAwNEBnbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsInVzZXJJZCI6IjY4MjZkNTNkZjNlYzBjNzljYjZhNmE0MyIsImlhdCI6MTc0NzM3NTYyMiwiZXhwIjoxNzQ5OTY3NjIyfQ.L6GjKDWVM1JQUoQ6MOJBfbhv5QnrxU4qLlyAyR9aN-A
     default-email: fallback@example.com
 
 jwt:
-  secret: your-very-secure-secret-key-at-least-32-bytes-long # Đồng bộ với UserService
+  secret: bXktc2VjdXJlLWtleS1mb3Itand0LTMyLWJ5dGVzISE=

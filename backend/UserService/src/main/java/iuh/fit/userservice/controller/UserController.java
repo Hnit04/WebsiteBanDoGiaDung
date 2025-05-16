@@ -44,19 +44,19 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id == principal.userId")
     public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id == principal.userId")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable String id,
             @Valid @RequestBody CreateUserRequest request) {
@@ -64,14 +64,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id == principal.userId")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/generate-service-token")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> generateServiceToken() {
         String token = jwtUtil.generateToken("notification-service", "ROLE_ADMIN", "service");
         return ResponseEntity.ok(token);
