@@ -13,10 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -31,6 +36,12 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
     private final JavaMailSender mailSender;
     private final RestTemplate restTemplate;
+
+    @Value("${notification.service.default-email:trancongtinh20042004@gmail.com}")
+    private String defaultEmail;
+
+    @Value("${notification.service.auth-token}")
+    private String serviceToken; // Token từ cấu hình
 
     @Autowired
     public NotificationService(NotificationRepository notificationRepository,
@@ -125,11 +136,28 @@ public class NotificationService {
     private String getUserEmail(String userId) {
         try {
             String userServiceUrl = "http://api-gateway:8080/api/users/" + userId;
-            UserResponse user = restTemplate.getForObject(userServiceUrl, UserResponse.class);
-            return user != null ? user.getEmail() : "trancongtinh20042004@gmail.com";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(serviceToken); // Sử dụng token từ cấu hình
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<UserResponse> response = restTemplate.exchange(
+                    userServiceUrl, HttpMethod.GET, entity, UserResponse.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null
+                    && response.getBody().getEmail() != null) {
+                return response.getBody().getEmail();
+            } else {
+                logger.warn("No valid email found for userId: {}, status: {}",
+                        userId, response.getStatusCode());
+                return defaultEmail;
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Failed to fetch user email for userId {}: HTTP {} - {}",
+                    userId, e.getStatusCode(), e.getMessage());
+            return defaultEmail;
         } catch (Exception e) {
-            logger.error("Failed to fetch user email: {}", e.getMessage());
-            return "trancongtinh20042004@gmail.com";
+            logger.error("Unexpected error fetching user email for userId {}: {}",
+                    userId, e.getMessage());
+            return defaultEmail;
         }
     }
 }

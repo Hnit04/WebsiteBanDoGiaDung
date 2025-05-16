@@ -4,6 +4,7 @@ import iuh.fit.userservice.dto.request.CreateUserRequest;
 import iuh.fit.userservice.dto.request.LoginRequest;
 import iuh.fit.userservice.dto.response.UserResponse;
 import iuh.fit.userservice.service.UserService;
+import iuh.fit.userservice.util.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,10 +23,12 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping
@@ -34,7 +37,7 @@ public class UserController {
             Map<String, Object> response = userService.createUser(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            Map<String, Object> error = new HashMap<>(); // Đổi thành Map<String, Object>
+            Map<String, Object> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
@@ -65,6 +68,13 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/generate-service-token")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> generateServiceToken() {
+        String token = jwtUtil.generateToken("notification-service", "ROLE_ADMIN", "service");
+        return ResponseEntity.ok(token);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -4,11 +4,9 @@ server:
 spring:
   application:
     name: UserService
-
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://mongo:27017/userdb}
-
   rabbitmq:
     host: rabbitmq
     port: 5672
@@ -20,11 +18,9 @@ spring:
         enabled: true
         initial-interval: 2000ms
         max-attempts: 3
-
-  # Thêm cấu hình CORS
   web:
     cors:
-      allowed-origins: "http://localhost:5173"
+      allowed-origins: "http://localhost:5173,http://api-gateway:8080"
       allowed-methods: "*"
       allowed-headers: "*"
       allow-credentials: true
@@ -52,5 +48,5 @@ app:
     enabled: false
 
 jwt:
-  secret: your-secret-key-very-long-and-secure
+  secret: your-very-secure-secret-key-at-least-32-bytes-long
   expiration: 86400000
