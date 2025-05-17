@@ -26,6 +26,7 @@ import OrderAdminPage from "@/pages/OrderAdminPage.jsx"
 import CustomerAdminPage from "@/pages/CustomerAdminPage.jsx";
 import Statistical from "@/pages/Statistical.jsx"
 import Transport from "@/pages/Transport.jsx"
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage.jsx";
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -102,6 +103,7 @@ export default function App() {
                     <Route element={<UserLayout onCartClick={toggleCart} totalItems={totalItems} />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/products" element={<ProductsPage onProductClick={handleProductClick} />} />
                         <Route path="/about" element={<AboutPage />} />

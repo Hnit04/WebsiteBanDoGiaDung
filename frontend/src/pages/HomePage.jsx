@@ -36,7 +36,10 @@ const HomePage = () => {
                         sort: 'productId,asc'
                     }
                 });
-                const visibleProducts = productsResponse.data.content.filter(product => product.quantityInStock > 0);
+                const visibleProducts = productsResponse.data.content.filter(product => {
+                    const hiddenProducts = JSON.parse(localStorage.getItem('hiddenProducts') || '[]');
+                    return !hiddenProducts.includes(product._id);
+                });
                 setProductList(visibleProducts);
             } catch (err) {
                 setError(err.response?.data?.message || 'Không thể lấy dữ liệu');
@@ -79,7 +82,7 @@ const HomePage = () => {
                     padding: "50px 0",
                 }}
             >
-            <div className="container mx-auto px-4">
+                <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center">
                         {/* Text Section */}
                         <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
@@ -149,16 +152,25 @@ const HomePage = () => {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {productList.map((product) => (
-                                <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
+                                <div key={product.productId} className="relative">
                                     <Link to={`/product/${product.productId}`} className="block">
-                                        <img
-                                            src={product.imageUrl || "/placeholder.svg"}
-                                            alt={product.productName}
-                                            className="w-full h-48 object-contain rounded-md mb-4"
-                                        />
-                                        <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
-                                        <p className="text-gray-600 text-sm mb-2">{product.description.slice(0, 60)}...</p>
-                                        <div className="text-blue-600 font-bold text-lg">{product.originalPrice.toLocaleString("vi-VN")}₫</div>
+                                        <div className={product.quantityInStock === 0 ? 'opacity-50' : ''}>
+                                            <div className="bg-white rounded-lg shadow-md p-4">
+                                                <img
+                                                    src={product.imageUrl || "/placeholder.svg"}
+                                                    alt={product.productName}
+                                                    className="w-full h-48 object-contain rounded-md mb-4"
+                                                />
+                                                <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
+                                                <p className="text-gray-600 text-sm mb-2">{product.description.slice(0, 60)}...</p>
+                                                <div className="text-blue-600 font-bold text-lg">{product.originalPrice.toLocaleString("vi-VN")}₫</div>
+                                            </div>
+                                        </div>
+                                        {product.quantityInStock === 0 && (
+                                            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded z-10">
+                                                Hết hàng
+                                            </div>
+                                        )}
                                     </Link>
                                 </div>
                             ))}

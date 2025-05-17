@@ -225,9 +225,6 @@ export default function ProductsAdminPage() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
                                 Tồn kho
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-                                Trạng thái
-                            </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Thao tác
                             </th>
@@ -270,24 +267,8 @@ export default function ProductsAdminPage() {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {product.quantityInStock}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                product.show ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-800"
-                                            }`}
-                                        >
-                                            {product.show ? "Hiển thị" : "Ẩn"}
-                                        </span>
-                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => handleToggleVisibility(product.productId, product.show)}
-                                                className="p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                                                title={product.show ? "Ẩn sản phẩm" : "Hiển thị sản phẩm"}
-                                            >
-                                                {product.show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </button>
                                             <button
                                                 onClick={() => handleEditProduct(product)}
                                                 className="p-1 rounded-md text-blue-400 hover:text-blue-500 hover:bg-blue-50"
@@ -337,6 +318,7 @@ export default function ProductsAdminPage() {
                     onClose={() => setIsAddModalOpen(false)}
                     onAddProduct={handleProductAdded}
                     categories={categories}
+                    setCategories={setCategories}
                 />
             )}
 
@@ -347,13 +329,14 @@ export default function ProductsAdminPage() {
                     product={selectedProduct}
                     onUpdateProduct={handleProductUpdated}
                     categories={categories}
+                    setCategories={setCategories}
                 />
             )}
         </div>
     )
 }
 
-function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
+function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategories }) {
     const fileInputRef = useRef(null)
 
     const initialProduct = {
@@ -372,12 +355,18 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
     const [imagePreviews, setImagePreviews] = useState([])
     const [currentStep, setCurrentStep] = useState(1)
     const [successMessage, setSuccessMessage] = useState("")
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+    const [newCategoryName, setNewCategoryName] = useState("")
+    const [categoryError, setCategoryError] = useState(null)
 
     const handleRefresh = () => {
         setProduct(initialProduct)
         setImagePreviews([])
         setError(null)
         setCurrentStep(1)
+        setShowNewCategoryInput(false)
+        setNewCategoryName("")
+        setCategoryError(null)
     }
 
     const handleChange = (e) => {
@@ -396,6 +385,34 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                 ...prev,
                 [name]: type === "checkbox" ? checked : value,
             }))
+        }
+    }
+
+    const handleCreateCategory = async () => {
+        setCategoryError(null)
+        setLoading(true)
+
+        try {
+            if (!newCategoryName || newCategoryName.length < 2 || newCategoryName.length > 50) {
+                throw new Error("Tên danh mục phải từ 2 đến 50 ký tự")
+            }
+
+            const categoryData = {
+                categoryName: newCategoryName,
+            }
+
+            const response = await api.post("/products/categories", categoryData)
+            setCategories((prev) => [...prev, response.data])
+            setProduct((prev) => ({ ...prev, categoryId: response.data.categoryId }))
+            setShowNewCategoryInput(false)
+            setNewCategoryName("")
+            setSuccessMessage("Danh mục mới đã được thêm thành công!")
+            setTimeout(() => setSuccessMessage(""), 2000)
+        } catch (err) {
+            console.error("Lỗi khi tạo danh mục:", err)
+            setCategoryError(err.response?.data?.message || err.message || "Không thể tạo danh mục")
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -562,21 +579,63 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                         <Layers className="w-4 h-4 mr-2 text-blue-600" />
                                         Danh mục <span className="text-red-500 ml-1">*</span>
                                     </label>
-                                    <select
-                                        name="categoryId"
-                                        id="categoryId"
-                                        value={product.categoryId}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required
-                                    >
-                                        <option value="">Chọn danh mục</option>
-                                        {categories.map((category) => (
-                                            <option key={category.categoryId} value={category.categoryId}>
-                                                {category.categoryName}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="flex items-center space-x-2">
+                                        <select
+                                            name="categoryId"
+                                            id="categoryId"
+                                            value={product.categoryId}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            required
+                                        >
+                                            <option value="">Chọn danh mục</option>
+                                            {categories.map((category) => (
+                                                <option key={category.categoryId} value={category.categoryId}>
+                                                    {category.categoryName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={() => setShowNewCategoryInput(true)}
+                                            className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 flex items-center"
+                                            title="Thêm danh mục mới"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    {showNewCategoryInput && (
+                                        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập tên danh mục mới"
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                />
+                                                <button
+                                                    onClick={handleCreateCategory}
+                                                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                                                    disabled={loading}
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowNewCategoryInput(false)
+                                                        setNewCategoryName("")
+                                                        setCategoryError(null)
+                                                    }}
+                                                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 flex items-center"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {categoryError && (
+                                                <p className="mt-2 text-sm text-red-600">{categoryError}</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <label htmlFor="originalPrice" className="flex items-center text-sm font-medium text-gray-700">
@@ -613,22 +672,22 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            name="show"
-                                            id="show"
-                                            checked={product.show}
-                                            onChange={handleChange}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="show" className="text-sm text-gray-700">
-                                            Hiển thị sản phẩm
-                                        </label>
-                                    </div>
-                                </div>
+                                {/*<div className="space-y-2">*/}
+                                {/*    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>*/}
+                                {/*    <div className="flex items-center space-x-2">*/}
+                                {/*        <input*/}
+                                {/*            type="checkbox"*/}
+                                {/*            name="show"*/}
+                                {/*            id="show"*/}
+                                {/*            checked={product.show}*/}
+                                {/*            onChange={handleChange}*/}
+                                {/*            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"*/}
+                                {/*        />*/}
+                                {/*        <label htmlFor="show" className="text-sm text-gray-700">*/}
+                                {/*            Hiển thị sản phẩm*/}
+                                {/*        </label>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
                             </div>
                         </div>
                     )}
@@ -844,7 +903,7 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
     )
 }
 
-function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categories }) {
+function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categories, setCategories }) {
     const fileInputRef = useRef(null)
 
     const [formData, setFormData] = useState({
@@ -863,6 +922,9 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
     const [imagePreviews, setImagePreviews] = useState([])
     const [currentStep, setCurrentStep] = useState(1)
     const [successMessage, setSuccessMessage] = useState("")
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+    const [newCategoryName, setNewCategoryName] = useState("")
+    const [categoryError, setCategoryError] = useState(null)
 
     useEffect(() => {
         if (product) {
@@ -896,6 +958,34 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                 ...prev,
                 [name]: type === "checkbox" ? checked : value,
             }))
+        }
+    }
+
+    const handleCreateCategory = async () => {
+        setCategoryError(null)
+        setLoading(true)
+
+        try {
+            if (!newCategoryName || newCategoryName.length < 2 || newCategoryName.length > 50) {
+                throw new Error("Tên danh mục phải từ 2 đến 50 ký tự")
+            }
+
+            const categoryData = {
+                categoryName: newCategoryName,
+            }
+
+            const response = await api.post("/products/categories", categoryData)
+            setCategories((prev) => [...prev, response.data])
+            setFormData((prev) => ({ ...prev, categoryId: response.data.categoryId }))
+            setShowNewCategoryInput(false)
+            setNewCategoryName("")
+            setSuccessMessage("Danh mục mới đã được thêm thành công!")
+            setTimeout(() => setSuccessMessage(""), 2000)
+        } catch (err) {
+            console.error("Lỗi khi tạo danh mục:", err)
+            setCategoryError(err.response?.data?.message || err.message || "Không thể tạo danh mục")
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -1062,21 +1152,63 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         <Layers className="w-4 h-4 mr-2 text-indigo-600" />
                                         Danh mục <span className="text-red-500 ml-1">*</span>
                                     </label>
-                                    <select
-                                        name="categoryId"
-                                        id="categoryId"
-                                        value={formData.categoryId}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        required
-                                    >
-                                        <option value="">Chọn danh mục</option>
-                                        {categories.map((category) => (
-                                            <option key={category.categoryId} value={category.categoryId}>
-                                                {category.categoryName}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="flex items-center space-x-2">
+                                        <select
+                                            name="categoryId"
+                                            id="categoryId"
+                                            value={formData.categoryId}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                            required
+                                        >
+                                            <option value="">Chọn danh mục</option>
+                                            {categories.map((category) => (
+                                                <option key={category.categoryId} value={category.categoryId}>
+                                                    {category.categoryName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={() => setShowNewCategoryInput(true)}
+                                            className="px-3 py-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 flex items-center"
+                                            title="Thêm danh mục mới"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    {showNewCategoryInput && (
+                                        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập tên danh mục mới"
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                />
+                                                <button
+                                                    onClick={handleCreateCategory}
+                                                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                                                    disabled={loading}
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowNewCategoryInput(false)
+                                                        setNewCategoryName("")
+                                                        setCategoryError(null)
+                                                    }}
+                                                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 flex items-center"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {categoryError && (
+                                                <p className="mt-2 text-sm text-red-600">{categoryError}</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <label htmlFor="originalPrice" className="flex items-center text-sm font-medium text-gray-700">
@@ -1113,22 +1245,22 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            name="show"
-                                            id="show"
-                                            checked={formData.show}
-                                            onChange={handleChange}
-                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="show" className="text-sm text-gray-700">
-                                            Hiển thị sản phẩm
-                                        </label>
-                                    </div>
-                                </div>
+                                {/*<div className="space-y-2">*/}
+                                {/*    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>*/}
+                                {/*    <div className="flex items-center space-x-2">*/}
+                                {/*        <input*/}
+                                {/*            type="checkbox"*/}
+                                {/*            name="show"*/}
+                                {/*            id="show"*/}
+                                {/*            checked={formData.show}*/}
+                                {/*            onChange={handleChange}*/}
+                                {/*            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"*/}
+                                {/*        />*/}
+                                {/*        <label htmlFor="show" className="text-sm text-gray-700">*/}
+                                {/*            Hiển thị sản phẩm*/}
+                                {/*        </label>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
                             </div>
                         </div>
                     )}
