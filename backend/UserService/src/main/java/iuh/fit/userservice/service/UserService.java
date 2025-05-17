@@ -68,18 +68,15 @@ public class UserService {
 
         validatePassword(request.getPassword());
 
-        // Generate 6-digit verification code
         String verificationCode = String.format("%06d", new Random().nextInt(999999));
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiresAt = now.plusMinutes(10); // Code expires in 10 minutes
+        LocalDateTime expiresAt = now.plusMinutes(10);
 
-        // Save verification code
-        verificationCodeRepository.deleteByEmail(request.getEmail()); // Remove old codes
+        verificationCodeRepository.deleteByEmail(request.getEmail());
         VerificationCode code = new VerificationCode(request.getEmail(), verificationCode, now, expiresAt);
         verificationCodeRepository.save(code);
 
-        // Send verification email
-        sendVerificationEmail(request.getEmail(), verificationCode);
+        sendVerificationEmail(request.getEmail(), verificationCode, "register");
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Verification code sent to " + request.getEmail());
@@ -103,7 +100,6 @@ public class UserService {
             throw new IllegalArgumentException("Verification code expired");
         }
 
-        // Proceed with user creation
         try {
             User user = new User();
             user.setUsername(request.getUsername());
@@ -128,7 +124,6 @@ public class UserService {
             response.put("user", userMapper.toUserResponse(savedUser));
             response.put("token", token);
 
-            // Clean up verification code
             verificationCodeRepository.deleteByEmail(email);
 
             sendWelcomeNotification(savedUser);
@@ -142,9 +137,66 @@ public class UserService {
         }
     }
 
-    private void sendVerificationEmail(String email, String code) {
+    @Transactional
+    public Map<String, Object> forgotPassword(String email) {
+        logger.info("Processing forgot password request for email: {}", email);
+
+        if (!userRepository.findByEmail(email).isPresent()) {
+            logger.warn("Email not found: {}", email);
+            throw new IllegalArgumentException("Email not found");
+        }
+
+        String verificationCode = String.format("%06d", new Random().nextInt(999999));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiresAt = now.plusMinutes(10);
+
+        verificationCodeRepository.deleteByEmail(email);
+        VerificationCode code = new VerificationCode(email, verificationCode, now, expiresAt);
+        verificationCodeRepository.save(code);
+
+        sendVerificationEmail(email, verificationCode, "forgot-password");
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Verification code sent to " + email);
+        response.put("email", email);
+        return response;
+    }
+
+    @Transactional
+    public Map<String, Object> resetPassword(String email, String code, String newPassword) {
+        logger.info("Resetting password for email: {}", email);
+
+        VerificationCode verificationCode = verificationCodeRepository.findByEmailAndCode(email, code)
+                .orElseThrow(() -> {
+                    logger.warn("Invalid or expired verification code for email: {}", email);
+                    return new IllegalArgumentException("Invalid or expired verification code");
+                });
+
+        if (verificationCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            verificationCodeRepository.deleteByEmail(email);
+            logger.warn("Verification code expired for email: {}", email);
+            throw new IllegalArgumentException("Verification code expired");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    logger.warn("Email not found: {}", email);
+                    return new IllegalArgumentException("Email not found");
+                });
+
+        validatePassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        verificationCodeRepository.deleteByEmail(email);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Password reset successfully");
+        return response;
+    }
+
+    private void sendVerificationEmail(String email, String code, String type) {
         try {
-            // Kiểm tra email và code
             if (email == null || email.contains("\"") || code == null || code.contains("\"")) {
                 logger.error("Invalid email or code: email={}, code={}", email, code);
                 throw new IllegalArgumentException("Invalid email or code");
@@ -155,27 +207,42 @@ public class UserService {
             helper.setFrom("trancongtinh20042004@gmail.com", "Bán Đồ Gia Dụng");
             helper.setTo(email);
             helper.setReplyTo("trancongtinh20042004@gmail.com");
-            helper.setSubject("Xác nhận đăng ký tài khoản");
 
-            // Escape code để tránh lỗi
+            String subject = type.equals("register") ? "Xác nhận đăng ký tài khoản" : "Đặt lại mật khẩu";
+            helper.setSubject(subject);
+
             String safeCode = StringEscapeUtils.escapeHtml4(code);
-            String htmlContent = """
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0;">
-                <h2 style="color: #333;">Bán Đồ Gia Dụng</h2>
-                <h3 style="color: #555;">Xác nhận đăng ký tài khoản</h3>
-                <p>Cảm ơn bạn đã đăng ký tài khoản tại Bán Đồ Gia Dụng.</p>
-                <p>Mã xác nhận của bạn là:</p>
-                <h2 style="color: #007bff;">%s</h2>
-                <p>Vui lòng nhập mã này để hoàn tất đăng ký. Mã có hiệu lực trong 10 phút.</p>
-                <p>Nếu bạn không thực hiện đăng ký, vui lòng bỏ qua email này.<br>
-                   Liên hệ hỗ trợ qua <a href="mailto:trancongtinh20042004@gmail.com">trancongtinh20042004@gmail.com</a>.</p>
-                <p style="color: #777; font-size: 12px;">© 2025 Bán Đồ Gia Dụng. All rights reserved.</p>
-            </div>
-        """.formatted(safeCode);
+            String htmlContent = type.equals("register") ?
+                    """
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0;">
+                        <h2 style="color: #333;">Bán Đồ Gia Dụng</h2>
+                        <h3 style="color: #555;">Xác nhận đăng ký tài khoản</h3>
+                        <p>Cảm ơn bạn đã đăng ký tài khoản tại Bán Đồ Gia Dụng.</p>
+                        <p>Mã xác nhận của bạn là:</p>
+                        <h2 style="color: #007bff;">%s</h2>
+                        <p>Vui lòng nhập mã này để hoàn tất đăng ký. Mã có hiệu lực trong 10 phút.</p>
+                        <p>Nếu bạn không thực hiện đăng ký, vui lòng bỏ qua email này.<br>
+                           Liên hệ hỗ trợ qua <a href="mailto:trancongtinh20042004@gmail.com">trancongtinh20042004@gmail.com</a>.</p>
+                        <p style="color: #777; font-size: 12px;">© 2025 Bán Đồ Gia Dụng. All rights reserved.</p>
+                    </div>
+                    """.formatted(safeCode) :
+                    """
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0;">
+                        <h2 style="color: #333;">Bán Đồ Gia Dụng</h2>
+                        <h3 style="color: #555;">Đặt lại mật khẩu</h3>
+                        <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+                        <p>Mã xác nhận của bạn là:</p>
+                        <h2 style="color: #007bff;">%s</h2>
+                        <p>Vui lòng nhập mã này để đặt lại mật khẩu. Mã có hiệu lực trong 10 phút.</p>
+                        <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.<br>
+                           Liên hệ hỗ trợ qua <a href="mailto:trancongtinh20042004@gmail.com">trancongtinh20042004@gmail.com</a>.</p>
+                        <p style="color: #777; font-size: 12px;">© 2025 Bán Đồ Gia Dụng. All rights reserved.</p>
+                    </div>
+                    """.formatted(safeCode);
 
             helper.setText(htmlContent, true);
             mailSender.send(mimeMessage);
-            logger.info("Verification email sent to: {}", email);
+            logger.info("Verification email sent to: {} for {}", email, type);
         } catch (Exception e) {
             logger.error("Failed to send verification email to {}: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to send verification email", e);

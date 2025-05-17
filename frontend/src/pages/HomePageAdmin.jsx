@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { users } from "../assets/js/userData"
 import {
     ChevronDown,
     CreditCard,
@@ -25,6 +24,7 @@ import {
 } from "lucide-react"
 import { Bar, Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js"
+import api from "../services/api.js"
 
 // Register Chart.js components
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
@@ -35,14 +35,13 @@ const HomePageAdmin = () => {
     const [error, setError] = useState(null)
     const [notification, setNotification] = useState(null)
     const [orders, setOrders] = useState([])
-    const [orderDetails, setOrderDetails] = useState([])
     const [products, setProducts] = useState([])
+    const [users, setUsers] = useState([])
     const [customers, setCustomers] = useState([])
     const [stats, setStats] = useState({ orders: 0, customers: 0, revenue: 0, transactions: 0 })
     const [searchQuery, setSearchQuery] = useState("")
-    const [currentPage, setCurrentPage] = useState(1)
-    const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false)
-    const [newProduct, setNewProduct] = useState({ productName: "", salePrice: "", categoryId: "", imageUrl: "" })
+    const [currentPage, setCurrentPage] = useState(0) // Backend uses 0-based paging
+    const [totalPages, setTotalPages] = useState(1)
     const ordersPerPage = 5
 
     // Show notification
@@ -53,10 +52,10 @@ const HomePageAdmin = () => {
 
     // Get status background color
     const getStatusBgColor = (status) => {
-        switch (status) {
-            case "pending":
+        switch (status.toLowerCase()) {
+            case "payment_success":
                 return "bg-amber-500"
-            case "ready_to_pick":
+            case "confirmed":
                 return "bg-blue-500"
             case "shipping":
                 return "bg-purple-500"
@@ -73,8 +72,8 @@ const HomePageAdmin = () => {
 
     // Get status text
     const getStatusText = (status) => {
-        switch (status) {
-            case "pending":
+        switch (status.toLowerCase()) {
+            case "payment_success":
                 return "Chờ xác nhận"
             case "confirmed":
                 return "Chờ lấy hàng"
@@ -93,8 +92,8 @@ const HomePageAdmin = () => {
 
     // Get status badge color
     const getStatusBadgeColor = (status) => {
-        switch (status) {
-            case "pending":
+        switch (status.toLowerCase()) {
+            case "payment_success":
                 return "bg-amber-100 text-amber-800 border border-amber-200"
             case "confirmed":
                 return "bg-blue-100 text-blue-800 border border-blue-200"
@@ -113,8 +112,8 @@ const HomePageAdmin = () => {
 
     // Get status icon
     const getStatusIcon = (status) => {
-        switch (status) {
-            case "pending":
+        switch (status.toLowerCase()) {
+            case "payment_success":
                 return <Clock className="h-4 w-4" />
             case "confirmed":
                 return <PackageCheck className="h-4 w-4" />
@@ -136,13 +135,10 @@ const HomePageAdmin = () => {
         if (!dateString) {
             return "Không xác định"
         }
-
         const date = new Date(dateString)
-
         if (isNaN(date.getTime())) {
             return "Không xác định"
         }
-
         return date.toLocaleDateString("vi-VN", {
             year: "numeric",
             month: "2-digit",
@@ -162,36 +158,75 @@ const HomePageAdmin = () => {
                 setIsLoading(true)
 
                 // Fetch orders
-                const orderResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/order")
-                if (!orderResponse.ok) throw new Error("Không thể tải đơn hàng")
-                const orderData = await orderResponse.json()
-                setOrders(orderData)
+                console.log(`Fetching orders with page=${currentPage}&size=${ordersPerPage}`)
+                const orderResponse = await api.get(`/orders?page=${currentPage}&size=${ordersPerPage}`)
+                console.log("Order response:", orderResponse)
 
-                // Fetch order details
-                const orderDetailResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail")
-                if (!orderDetailResponse.ok) throw new Error("Không thể tải chi tiết đơn hàng")
-                const orderDetailData = await orderDetailResponse.json()
-                setOrderDetails(orderDetailData)
+                let orderData = []
+                let totalPages = 1
+                let revenue = 0
+                let totalElements = 0
+
+                // Check API response
+                if (orderResponse.status === 200 && orderResponse.data) {
+                    if (Array.isArray(orderResponse.data)) {
+                        // Backend returns List<OrderResponse>
+                        orderData = orderResponse.data
+                        totalPages = Math.ceil(orderResponse.data.length / ordersPerPage)
+                        totalElements = orderResponse.data.length
+                    } else if (orderResponse.data.content) {
+                        // Backend returns paginated object
+                        orderData = orderResponse.data.content
+                        totalPages = orderResponse.data.totalPages || 1
+                        totalElements = orderResponse.data.totalElements || 0
+                    } else {
+                        console.warn("Unexpected order response format:", orderResponse.data)
+                    }
+
+                    setOrders(orderData)
+                    setTotalPages(totalPages)
+                    // Calculate revenue from orderData
+                    revenue = orderData.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+                } else {
+                    console.warn("No valid order data, status:", orderResponse.status)
+                    setOrders([])
+                    setTotalPages(1)
+                }
 
                 // Fetch products
-                const productResponse = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
-                if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
-                const productData = await productResponse.json()
-                setProducts(productData)
+                console.log("Fetching products")
+                const productResponse = await api.get(`/products?page=0&size=1000`)
+                console.log("Product response:", productResponse)
+                if (productResponse.status === 200 && productResponse.data && productResponse.data.content) {
+                    setProducts(productResponse.data.content)
+                } else {
+                    console.warn("No valid product data, status:", productResponse.status)
+                    setProducts([])
+                }
 
-                // Fetch customers
-                setCustomers(users.filter((u) => u.role !== "admin"))
+                // Fetch users
+                console.log("Fetching users")
+                const userResponse = await api.get(`/users`)
+                console.log("User response:", userResponse)
+                if (userResponse.status === 200 && Array.isArray(userResponse.data)) {
+                    setUsers(userResponse.data)
+                    const nonAdminUsers = userResponse.data.filter(u => u.role.toUpperCase() !== "ADMIN")
+                    setCustomers(nonAdminUsers)
+                } else {
+                    console.warn("No valid user data, status:", userResponse.status)
+                    setUsers([])
+                    setCustomers([])
+                }
 
                 // Calculate stats
-                const revenue = orderData.reduce((sum, order) => sum + order.totalAmount, 0)
                 setStats({
-                    orders: orderData.length,
-                    customers: users.filter((u) => u.role !== "admin").length,
+                    orders: totalElements,
+                    customers: customers.length,
                     revenue,
-                    transactions: orderData.length,
+                    transactions: totalElements,
                 })
             } catch (err) {
-                console.error("Error fetching data:", err)
+                console.error("Error fetching data:", err.message, err.response?.data)
                 setError("Không thể tải dữ liệu dashboard. Vui lòng thử lại.")
             } finally {
                 setIsLoading(false)
@@ -199,37 +234,30 @@ const HomePageAdmin = () => {
         }
 
         fetchData()
-    }, [])
+    }, [currentPage, customers.length])
 
     // Handle search
     const handleSearch = (e) => {
         setSearchQuery(e.target.value)
-        setCurrentPage(1)
+        setCurrentPage(0) // Reset to first page when searching
     }
 
-    // Filter orders based on search query and sort to bring the last order in JSON to the top
-    const filteredOrders = orders
-        .filter((order) => {
-            const user = users.find((u) => u.id === parseInt(order.userId))
-            return (
-                order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (user && user.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
-            )
-        })
-        .sort((a, b) => orders.indexOf(b) - orders.indexOf(a))
-
-    // Pagination
-    const indexOfLastOrder = currentPage * ordersPerPage
-    const indexOfFirstOrder = indexOfLastOrder - ordersPerPage
-    const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder)
-    const totalPages = Math.ceil(filteredOrders.length / ordersPerPage)
+    // Filter orders based on search query
+    const filteredOrders = orders.filter((order) => {
+        const user = users.find((u) => u.userId === order.userId)
+        return (
+            order.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user && user.username.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+    })
 
     // Calculate top selling products
     const topSellingProducts = products
         .map((product) => {
-            const totalSold = orderDetails
-                .filter((detail) => detail.productId === product.id)
+            const totalSold = orders
+                .flatMap((order) => order.orderDetails || [])
+                .filter((detail) => detail.productId === product.productId)
                 .reduce((sum, detail) => sum + detail.quantity, 0)
             return {
                 ...product,
@@ -244,10 +272,10 @@ const HomePageAdmin = () => {
         const csvContent = [
             ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Tổng tiền", "Trạng thái"],
             ...orders.map((order) => {
-                const user = users.find((u) => u.id === parseInt(order.userId))
+                const user = users.find((u) => u.userId === order.userId)
                 return [
-                    order.id,
-                    user ? user.fullName : "Unknown User",
+                    order.orderId,
+                    user ? user.username : "Unknown User",
                     formatDate(order.deliveryDate),
                     formatCurrency(order.totalAmount),
                     getStatusText(order.status),
@@ -273,7 +301,7 @@ const HomePageAdmin = () => {
                 data: orders
                     .reduce((acc, order) => {
                         const month = new Date(order.deliveryDate).getMonth()
-                        acc[month] = (acc[month] || 0) + order.totalAmount
+                        acc[month] = (acc[month] || 0) + (order.totalAmount+order.totalAmount/10 || 0)
                         return acc
                     }, Array(5).fill(0))
                     .slice(0, 5),
@@ -290,8 +318,8 @@ const HomePageAdmin = () => {
             {
                 data: orders.reduce(
                     (acc, order) => {
-                        switch (order.status) {
-                            case "pending":
+                        switch (order.status.toLowerCase()) {
+                            case "payment_success":
                                 acc[0]++
                                 break
                             case "confirmed":
@@ -335,14 +363,17 @@ const HomePageAdmin = () => {
         {
             icon: <ShoppingBag className="h-4 w-4" />,
             title: "Đơn hàng mới",
-            description: `Từ khách hàng ${users.find((u) => u.id === parseInt(orders[orders.length - 1]?.userId))?.fullName || "Nguyễn Văn A"}`,
+            description: `Từ khách hàng ${
+                users.find((u) => u.userId === orders[orders.length - 1]?.userId)?.username ||
+                "Nguyễn Văn A"
+            }`,
             time: "15 phút trước",
             color: "text-green-600 bg-green-100",
         },
         {
             icon: <Users className="h-4 w-4" />,
             title: "Khách hàng mới đăng ký",
-            description: customers[customers.length - 1]?.fullName || "Trần Thị B",
+            description: customers[customers.length - 1]?.username || "Trần Thị B",
             time: "1 giờ trước",
             color: "text-purple-600 bg-purple-100",
         },
@@ -445,7 +476,7 @@ const HomePageAdmin = () => {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Doanh thu</p>
-                            <p className="text-3xl font-bold">{formatCurrency(stats.revenue)}</p>
+                            <p className="text-3xl font-bold">{formatCurrency(stats.revenue+stats.revenue/10)}</p>
                         </div>
                     </div>
                 </div>
@@ -509,13 +540,19 @@ const HomePageAdmin = () => {
                     <div className="border-b px-4 py-3 sm:px-6">
                         <h2 className="text-lg font-semibold">Đơn hàng gần đây</h2>
                     </div>
+                    <div className="px-4 py-3">
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={handleSearch}
+                            placeholder="Tìm kiếm đơn hàng..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                        />
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Mã đơn hàng
-                                </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Khách hàng
                                 </th>
@@ -534,16 +571,14 @@ const HomePageAdmin = () => {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                            {currentOrders.map((order) => {
-                                const customer = users.find((u) => u.id === parseInt(order.userId))
+                            {filteredOrders.map((order) => {
+                                const customer = users.find((u) => u.email === order.userId)
                                 return (
-                                    <tr key={order.id} className="hover:bg-gray-50">
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                                        </td>
+                                    <tr key={order.orderId} className="hover:bg-gray-50">
+
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <div className="text-sm text-gray-900">
-                                                {customer ? customer.fullName : "Unknown User"}
+                                                {customer ? customer.username : "Unknown User"}
                                             </div>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
@@ -551,12 +586,18 @@ const HomePageAdmin = () => {
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
-                                                {formatCurrency(order.totalAmount)}
+                                                {formatCurrency(order.totalAmount+order.totalAmount/10)}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap"><span
-                                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(order.status)}`}>{getStatusIcon(order.status)}<span
-                                            className="ml-1">{getStatusText(order.status)}</span></span>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                                                        order.status
+                                                    )}`}
+                                                >
+                                                    {getStatusIcon(order.status)}
+                                                    <span className="ml-1">{getStatusText(order.status)}</span>
+                                                </span>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                             <Link to={`/admin/orders`} className="text-blue-600 hover:text-blue-900">
@@ -572,20 +613,20 @@ const HomePageAdmin = () => {
                     <div className="border-t px-4 py-3 sm:px-6">
                         <div className="flex items-center justify-between">
                             <div className="text-sm text-gray-700">
-                                Hiển thị <span className="font-medium">{currentOrders.length}</span> trong tổng số{" "}
-                                <span className="font-medium">{filteredOrders.length}</span> đơn hàng
+                                Hiển thị <span className="font-medium">{filteredOrders.length}</span> trong tổng số{" "}
+                                <span className="font-medium">{orders.length}</span> đơn hàng
                             </div>
                             <div className="flex items-center space-x-2">
                                 <button
-                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+                                    disabled={currentPage === 0}
                                     className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                                 >
                                     Trước
                                 </button>
                                 <button
-                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                                    disabled={currentPage === totalPages - 1}
                                     className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                                 >
                                     Tiếp
@@ -631,9 +672,9 @@ const HomePageAdmin = () => {
                         </div>
                         <div className="divide-y">
                             {topSellingProducts.map((product) => (
-                                <div key={product.id} className="flex items-center gap-4 px-4 py-3">
+                                <div key={product.productId} className="flex items-center gap-4 px-4 py-3">
                                     <img
-                                        src={"/"+product.imageUrl || "/placeholder.svg"}
+                                        src={product.imageUrl || "/placeholder.svg"}
                                         alt={product.productName}
                                         className="h-12 w-12 rounded-md object-cover border"
                                     />
@@ -642,7 +683,7 @@ const HomePageAdmin = () => {
                                         <p className="text-xs text-gray-500">{product.categoryId}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-medium">{formatCurrency(product.salePrice)}</p>
+                                        <p className="text-sm font-medium">{formatCurrency(product.originalPrice)}</p>
                                         <p className="text-xs text-gray-500">{product.sold} đã bán</p>
                                     </div>
                                 </div>

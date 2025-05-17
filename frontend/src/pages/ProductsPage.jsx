@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import { Link } from "react-router-dom";
-import api from '../services/api.js'; // Import instance axios từ api.js
+import api from '../services/api.js';
 
 // Hàm debounce để giảm tần suất gọi hàm tìm kiếm
 const debounce = (func, delay) => {
@@ -29,7 +28,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                
+
                 // Lấy danh mục
                 const categoriesResponse = await api.get('/products/categories');
                 setCategories(categoriesResponse.data);
@@ -42,7 +41,10 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                         sort: 'productId,asc'
                     }
                 });
-                const visibleProducts = productsResponse.data.content.filter(product => product.quantityInStock > 0);
+                const visibleProducts = productsResponse.data.content.filter(product => {
+                    const hiddenProducts = JSON.parse(localStorage.getItem('hiddenProducts') || '[]');
+                    return !hiddenProducts.includes(product._id);
+                });
                 setAllProducts(visibleProducts);
             } catch (err) {
                 setError(err.response?.data?.message || 'Không thể lấy dữ liệu');
@@ -83,17 +85,17 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         const maxPrice = priceRange.maxPrice ? parseFloat(priceRange.maxPrice) : Infinity;
         if (priceRange.minPrice || priceRange.maxPrice) {
             result = result.filter(product =>
-                product.salePrice >= minPrice && product.salePrice <= maxPrice
+                product.originalPrice >= minPrice && product.originalPrice <= maxPrice
             );
         }
 
         // Sắp xếp
         switch (currentSort) {
             case 'priceLow':
-                result.sort((a, b) => a.salePrice - b.salePrice);
+                result.sort((a, b) => a.originalPrice - b.originalPrice);
                 break;
             case 'priceHigh':
-                result.sort((a, b) => b.salePrice - a.salePrice);
+                result.sort((a, b) => b.originalPrice - a.originalPrice);
                 break;
             case 'nameAZ':
                 result.sort((a, b) => a.productName.localeCompare(b.productName));
@@ -219,13 +221,13 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                         </div>
                     ) : (
                         filteredProducts.map(product => (
-                            <div key={product.productId} className="col relative">
+                            <div key={product.productId} className="relative">
                                 <Link to={`/product/${product.productId}`} className="block">
-                                    <div className={`${product.quantityInStock === 0 ? 'opacity-50' : ''}`}>
+                                    <div className={product.quantityInStock === 0 ? 'opacity-50 relative' : ''}>
                                         <ProductCard product={product} />
                                     </div>
                                     {product.quantityInStock === 0 && (
-                                        <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded">
+                                        <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded z-10">
                                             Hết hàng
                                         </div>
                                     )}

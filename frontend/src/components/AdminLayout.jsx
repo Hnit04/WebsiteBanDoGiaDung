@@ -1,9 +1,8 @@
-// components/AdminLayout.jsx
 import { useState, useEffect } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
-import { Menu, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import MenuAdmin from "./MenuAdmin"
-import { users, clearUserFromLocalStorage } from "../assets/js/userData"
+import { getUserFromLocalStorage, clearUserFromLocalStorage } from "../assets/js/userData"
 import { Link } from "react-router-dom"
 
 export default function AdminLayout() {
@@ -11,7 +10,6 @@ export default function AdminLayout() {
     const [user, setUser] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [searchQuery, setSearchQuery] = useState("")
     const navigate = useNavigate()
 
     // Toggle sidebar
@@ -24,24 +22,26 @@ export default function AdminLayout() {
         navigate("/login")
     }
 
-    // Handle search
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value)
-    }
-
     // Validate admin user
     useEffect(() => {
-        // Find admin user from hardcoded users array
-        const adminUser = users.find((u) => u.role === "admin")
-        if (!adminUser) {
-            setError("Không tìm thấy tài khoản admin. Vui lòng đăng nhập.")
+        const storedUser = getUserFromLocalStorage()
+        if (!storedUser || storedUser.role !== "ADMIN") {
+            setError("Bạn không có quyền truy cập. Vui lòng đăng nhập với tài khoản quản lý.")
             navigate("/login")
             return
         }
-        setUser(adminUser)
+        setUser(storedUser)
         setIsLoading(false)
     }, [navigate])
 
+    // If loading
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        )
+    }
 
     // If error or no admin user
     if (error || !user) {
@@ -52,7 +52,7 @@ export default function AdminLayout() {
                         <AlertTriangle size={64} className="text-red-400" />
                     </div>
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">Lỗi</h1>
-                    <p className="text-gray-600 mb-6">{error || "Không tìm thấy tài khoản admin."}</p>
+                    <p className="text-gray-600 mb-6">{error || "Không tìm thấy tài khoản quản lý."}</p>
                     <Link
                         to="/login"
                         className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
@@ -66,14 +66,12 @@ export default function AdminLayout() {
 
     return (
         <div className="flex h-screen bg-gray-100 text-gray-800">
-            {/* Sidebar Menu (Now includes the header) */}
+            {/* Sidebar Menu */}
             <MenuAdmin
                 user={user}
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
                 handleLogout={handleLogout}
-                searchQuery={searchQuery}
-                handleSearch={handleSearch}
             />
 
             {/* Main Content */}

@@ -1,9 +1,11 @@
+// File: Header.jsx
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage, clearUserFromLocalStorage } from "../assets/js/userData"
 import debounce from "lodash/debounce"
+import api from "../services/api.js" // Sử dụng instance Axios
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -21,7 +23,7 @@ const Header = () => {
         if (loggedInUser) {
             setUser(loggedInUser)
             setIsLoggedIn(true)
-            fetchCartCount(loggedInUser.id)
+            fetchCartCount(loggedInUser.email)
         } else {
             setUser(null)
             setIsLoggedIn(false)
@@ -33,7 +35,7 @@ const Header = () => {
         const handleCartUpdated = () => {
             const loggedInUser = getUserFromLocalStorage()
             if (loggedInUser) {
-                fetchCartCount(loggedInUser.id)
+                fetchCartCount(loggedInUser.email)
             }
         }
 
@@ -69,19 +71,19 @@ const Header = () => {
     }, [isUserMenuOpen])
 
     // Fetch cart count
-    const fetchCartCount = async (userId) => {
-        try {
-            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart?userId=${userId}`)
-            if (!response.ok) {
-                throw new Error("Không thể lấy dữ liệu giỏ hàng")
+    const fetchCartCount = async (email) => {
+            try {
+                const response = await api.get(`/carts/user/${email}`)
+                if (response.data && response.data.cartItems) {
+                    const totalItems = response.data.cartItems.length
+                    setCartCount(totalItems)
+                } else {
+                    setCartCount(0)
+                }
+            }catch{
+                setCartCount(0)
             }
-            const cartData = await response.json()
-            const totalItems = cartData.length
-            setCartCount(totalItems)
-        } catch (error) {
-            console.error("Lỗi khi lấy số lượng giỏ hàng:", error)
-            setCartCount(0)
-        }
+
     }
 
     // Fetch product suggestions
@@ -93,21 +95,13 @@ const Header = () => {
             }
 
             try {
-                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu sản phẩm")
-                }
-                const products = await response.json()
-                const filteredProducts = products
-                    .filter((product) =>
-                        product.productName.toLowerCase().includes(query.toLowerCase())
-                    )
-                    .slice(0, 5) // Limit to 5 suggestions
-                    .map((product) => ({
-                        id: product.id,
-                        name: product.productName,
-                        image: product.imageUrl,
-                    }))
+                const response = await api.get(`/products/search?name=${encodeURIComponent(query)}&size=5`)
+                const products = response.data?.content || []
+                const filteredProducts = products.map((product) => ({
+                    id: product.productId,
+                    name: product.productName,
+                    image: product.imageUrl,
+                }))
                 setSuggestions(filteredProducts)
             } catch (error) {
                 console.error("Lỗi khi lấy gợi ý sản phẩm:", error)
@@ -210,7 +204,7 @@ const Header = () => {
                                 >
                                     {suggestion.image && (
                                         <img
-                                            src={"/" + suggestion.image || "/placeholder.svg"}
+                                            src={suggestion.image || "/placeholder.svg"}
                                             alt={suggestion.name}
                                             className="w-8 h-8 mr-2 rounded object-cover"
                                         />

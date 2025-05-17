@@ -24,6 +24,7 @@ const ProductDetailPage = () => {
             try {
                 setLoading(true)
                 const productResponse = await api.get(`/products/${id}`)
+                console.log("hung"+id)
                 const productData = productResponse.data
                 setProduct(productData)
 
@@ -174,7 +175,7 @@ const ProductDetailPage = () => {
         <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-gray-100">
             {notification && (
                 <div
-                    className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
+                    className={`fixed top-20 mt-9 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
                         notification.type === "success"
                             ? "bg-green-100 text-green-800 border border-green-300"
                             : "bg-red-100 text-red-800 border border-red-300"
@@ -210,15 +211,10 @@ const ProductDetailPage = () => {
                 <div className="space-y-4">
                     <div className="relative overflow-hidden rounded-xl bg-white shadow-lg">
                         <img
-                            src={product.imageUrl}
+                            src={"/"+product.imageUrl}
                             alt={product.productName}
                             className="w-full h-100 object-contain transition-transform duration-200 hover:scale-95"
                         />
-                        {product.originalPrice > product.salePrice && (
-                            <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
-                                Giảm {Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100)}%
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -229,12 +225,8 @@ const ProductDetailPage = () => {
 
                     <div className="space-y-2">
                         <div className="flex items-baseline space-x-4">
-                            <span className="text-3xl font-bold text-indigo-600">{product.salePrice.toLocaleString("vi-VN")}₫</span>
-                            {product.originalPrice > product.salePrice && (
-                                <span className="text-lg text-gray-400 line-through">
-                                    {product.originalPrice.toLocaleString("vi-VN")}₫
-                                </span>
-                            )}
+                            <span className="text-3xl font-bold text-indigo-600">{product.originalPrice.toLocaleString("vi-VN")}₫</span>
+
                         </div>
                         <p className="text-sm text-green-600 font-semibold">✓ Còn hàng: {product.quantityInStock} sản phẩm</p>
                         {isInCart && (
@@ -301,7 +293,7 @@ const ProductDetailPage = () => {
                                 ) : (
                                     <>
                                         <ShoppingCart className="mr-2 h-5 w-5" />
-                                        {isInCart ? "Cập nhật giỏ hàng" : "Thêm vào giỏ hàng"}
+                                        {isInCart ? "Thêm sản phẩm vào giỏ hàng" : "Thêm vào giỏ hàng"}
                                     </>
                                 )}
                             </button>
@@ -341,7 +333,7 @@ const ProductDetailPage = () => {
                             >
                                 <div className="aspect-square relative overflow-hidden bg-gray-100">
                                     <img
-                                        src={item.imageUrl}
+                                        src={"/"+item.imageUrl}
                                         alt={item.productName}
                                         className="m-5 h-80 mx-auto object-contain transition-transform duration-300"
                                     />

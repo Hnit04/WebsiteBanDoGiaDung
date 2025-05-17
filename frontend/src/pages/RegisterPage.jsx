@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Phone, Home, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Mail, Lock, User, Phone, Home, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 
 const RegisterPage = () => {
@@ -18,6 +18,8 @@ const RegisterPage = () => {
     });
     const [verificationCode, setVerificationCode] = useState("");
     const [showVerification, setShowVerification] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -47,7 +49,6 @@ const RegisterPage = () => {
 
     const handlePhoneChange = (e) => {
         let phoneValue = e.target.value;
-        // Nếu số bắt đầu bằng 0, chuyển thành +84
         if (phoneValue.startsWith("0")) {
             phoneValue = "+84" + phoneValue.slice(1);
         }
@@ -208,14 +209,23 @@ const RegisterPage = () => {
                                             <input
                                                 id="password"
                                                 name="password"
-                                                type="password"
+                                                type={showPassword ? "text" : "password"}
                                                 value={formData.password}
                                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                                className={`block w-full pl-10 pr-3 py-2.5 border ${
+                                                className={`block w-full pl-10 pr-10 py-2.5 border ${
                                                     errors.password ? "border-red-500" : "border-gray-300"
                                                 } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                                 placeholder="••••••••"
                                             />
+                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                >
+                                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            </div>
                                         </div>
                                         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                                     </div>
@@ -230,14 +240,23 @@ const RegisterPage = () => {
                                             <input
                                                 id="confirmPassword"
                                                 name="confirmPassword"
-                                                type="password"
+                                                type={showConfirmPassword ? "text" : "password"}
                                                 value={formData.confirmPassword}
                                                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                                className={`block w-full pl-10 pr-3 py-2.5 border ${
+                                                className={`block w-full pl-10 pr-10 py-2.5 border ${
                                                     errors.confirmPassword ? "border-red-500" : "border-gray-300"
                                                 } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                                 placeholder="••••••••"
                                             />
+                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                >
+                                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            </div>
                                         </div>
                                         {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
                                     </div>
@@ -254,7 +273,7 @@ const RegisterPage = () => {
                                                 name="phone"
                                                 type="text"
                                                 value={formData.phone}
-                                                onChange={handlePhoneChange} // Dùng hàm chuyển đổi
+                                                onChange={handlePhoneChange}
                                                 className={`block w-full pl-10 pr-3 py-2.5 border ${
                                                     errors.phone ? "border-red-500" : "border-gray-300"
                                                 } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
@@ -390,16 +409,16 @@ const RegisterPage = () => {
                                 {showVerification ? (
                                     <>
                                         Đã có tài khoản?{" "}
-                                        <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                                        <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
                                             Đăng nhập
-                                        </a>
+                                        </Link>
                                     </>
                                 ) : (
                                     <>
                                         Đã có tài khoản?{" "}
-                                        <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                                        <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
                                             Đăng nhập ngay
-                                        </a>
+                                        </Link>
                                     </>
                                 )}
                             </p>
