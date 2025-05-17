@@ -1,370 +1,332 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { getUserFromLocalStorage } from "../assets/js/userData"
-import { CheckCircle, AlertTriangle, X, Clock, Truck, Package, XCircle, Search } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
+import { CheckCircle, AlertTriangle, X, Clock, Truck, Package, XCircle, Search } from "lucide-react";
+import { getUserFromLocalStorage } from "../assets/js/userData";
 
 const ProfilePage = () => {
-    const [activeTab, setActiveTab] = useState("personal")
-    const [user, setUser] = useState(null)
-    const [orders, setOrders] = useState([])
-    const [orderDetails, setOrderDetails] = useState({})
-    const [products, setProducts] = useState({})
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState(null)
-    const [notification, setNotification] = useState(null)
-    const [oldPassword, setOldPassword] = useState("")
-    const [newPassword, setNewPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [fullName, setFullName] = useState("")
-    const [email, setEmail] = useState("")
-    const [searchQuery, setSearchQuery] = useState("")
+    const [activeTab, setActiveTab] = useState("personal");
+    const [user, setUser] = useState(null);
+    const [orders, setOrders] = useState([]);
+    const [products, setProducts] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [globalLoading, setGlobalLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [notification, setNotification] = useState(null);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [address, setAddress] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [page, setPage] = useState(0);
+    const [pageSize] = useState(10);
+    const [hasMore, setHasMore] = useState(true);
+    const navigate = useNavigate();
 
-    // Hàm trạng thái
     const getStatusBadgeColor = (status) => {
         switch (status) {
-            case "pending": return "bg-amber-100 text-amber-800 border border-amber-200"
-            case "confirmed": return "bg-emerald-100 text-emerald-800 border border-emerald-200"
-            case "shipping": return "bg-blue-100 text-blue-800 border border-blue-200"
-            case "delivered": return "bg-green-100 text-green-800 border border-green-200"
-            case "cancelled": return "bg-rose-100 text-rose-800 border border-rose-200"
-            default: return "bg-gray-100 text-gray-800 border border-gray-200"
+            case "PENDING": return "bg-amber-100 text-amber-800 border border-amber-200";
+            case "CONFIRMED": return "bg-emerald-100 text-emerald-800 border border-emerald-200";
+            case "SHIPPING": return "bg-blue-100 text-blue-800 border border-blue-200";
+            case "DELIVERED": return "bg-green-100 text-green-800 border border-green-200";
+            case "CANCELLED": return "bg-rose-100 text-rose-800 border border-rose-200";
+            default: return "bg-gray-100 text-gray-800 border border-gray-200";
         }
-    }
+    };
 
     const getStatusText = (status) => {
         switch (status) {
-            case "pending": return "Chờ xác nhận"
-            case "confirmed": return "Đã xác nhận"
-            case "shipping": return "Đang giao hàng"
-            case "delivered": return "Đã giao hàng"
-            case "cancelled": return "Đã hủy"
-            default: return "Không xác định"
+            case "PENDING": return "Chờ xác nhận";
+            case "CONFIRMED": return "Đã xác nhận";
+            case "SHIPPING": return "Đang giao hàng";
+            case "DELIVERED": return "Đã giao hàng";
+            case "CANCELLED": return "Đã hủy";
+            default: return "Không xác định";
         }
-    }
+    };
 
     const getRole = (role) => {
         switch (role) {
-            case "customer": return "Khách hàng"
-            case "admin": return "Quản lý"
-            default: return role
+            case "CUSTOMER": return "Khách hàng";
+            case "ADMIN": return "Quản lý";
+            default: return role;
         }
-    }
+    };
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case "pending": return <Clock className="h-4 w-4" />
-            case "confirmed": return <CheckCircle className="h-4 w-4" />
-            case "shipping": return <Truck className="h-4 w-4" />
-            case "delivered": return <Package className="h-4 w-4" />
-            case "cancelled": return <XCircle className="h-4 w-4" />
-            default: return <AlertTriangle className="h-4 w-4" />
+            case "PENDING": return <Clock className="h-4 w-4" />;
+            case "CONFIRMED": return <CheckCircle className="h-4 w-4" />;
+            case "SHIPPING": return <Truck className="h-4 w-4" />;
+            case "DELIVERED": return <Package className="h-4 w-4" />;
+            case "CANCELLED": return <XCircle className="h-4 w-4" />;
+            default: return <AlertTriangle className="h-4 w-4" />;
         }
-    }
+    };
 
-    // Lấy thông tin người dùng
     useEffect(() => {
-        const loggedInUser = getUserFromLocalStorage()
-        if (loggedInUser) {
-            setUser(loggedInUser)
-            setFullName(loggedInUser.fullName)
-            setEmail(loggedInUser.email)
-            fetchOrders(loggedInUser.id)
-        } else {
-            setError("Vui lòng đăng nhập để xem thông tin cá nhân")
-            setIsLoading(false)
+        const fetchData = async () => {
+            setGlobalLoading(true);
+            try {
+                const storedUser = getUserFromLocalStorage();
+                if (!storedUser?.userId || !storedUser?.email) {
+                    throw new Error("Vui lòng đăng nhập để xem thông tin cá nhân");
+                }
+
+                // Lấy thông tin người dùng từ backend
+                const userResponse = await api.get(`/users/${storedUser.userId}`);
+                const userData = userResponse.data;
+                setUser(userData);
+                setUsername(userData.username);
+                setEmail(userData.email);
+                setPhone(userData.phone || "");
+                setAddress(userData.address || "");
+                localStorage.setItem("user", JSON.stringify(userData));
+
+                // Lấy danh sách đơn hàng với phân trang
+                const orderResponse = await api.get(`/orders`, {
+                    params: { userId: userData.userId, page, size: pageSize }
+                });
+                const ordersData = orderResponse.data || [];
+                setOrders(ordersData);
+                setHasMore(ordersData.length === pageSize);
+
+                // Lấy danh sách sản phẩm liên quan đến đơn hàng
+                const productIds = new Set();
+                ordersData.forEach(order => {
+                    order.orderDetails?.forEach(detail => productIds.add(detail.productId));
+                });
+                if (productIds.size > 0) {
+                    const productPromises = Array.from(productIds).map(id =>
+                        api.get(`/products/${id}`).catch(() => ({ data: { productId: id } }))
+                    );
+                    const productResponses = await Promise.all(productPromises);
+                    const productsById = productResponses.reduce((acc, res) => {
+                        if (res.data?.productId) {
+                            acc[res.data.productId] = res.data;
+                        }
+                        return acc;
+                    }, {});
+                    setProducts(productsById);
+                }
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                if (err.response?.status === 401) {
+                    setError("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+                    navigate("/login");
+                } else {
+                    setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
+                }
+            } finally {
+                setGlobalLoading(false);
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [page, navigate]);
+
+    const loadMoreOrders = () => {
+        if (hasMore && !globalLoading) {
+            setPage(prev => prev + 1);
         }
-    }, [])
+    };
 
-    // Lấy lịch sử đơn hàng, chi tiết đơn hàng và danh sách sản phẩm
-    const fetchOrders = async (userId) => {
-        try {
-            setIsLoading(true)
-
-            // Lấy danh sách đơn hàng
-            const orderResponse = await fetch(`https://67ffd634b72e9cfaf7260bc4.mockapi.io/order?userId=${userId}`)
-            if (!orderResponse.ok) throw new Error("Không thể tải lịch sử đơn hàng")
-            const ordersData = await orderResponse.json()
-            setOrders(ordersData)
-
-            // Lấy chi tiết đơn hàng
-            const detailsResponse = await fetch(`https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail`)
-            if (!detailsResponse.ok) throw new Error("Không thể tải chi tiết đơn hàng")
-            const detailsData = await detailsResponse.json()
-
-            const detailsByOrder = ordersData.reduce((acc, order) => {
-                acc[order.id] = detailsData.filter(detail => detail.orderId === order.id)
-                return acc
-            }, {})
-            setOrderDetails(detailsByOrder)
-
-            // Lấy danh sách sản phẩm
-            const productsResponse = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product`)
-            if (!productsResponse.ok) throw new Error("Không thể tải danh sách sản phẩm")
-            const productsData = await productsResponse.json()
-            // Chuyển danh sách sản phẩm thành object với key là productId
-            const productsById = productsData.reduce((acc, product) => {
-                acc[product.id] = product
-                return acc
-            }, {})
-            setProducts(productsById)
-
-        } catch (err) {
-            console.error("Error fetching orders:", err)
-            setError("Không thể tải dữ liệu. Vui lòng thử lại.")
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    // Hiển thị thông báo
     const showNotification = (type, message) => {
-        setNotification({ type, message })
-        setTimeout(() => setNotification(null), 3000)
-    }
+        setNotification({ type, message });
+        setTimeout(() => setNotification(null), 5000); // Tăng thời gian hiển thị
+    };
 
-    // Cập nhật thông tin cá nhân (giả lập)
+    const validateEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    const validatePhone = (phone) => {
+        return phone ? /^\d{10,11}$/.test(phone) : true;
+    };
+
     const handleUpdatePersonalInfo = async (e) => {
-        e.preventDefault()
-        if (!fullName.trim() || !email.trim()) {
-            showNotification("error", "Vui lòng điền đầy đủ thông tin")
-            return
+        e.preventDefault();
+        if (!username.trim() || !email.trim()) {
+            showNotification("error", "Tên người dùng và email là bắt buộc");
+            return;
         }
-        try {
-            setIsSubmitting(true)
-            setUser(prev => ({ ...prev, fullName, email }))
-            showNotification("success", "Cập nhật thông tin cá nhân thành công")
-        } catch (err) {
-            console.error("Error updating personal info:", err)
-            showNotification("error", "Không thể cập nhật thông tin. Vui lòng thử lại.")
-        } finally {
-            setIsSubmitting(false)
+        if (!validateEmail(email)) {
+            showNotification("error", "Email không hợp lệ");
+            return;
         }
-    }
+        if (!validatePhone(phone)) {
+            showNotification("error", "Số điện thoại không hợp lệ (10-11 số)");
+            return;
+        }
 
-    // Đổi mật khẩu
-    const handlePasswordChange = async (e) => {
-        e.preventDefault()
-        if (!oldPassword || !newPassword || !confirmPassword) {
-            showNotification("error", "Vui lòng điền đầy đủ các trường")
-            return
+        try {
+            setIsSubmitting(true);
+            const payload = {
+                username,
+                email,
+                phone: phone || null,
+                address: address || null,
+                role: user.role,
+            };
+            const response = await api.put(`/users/${user.userId}`, payload);
+            const updatedUser = response.data;
+            setUser(updatedUser);
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            showNotification("success", "Cập nhật thông tin cá nhân thành công");
+        } catch (err) {
+            console.error("Error updating personal info:", err);
+            showNotification("error", err.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại.");
+        } finally {
+            setIsSubmitting(false);
         }
-        if (oldPassword !== user.password) {
-            showNotification("error", "Mật khẩu cũ không đúng")
-            return
+    };
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            showNotification("error", "Vui lòng điền đầy đủ các trường");
+            return;
         }
         if (newPassword !== confirmPassword) {
-            showNotification("error", "Mật khẩu mới và xác nhận mật khẩu không khớp")
-            return
+            showNotification("error", "Mật khẩu mới và xác nhận mật khẩu không khớp");
+            return;
         }
-        if (newPassword.length < 6) {
-            showNotification("error", "Mật khẩu mới phải có ít nhất 6 ký tự")
-            return
+        if (newPassword.length < 8 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(newPassword)) {
+            showNotification("error", "Mật khẩu phải có ít nhất 8 ký tự, 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt");
+            return;
         }
+
         try {
-            setIsSubmitting(true)
-            setUser(prev => ({ ...prev, password: newPassword }))
-            showNotification("success", "Đổi mật khẩu thành công")
-            setOldPassword("")
-            setNewPassword("")
-            setConfirmPassword("")
+            setIsSubmitting(true);
+            const payload = {
+                oldPassword,
+                newPassword,
+                confirmPassword,
+            };
+            await api.post(`/users/change-password`, payload); // Giả định endpoint mới
+            showNotification("success", "Đổi mật khẩu thành công");
+            setOldPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
         } catch (err) {
-            console.error("Error changing password:", err)
-            showNotification("error", "Không thể đổi mật khẩu. Vui lòng thử lại.")
+            console.error("Error changing password:", err);
+            showNotification("error", err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại.");
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
-    // Lọc đơn hàng theo từ khóa tìm kiếm (bao gồm tên sản phẩm)
     const filteredOrders = orders.filter(order => {
-        const matchesOrder = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        const matchesOrder = order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+            user?.username.toLowerCase().includes(searchQuery.toLowerCase());
 
-        const matchesProduct = orderDetails[order.id]?.some(detail => {
-            const product = products[detail.productId] || {}
-            return product.productName?.toLowerCase().includes(searchQuery.toLowerCase())
-        }) || false
+        const matchesProduct = order.orderDetails?.some(detail => {
+            const product = products[detail.productId] || {};
+            return product.productName?.toLowerCase().includes(searchQuery.toLowerCase());
+        }) || false;
 
-        return matchesOrder || matchesProduct
-    })
+        return matchesOrder || matchesProduct;
+    });
 
-    // Hiển thị chi tiết đơn hàng
     const showOrderDetails = (order) => {
         const formatCurrency = (amount) => {
-            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
-        }
+            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+        };
 
         const formatDate = (dateString) => {
-            const date = new Date(dateString)
+            const date = new Date(dateString);
             return date.toLocaleDateString("vi-VN", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
-            })
-        }
+            });
+        };
 
         const getPaymentMethodText = (methodId) => {
             switch (methodId) {
-                case "PM001": return "Thẻ VISA/MasterCard"
-                case "PM002": return "MoMo"
-                case "PM003": return "Thanh toán khi nhận hàng (COD)"
-                default: return "Không xác định"
+                case "PM001": return "Thẻ VISA/MasterCard";
+                case "PM002": return "MoMo";
+                case "PM003": return "Thanh toán khi nhận hàng (COD)";
+                default: return "Không xác định";
             }
-        }
+        };
 
-        const printWindow = window.open("", "_blank", "width=800,height=600")
+        const printWindow = window.open("", "_blank", "width=800,height=600");
 
         const invoiceHtml = `
-      <!DOCTYPE html>
-      <html lang="vi">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hóa đơn #${order.id}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .invoice-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-          }
-          .invoice-header h1 {
-            color: #4338ca;
-            margin-bottom: 5px;
-          }
-          .invoice-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-          }
-          .invoice-info-block {
-            max-width: 50%;
-          }
-          .invoice-info-block h4 {
-            margin-bottom: 5px;
-            color: #4338ca;
-          }
-          .invoice-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-          }
-          .invoice-table th {
-            background-color: #f3f4f6;
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-          }
-          .invoice-table td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-          }
-          .invoice-table .amount {
-            text-align: right;
-          }
-          .invoice-total {
-            margin-top: 20px;
-            text-align: right;
-          }
-          .invoice-total-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 5px;
-          }
-          .invoice-total-row .label {
-            width: 150px;
-            text-align: left;
-          }
-          .invoice-total-row .value {
-            width: 150px;
-            text-align: right;
-          }
-          .invoice-total-row.final {
-            font-weight: bold;
-            font-size: 1.2em;
-            border-top: 1px solid #ddd;
-            padding-top: 10px;
-            margin-top: 10px;
-            color: #4338ca;
-          }
-          .invoice-footer {
-            margin-top: 50px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-          }
-          .close-btn {
-            margin-top: 20px;
-            text-align: center;
-          }
-          .close-btn button {
-            padding: 10px 20px;
-            background-color: #4338ca;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-          .close-btn button:hover {
-            background-color: #3730a3;
-          }
-          @media print {
-            .close-btn {
-              display: none;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="invoice-header">
-          <h1>HÓA ĐƠN BÁN HÀNG</h1>
-          <p>Ngày đặt hàng: ${formatDate(order.deliveryDate)}</p>
-        </div>
-        
-        <div class="invoice-info">
-          <div class="invoice-info-block">
-            <h4>Thông tin khách hàng</h4>
-            <p><strong>Khách hàng:</strong> ${user.fullName}</p>
-            <p><strong>Email:</strong> ${user.email}</p>
-            <p><strong>Địa chỉ giao hàng:</strong> ${order.deliveryAddress}</p>
-          </div>
-          <div class="invoice-info-block">
-            <h4>Thông tin thanh toán</h4>
-            <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(order.paymentMethodId)}</p>
-            <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(order.status)}</p>
-          </div>
-        </div>
-        
-        <table class="invoice-table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Sản phẩm</th>
-              <th>Đơn giá</th>
-              <th>Số lượng</th>
-              <th class="amount">Thành tiền</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${orderDetails[order.id]
-            .map(
-                (detail, index) => {
-                    const product = products[detail.productId] || {}
-                    return `
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa đơn #${order.orderId}</title>
+<style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .invoice-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
+    .invoice-header h1 { color: #4338ca; margin-bottom: 5px; }
+    .invoice-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .invoice-info-block { max-width: 50%; }
+    .invoice-info-block h4 { margin-bottom: 5px; color: #4338ca; }
+    .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    .invoice-table th { background-color: #f3f4f6; text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+    .invoice-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+    .invoice-table .amount { text-align: right; }
+    .invoice-total { margin-top: 20px; text-align: right; }
+    .invoice-total-row { display: flex; justify-content: flex-end; margin-bottom: 5px; }
+    .invoice-total-row .label { width: 150px; text-align: left; }
+    .invoice-total-row .value { width: 150px; text-align: right; }
+    .invoice-total-row.final { font-weight: bold; font-size: 1.2em; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; color: #4338ca; }
+    .invoice-footer { margin-top: 50px; text-align: center; color: #666; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 20px; }
+    .close-btn { margin-top: 20px; text-align: center; }
+    .close-btn button { padding: 10px 20px; background-color: #4338ca; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .close-btn button:hover { background-color: #3730a3; }
+    .print-btn { margin-top: 10px; text-align: center; }
+    .print-btn button { padding: 10px 20px; background-color: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .print-btn button:hover { background-color: #059669; }
+    @media print { .close-btn, .print-btn { display: none; } }
+</style>
+</head>
+<body>
+<div class="invoice-header">
+    <h1>HÓA ĐƠN BÁN HÀNG</h1>
+    <p>Ngày đặt hàng: ${formatDate(order.deliveryDate)}</p>
+</div>
+<div class="invoice-info">
+    <div class="invoice-info-block">
+        <h4>Thông tin khách hàng</h4>
+        <p><strong>Khách hàng:</strong> ${user.username}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Địa chỉ giao hàng:</strong> ${order.deliveryAddress}</p>
+    </div>
+    <div class="invoice-info-block">
+        <h4>Thông tin thanh toán</h4>
+        <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(order.paymentMethodId)}</p>
+        <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(order.status)}</p>
+    </div>
+</div>
+<table class="invoice-table">
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Sản phẩm</th>
+        <th>Đơn giá</th>
+        <th>Số lượng</th>
+        <th class="amount">Thành tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    ${order.orderDetails
+            .map((detail, index) => {
+                const product = products[detail.productId] || {};
+                return `
               <tr>
                 <td>${index + 1}</td>
                 <td>${product.productName || "Sản phẩm không xác định"}</td>
@@ -372,47 +334,45 @@ const ProfilePage = () => {
                 <td>${detail.quantity}</td>
                 <td class="amount">${formatCurrency(detail.subtotal)}</td>
               </tr>
-            `
-                },
-            )
+            `;
+            })
             .join("")}
-          </tbody>
-        </table>
-        
-        <div class="invoice-total">
-          <div class="invoice-total-row">
-            <div class="label">Tổng tiền hàng:</div>
-            <div class="value">${formatCurrency(order.totalAmount)}</div>
-          </div>
-          <div class="invoice-total-row">
-            <div class="label">Phí vận chuyển:</div>
-            <div class="value">${formatCurrency(0)}</div>
-          </div>
-          <div class="invoice-total-row final">
-            <div class="label">Tổng thanh toán:</div>
-            <div class="value">${formatCurrency(order.totalAmount)}</div>
-          </div>
-        </div>
-        
-        <div class="invoice-footer">
-          <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
-          <p>Mọi thắc mắc xin vui lòng liên hệ: tranngochung19112004@gmail.com | 0393465113</p>
-        </div>
-        
-        <div class="close-btn">
-          <button onclick="window.close()">Đóng</button>
-        </div>
-      </body>
-      </html>
-    `
+    </tbody>
+</table>
+<div class="invoice-total">
+    <div class="invoice-total-row">
+        <div class="label">Tổng tiền hàng:</div>
+        <div class="value">${formatCurrency(order.totalAmount - (order.shippingFee || 0))}</div>
+    </div>
+    <div class="invoice-total-row">
+        <div class="label">Phí vận chuyển:</div>
+        <div class="value">${formatCurrency(order.shippingFee || 0)}</div>
+    </div>
+    <div class="invoice-total-row final">
+        <div class="label">Tổng thanh toán:</div>
+        <div class="value">${formatCurrency(order.totalAmount)}</div>
+    </div>
+</div>
+<div class="invoice-footer">
+    <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
+    <p>Mọi thắc mắc xin vui lòng liên hệ: support@homecraft.com | 0393465113</p>
+</div>
+<div class="print-btn">
+    <button onclick="window.print()">In hóa đơn</button>
+</div>
+<div class="close-btn">
+    <button onclick="window.close()">Đóng</button>
+</div>
+</body>
+</html>
+`;
 
-        printWindow.document.open()
-        printWindow.document.write(invoiceHtml)
-        printWindow.document.close()
-    }
+        printWindow.document.open();
+        printWindow.document.write(invoiceHtml);
+        printWindow.document.close();
+    };
 
-    // Trạng thái không đăng nhập
-    if (!user) {
+    if (!user && !isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-3xl mx-auto">
@@ -431,10 +391,9 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 
-    // Trạng thái đang tải
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -444,20 +403,20 @@ const ProfilePage = () => {
                     <p className="text-sm text-gray-500 mt-2">Vui lòng đợi trong giây lát</p>
                 </div>
             </div>
-        )
+        );
     }
 
-    // Trạng thái lỗi
     if (error) {
         return (
             <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-3xl mx-auto">
                     <div className="bg-white shadow-lg rounded-xl p-8 text-center">
                         <div className="flex justify-center mb-6">
-                            <AlertTriangle size={64} className="text-red-400"/>
+                            <AlertTriangle size={64} className="text-red-400" />
                         </div>
                         <h1 className="text-2xl font-bold text-gray-800 mb-4">Lỗi</h1>
                         <p className="text-gray-600 mb-6">{error}</p>
+                        _suppressed
                         <Link
                             to="/"
                             className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all"
@@ -467,11 +426,16 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 relative">
+            {globalLoading && (
+                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
+                </div>
+            )}
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
@@ -493,12 +457,9 @@ const ProfilePage = () => {
                     </button>
                 </div>
             )}
-
             <div className="max-w-6xl mx-auto">
                 <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Tài khoản của bạn</h1>
-
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Sidebar */}
                     <div className="lg:w-1/4">
                         <div className="bg-white shadow-lg rounded-xl p-6">
                             <nav className="space-y-2">
@@ -520,8 +481,6 @@ const ProfilePage = () => {
                             </nav>
                         </div>
                     </div>
-
-                    {/* Content */}
                     <div className="lg:w-3/4">
                         <div className="bg-white shadow-lg rounded-xl p-6">
                             {activeTab === "personal" && (
@@ -529,12 +488,12 @@ const ProfilePage = () => {
                                     <h2 className="text-2xl font-semibold text-gray-800 mb-6">Thông tin cá nhân</h2>
                                     <form onSubmit={handleUpdatePersonalInfo} className="space-y-4 max-w-md">
                                         <div>
-                                            <label className="block font-semibold text-gray-700">Họ và tên</label>
+                                            <label className="block font-semibold text-gray-700">Tên người dùng</label>
                                             <input
                                                 type="text"
-                                                value={fullName}
-                                                onChange={(e) => setFullName(e.target.value)}
-                                                placeholder="Họ và tên"
+                                                value={username}
+                                                onChange={(e) => setUsername(e.target.value)}
+                                                placeholder="Tên người dùng"
                                                 className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
                                             />
                                         </div>
@@ -545,6 +504,26 @@ const ProfilePage = () => {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="Email"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block font-semibold text-gray-700">Số điện thoại</label>
+                                            <input
+                                                type="tel"
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                placeholder="Số điện thoại"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block font-semibold text-gray-700">Địa chỉ</label>
+                                            <input
+                                                type="text"
+                                                value={address}
+                                                onChange={(e) => setAddress(e.target.value)}
+                                                placeholder="Địa chỉ"
                                                 className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
                                             />
                                         </div>
@@ -569,7 +548,6 @@ const ProfilePage = () => {
                                     </form>
                                 </div>
                             )}
-
                             {activeTab === "orders" && (
                                 <div>
                                     <h2 className="text-2xl font-semibold text-gray-800 mb-6">Lịch sử đơn hàng</h2>
@@ -590,15 +568,13 @@ const ProfilePage = () => {
                                     ) : (
                                         <div className="space-y-4 max-h-[750px] overflow-y-auto">
                                             {filteredOrders.map((order) => (
-                                                <div key={order.id}
-                                                     className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
+                                                <div key={order.orderId} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
                                                     <div className="flex items-center justify-between mb-4">
                                                         <div className="flex items-center">
                                                             {getStatusIcon(order.status)}
-                                                            <span
-                                                                className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(order.status)}`}>
-                                {getStatusText(order.status)}
-                            </span>
+                                                            <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(order.status)}`}>
+                                                                {getStatusText(order.status)}
+                                                            </span>
                                                         </div>
                                                         <button
                                                             onClick={() => showOrderDetails(order)}
@@ -608,49 +584,49 @@ const ProfilePage = () => {
                                                         </button>
                                                     </div>
                                                     <div className="border-t border-gray-200 pt-4">
-                                                        <p className="text-sm text-gray-600 mb-2">Địa chỉ
-                                                            giao: {order.deliveryAddress}</p>
+                                                        <p className="text-sm text-gray-600 mb-2">Địa chỉ giao: {order.deliveryAddress}</p>
                                                         <p className="text-sm font-semibold text-gray-800">
-                                                            Tổng tiền: {new Intl.NumberFormat("vi-VN", {
-                                                            style: "currency",
-                                                            currency: "VND"
-                                                        }).format(order.totalAmount)}
+                                                            Tổng tiền: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount)}
                                                         </p>
                                                         <div className="mt-4">
-                                                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản
-                                                                phẩm:</h4>
-                                                            {orderDetails[order.id]?.map((detail) => {
-                                                                const product = products[detail.productId] || {}
+                                                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản phẩm:</h4>
+                                                            {order.orderDetails?.map((detail) => {
+                                                                const product = products[detail.productId] || {};
                                                                 return (
-                                                                    <div key={detail.orderDetailId}
-                                                                         className="flex items-center space-x-4 mb-2">
+                                                                    <div key={detail.orderDetailId} className="flex items-center space-x-4 mb-2">
                                                                         <img
-                                                                            src={product.imageUrl ? `/${product.imageUrl}` : "/placeholder.svg"}
+                                                                            src={product.imageUrl || "/placeholder.svg"}
                                                                             alt={product.productName || "Sản phẩm"}
                                                                             className="w-12 h-12 object-cover rounded"
                                                                         />
                                                                         <div>
                                                                             <p className="text-sm font-medium">{product.productName || "Sản phẩm không xác định"}</p>
                                                                             <p className="text-sm text-gray-600">
-                                                                                Số
-                                                                                lượng: {detail.quantity} x {new Intl.NumberFormat("vi-VN", {
-                                                                                style: "currency",
-                                                                                currency: "VND"
-                                                                            }).format(detail.unitPrice)}
+                                                                                Số lượng: {detail.quantity} x {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(detail.unitPrice)}
                                                                             </p>
                                                                         </div>
                                                                     </div>
-                                                                )
+                                                                );
                                                             })}
                                                         </div>
                                                     </div>
                                                 </div>
                                             ))}
+                                            {hasMore && (
+                                                <div className="text-center mt-4">
+                                                    <button
+                                                        onClick={loadMoreOrders}
+                                                        disabled={globalLoading}
+                                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                                                    >
+                                                        {globalLoading ? "Đang tải..." : "Tải thêm đơn hàng"}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
                             )}
-
                             {activeTab === "password" && (
                                 <div>
                                     <h2 className="text-2xl font-semibold text-gray-800 mb-6">Thay đổi mật khẩu</h2>
@@ -680,8 +656,7 @@ const ProfilePage = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="confirmPassword"
-                                                   className="block font-semibold text-gray-700">
+                                            <label htmlFor="confirmPassword" className="block font-semibold text-gray-700">
                                                 Xác nhận mật khẩu mới
                                             </label>
                                             <input
@@ -713,25 +688,15 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Thêm CSS cho hiệu ứng slide-in */}
             <style>{`
-                @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                .animate-slide-in {
-                    animation: slideIn 0.3s ease-out;
-                }
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
             `}</style>
         </div>
-    )
-}
+    );
+};
 
-export default ProfilePage
+export default ProfilePage;

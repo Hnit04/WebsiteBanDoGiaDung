@@ -1,118 +1,100 @@
-"use client"
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import { users, saveUserToLocalStorage } from "../assets/js/userData.jsx"
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import { saveUserToLocalStorage } from "../assets/js/userData.jsx"
 
 const LoginPage = () => {
-    const [email, setEmail] = useState("") // Đảm bảo khởi tạo là rỗng
-    const [password, setPassword] = useState("") // Đảm bảo khởi tạo là rỗng
-    const [showPassword, setShowPassword] = useState(false)
-    const [rememberMe, setRememberMe] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [errors, setErrors] = useState({})
-    const [checkingAuth, setCheckingAuth] = useState(true) // Thêm state để kiểm soát việc kiểm tra xác thực
-
-    const navigate = useNavigate()
-
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [checkingAuth, setCheckingAuth] = useState(true);
+    const navigate = useNavigate();
 
     const validateForm = () => {
-        const newErrors = {}
+        const newErrors = {};
 
         if (!email.trim()) {
-            newErrors.email = "Email không được để trống"
+            newErrors.email = "Email không được để trống";
         } else if (!/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = "Email không hợp lệ"
+            newErrors.email = "Email không hợp lệ";
         }
 
         if (!password) {
-            newErrors.password = "Mật khẩu không được để trống"
+            newErrors.password = "Mật khẩu không được để trống";
         }
 
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
-    }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleLogin = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         if (!validateForm()) {
-            return
+            return;
         }
 
-        setIsLoading(true)
+        setIsLoading(true);
 
         try {
-            // Tìm người dùng trong mảng users từ userData.jsx
-            const user = users.find((u) => u.email === email && u.password === password)
+            const response = await api.post("/users/login", { email, password });
+            const { user, token } = response.data;
 
-            if (user) {
-                // Đăng nhập thành công
-                console.log("Login successful!", user)
+            // Lưu thông tin vào localStorage
+            localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("token", token);
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userRole", user.role);
 
-                // Lưu thông tin người dùng vào localStorage
-                saveUserToLocalStorage(user)
-
-                // Đảm bảo isLoggedIn và userRole được đặt trong localStorage
-                localStorage.setItem("isLoggedIn", "true")
-                localStorage.setItem("userRole", user.role)
-
-                // Xóa giá trị input sau khi đăng nhập thành công
-                setEmail("")
-                setPassword("")
-
-                // Chuyển hướng dựa trên vai trò
-                if (user.role === "admin") {
-                    navigate("/admin") // Chuyển đến trang admin
-                } else {
-                    navigate("/") // Chuyển đến trang chủ cho người dùng thông thường
-                }
+            setEmail("");
+            setPassword("");
+            saveUserToLocalStorage(user)
+            console.log("hung1"+user.userId)
+            // Chuyển hướng dựa trên vai trò
+            if (user.role === "ADMIN") {
+                navigate("/admin");
             } else {
-                // Đăng nhập thất bại
-                setErrors({
-                    email: "Thông tin đăng nhập không chính xác",
-                    password: "Thông tin đăng nhập không chính xác",
-                })
-                alert("Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại email và mật khẩu.")
+                navigate("/");
             }
         } catch (error) {
-            console.error("Login error:", error)
-            setErrors({ email: "Đăng nhập thất bại", password: "Đăng nhập thất bại" })
-            alert("Đăng nhập thất bại. Vui lòng thử lại.")
+            setErrors({
+                email: error.response?.data?.message || "Thông tin đăng nhập không chính xác",
+                password: error.response?.data?.message || "Thông tin đăng nhập không chính xác",
+            });
+            alert("Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại email và mật khẩu.");
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
 
-    // Kiểm tra nếu người dùng đã đăng nhập, chuyển hướng đến trang tương ứng
     useEffect(() => {
-        // Xóa thông tin đăng nhập cũ để đảm bảo form đăng nhập hiển thị
-        // localStorage.removeItem("isLoggedIn");
-
-        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true"
-        const storedRole = localStorage.getItem("userRole")
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const storedRole = localStorage.getItem("userRole");
 
         if (isLoggedIn && storedRole) {
-            if (storedRole === "admin") {
-                navigate("/admin")
+            if (storedRole === "ADMIN") {
+                navigate("/admin");
             } else {
-                navigate("/login")
+                navigate("/login");
             }
         }
+        setCheckingAuth(false);
+    }, [navigate]);
 
-        // Đánh dấu đã hoàn thành việc kiểm tra xác thực
-        setCheckingAuth(false)
-    }, [navigate])
-
-    // Hiển thị loading trong khi kiểm tra xác thực
     if (checkingAuth) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
-        )
+        );
     }
 
     return (
@@ -124,7 +106,6 @@ const LoginPage = () => {
                 className="w-full max-w-md"
             >
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    {/* Header */}
                     <div className="bg-blue-600 p-6 relative">
                         <button
                             className="absolute top-6 left-6 text-white hover:text-blue-200 transition-colors"
@@ -133,18 +114,14 @@ const LoginPage = () => {
                             <ArrowLeft size={20} />
                             <span className="sr-only">Quay lại</span>
                         </button>
-
                         <div className="text-center">
                             <h1 className="text-2xl font-bold text-white">Đăng nhập</h1>
                             <p className="text-blue-100 mt-2">Đăng nhập để tiếp tục mua sắm</p>
                         </div>
                     </div>
-
-                    {/* Form */}
                     <div className="p-6">
                         <form onSubmit={handleLogin}>
                             <div className="space-y-4">
-                                {/* Email field */}
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                                         Email
@@ -161,21 +138,19 @@ const LoginPage = () => {
                                             required
                                             value={email}
                                             onChange={(e) => {
-                                                setEmail(e.target.value)
+                                                setEmail(e.target.value);
                                                 if (errors.email) {
-                                                    setErrors((prev) => ({ ...prev, email: "" }))
+                                                    setErrors((prev) => ({ ...prev, email: "" }));
                                                 }
                                             }}
                                             className={`block w-full pl-10 pr-3 py-2.5 border ${
-                                                errors.email ? "border-red-500" : "border-gray-300"
-                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+    errors.email ? "border-red-500" : "border-gray-300"
+} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                             placeholder="your.email@example.com"
                                         />
                                     </div>
                                     {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                                 </div>
-
-                                {/* Password field */}
                                 <div>
                                     <div className="flex items-center justify-between mb-1">
                                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
@@ -197,14 +172,14 @@ const LoginPage = () => {
                                             required
                                             value={password}
                                             onChange={(e) => {
-                                                setPassword(e.target.value)
+                                                setPassword(e.target.value);
                                                 if (errors.password) {
-                                                    setErrors((prev) => ({ ...prev, password: "" }))
+                                                    setErrors((prev) => ({ ...prev, password: "" }));
                                                 }
                                             }}
                                             className={`block w-full pl-10 pr-10 py-2.5 border ${
-                                                errors.password ? "border-red-500" : "border-gray-300"
-                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+    errors.password ? "border-red-500" : "border-gray-300"
+} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                             placeholder="••••••••"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -219,8 +194,6 @@ const LoginPage = () => {
                                     </div>
                                     {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                                 </div>
-
-                                {/* Remember me checkbox */}
                                 <div className="flex items-center">
                                     <input
                                         id="remember-me"
@@ -234,15 +207,13 @@ const LoginPage = () => {
                                         Ghi nhớ đăng nhập
                                     </label>
                                 </div>
-
-                                {/* Submit button */}
                                 <div>
                                     <button
                                         type="submit"
                                         disabled={isLoading}
                                         className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                                            isLoading ? "opacity-70 cursor-not-allowed" : ""
-                                        }`}
+    isLoading ? "opacity-70 cursor-not-allowed" : ""
+}`}
                                     >
                                         {isLoading ? (
                                             <>
@@ -275,15 +246,11 @@ const LoginPage = () => {
                                 </div>
                             </div>
                         </form>
-
-                        {/* Divider */}
                         <div className="mt-6 flex items-center">
                             <div className="flex-grow border-t border-gray-200"></div>
                             <span className="flex-shrink mx-4 text-sm text-gray-400">hoặc đăng nhập với</span>
                             <div className="flex-grow border-t border-gray-200"></div>
                         </div>
-
-                        {/* Social login */}
                         <div className="mt-6 grid grid-cols-2 gap-3">
                             <button
                                 type="button"
@@ -332,8 +299,6 @@ const LoginPage = () => {
                                 Facebook
                             </button>
                         </div>
-
-                        {/* Register link */}
                         <div className="mt-6 text-center">
                             <p className="text-sm text-gray-600">
                                 Chưa có tài khoản?{" "}
@@ -344,14 +309,10 @@ const LoginPage = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* Footer */}
-                <p className="mt-4 text-center text-xs text-gray-500">© 2023 Home Craft. Tất cả các quyền được bảo lưu.</p>
-
+                <p className="mt-4 text-center text-xs text-gray-500">© 2025 Home Craft. Tất cả các quyền được bảo lưu.</p>
             </motion.div>
         </div>
-    )
-}
+    );
+};
 
-export default LoginPage
-
+export default LoginPage;

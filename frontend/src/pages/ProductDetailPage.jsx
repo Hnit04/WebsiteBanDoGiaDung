@@ -2,55 +2,63 @@
 
 import { useState, useEffect } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
+import api from "../services/api.js" // Sử dụng instance Axios
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingCart, CheckCircle, AlertTriangle, X } from "lucide-react"
-import { getUserFromLocalStorage } from "../assets/js/userData"
-import { products } from "../assets/js/productData.jsx"
 
 const ProductDetailPage = () => {
     const { id } = useParams()
+    const [product, setProduct] = useState(null)
+    const [similarProducts, setSimilarProducts] = useState([])
     const [quantity, setQuantity] = useState(1)
     const [isAddingToCart, setIsAddingToCart] = useState(false)
     const [notification, setNotification] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
     const navigate = useNavigate()
 
-    // Lấy dữ liệu người dùng từ localStorage
-    const user = getUserFromLocalStorage()
-    const userId = user?.id && user.id.toString().trim() !== "" ? user.id.toString() : null
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+    const userId = user?.email || null
 
-    // Kiểm tra userId để debug
     useEffect(() => {
-        if (!userId) {
-            console.log("Không tìm thấy userId. Người dùng chưa đăng nhập hoặc dữ liệu localStorage không hợp lệ.")
-        } else {
-            console.log("userId hiện tại:", userId)
+        const fetchProductData = async () => {
+            try {
+                setLoading(true)
+                const productResponse = await api.get(`/products/${id}`)
+                const productData = productResponse.data
+                setProduct(productData)
+
+                const similarResponse = await api.get("/products", {
+                    params: { categoryId: productData.categoryId, size: 100 },
+                })
+                const similarProductsData = similarResponse.data.content.filter(
+                    (item) => item.productId !== id && item.quantityInStock > 0
+                )
+                setSimilarProducts(similarProductsData)
+            } catch (err) {
+                console.error("Lỗi khi lấy dữ liệu sản phẩm:", err)
+                setError(err.response?.data?.message || "Không thể tải dữ liệu sản phẩm")
+            } finally {
+                setLoading(false)
+            }
         }
-    }, [userId])
 
-    // Tìm sản phẩm theo ID
-    const product = products.find((item) => item.id === Number.parseInt(id))
+        fetchProductData()
+    }, [id])
 
-    // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
     const [isInCart, setIsInCart] = useState(false)
     const [cartItemId, setCartItemId] = useState(null)
     const [cartQuantity, setCartQuantity] = useState(0)
 
-    // Lấy dữ liệu giỏ hàng để kiểm tra sản phẩm
     useEffect(() => {
         const checkCartStatus = async () => {
             if (!userId || !product) return
 
             try {
-                const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart?userId=${userId}`)
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu giỏ hàng")
-                }
-
-                const cartData = await response.json()
-                const cartItem = cartData.find((item) => item.productId === id)
-
+                const response = await api.get(`/carts/user/${userId}`)
+                const cartItem = response.data.cartItems.find((item) => item.productId === id)
                 if (cartItem) {
                     setIsInCart(true)
-                    setCartItemId(cartItem.id)
+                    setCartItemId(cartItem.cartItemId)
                     setCartQuantity(cartItem.quantity)
                 } else {
                     setIsInCart(false)
@@ -65,11 +73,20 @@ const ProductDetailPage = () => {
         checkCartStatus()
     }, [userId, id, product])
 
-    if (!product) {
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[50vh] bg-gradient-to-b from-blue-50 to-gray-100">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+                <p className="mt-6 text-lg font-medium text-gray-700">Đang tải sản phẩm...</p>
+            </div>
+        )
+    }
+
+    if (error || !product) {
         return (
             <div className="flex flex-col items-center justify-center h-[50vh] bg-gradient-to-b from-blue-50 to-gray-100">
                 <h2 className="text-3xl font-bold text-gray-800">Sản phẩm không tồn tại</h2>
-                <p className="mt-2 text-gray-600">Không tìm thấy sản phẩm với ID #{id}</p>
+                <p className="mt-2 text-gray-600">{error || `Không tìm thấy sản phẩm với ID #${id}`}</p>
                 <Link
                     to="/products"
                     className="mt-4 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all"
@@ -80,10 +97,6 @@ const ProductDetailPage = () => {
         )
     }
 
-    // Tìm sản phẩm tương tự (loại trừ sản phẩm hiện tại)
-    const similarProducts = products.filter((item) => item.categoryId === product.categoryId && item.id !== product.id)
-
-    // Xử lý tăng giảm số lượng
     const decreaseQuantity = () => {
         if (quantity > 1) setQuantity(quantity - 1)
     }
@@ -92,15 +105,11 @@ const ProductDetailPage = () => {
         if (quantity < product.quantityInStock) setQuantity(quantity + 1)
     }
 
-    // Hiển thị thông báo
     const showNotification = (type, message) => {
         setNotification({ type, message })
-        setTimeout(() => {
-            setNotification(null)
-        }, 3000)
+        setTimeout(() => setNotification(null), 3000)
     }
 
-    // Xử lý thêm vào giỏ hàng
     const handleAddToCart = async () => {
         if (!userId) {
             navigate("/login")
@@ -109,62 +118,28 @@ const ProductDetailPage = () => {
 
         try {
             setIsAddingToCart(true)
-
             if (isInCart && cartItemId) {
                 const newQuantity = cartQuantity + quantity
-                const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${cartItemId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ quantity: newQuantity }),
-                })
-
-                if (!response.ok) {
-                    throw new Error("Không thể cập nhật giỏ hàng")
-                }
-
+                await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
                 setCartQuantity(newQuantity)
-                showNotification("success", `Đã cập nhật số lượng sản phẩm "${product.productName}" trong giỏ hàng!`)
+                showNotification("success", `Đã cập nhật số lượng "${product.productName}" trong giỏ hàng!`)
             } else {
-                const cartResponse = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart")
-                if (!cartResponse.ok) {
-                    throw new Error("Không thể lấy dữ liệu giỏ hàng")
-                }
-                const cartData = await cartResponse.json()
-                const nextId = (cartData.length + 1).toString()
-
-                const payload = {
-                    id: nextId,
-                    userId: userId,
-                    productId: String(id),
-                    quantity: quantity,
-                }
-
-                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                })
-
-                if (!response.ok) {
-                    throw new Error("Không thể thêm vào giỏ hàng")
-                }
-
-                const responseData = await response.json()
+                const payload = { userId, productId: id, quantity }
+                const response = await api.post("/carts/items", payload)
                 setIsInCart(true)
-                setCartItemId(responseData.id)
+                setCartItemId(response.data.cartItems[0].cartItemId)
                 setCartQuantity(quantity)
-                showNotification("success", `Đã thêm ${quantity} sản phẩm "${product.productName}" vào giỏ hàng!`)
+                showNotification("success", `Đã thêm ${quantity} "${product.productName}" vào giỏ hàng!`)
                 window.dispatchEvent(new Event("cartUpdated"))
             }
         } catch (error) {
             console.error("Lỗi khi thêm vào giỏ hàng:", error)
-            showNotification("error", "Không thể thêm vào giỏ hàng. Vui lòng thử lại sau.")
+            showNotification("error", "Không thể thêm vào giỏ hàng. Vui lòng thử lại.")
         } finally {
             setIsAddingToCart(false)
         }
     }
 
-    // Xử lý mua ngay
     const handleBuyNow = async () => {
         if (!userId) {
             navigate("/login")
@@ -173,56 +148,23 @@ const ProductDetailPage = () => {
 
         try {
             setIsAddingToCart(true)
-
             let itemId = cartItemId
-
             if (!isInCart) {
-                const cartResponse = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart")
-                if (!cartResponse.ok) {
-                    throw new Error("Không thể lấy dữ liệu giỏ hàng")
-                }
-                const cartData = await cartResponse.json()
-                const nextId = (cartData.length + 1).toString()
-
-                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        id: nextId,
-                        userId: userId,
-                        productId: String(id),
-                        quantity: quantity,
-                    }),
-                })
-
-                if (!response.ok) {
-                    throw new Error("Không thể thêm vào giỏ hàng")
-                }
-
-                const responseData = await response.json()
-                itemId = responseData.id
+                const payload = { userId, productId: id, quantity }
+                const response = await api.post("/carts/items", payload)
+                itemId = response.data.cartItems[0].cartItemId
             } else if (cartItemId) {
-                const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${cartItemId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ quantity: quantity }),
-                })
-
-                if (!response.ok) {
-                    throw new Error("Không thể cập nhật giỏ hàng")
-                }
+                await api.put(`/carts/items/${cartItemId}`, { quantity })
             }
-
             navigate(`/checkout?items=${itemId}`)
         } catch (error) {
             console.error("Lỗi khi xử lý mua ngay:", error)
-            showNotification("error", "Không thể xử lý yêu cầu. Vui lòng thử lại sau.")
+            showNotification("error", "Không thể xử lý yêu cầu. Vui lòng thử lại.")
         } finally {
             setIsAddingToCart(false)
         }
     }
 
-    // Xử lý nhấp vào sản phẩm tương tự
     const handleSimilarProductClick = (productId) => {
         window.scrollTo({ top: 0, behavior: "smooth" })
         navigate(`/product/${productId}`)
@@ -230,7 +172,6 @@ const ProductDetailPage = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-gray-100">
-            {/* Thông báo */}
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
@@ -253,7 +194,6 @@ const ProductDetailPage = () => {
                 </div>
             )}
 
-            {/* Breadcrumb */}
             <nav className="flex items-center text-sm text-gray-600 mb-6 bg-white py-3 px-4 rounded-lg shadow-sm">
                 <Link to="/" className="hover:text-indigo-600 transition-colors font-medium">
                     Trang chủ
@@ -267,13 +207,12 @@ const ProductDetailPage = () => {
             </nav>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
-                {/* Phần hình ảnh sản phẩm */}
                 <div className="space-y-4">
                     <div className="relative overflow-hidden rounded-xl bg-white shadow-lg">
                         <img
-                            src={"/" + product.imageUrl}
+                            src={product.imageUrl}
                             alt={product.productName}
-                            className="w-full h-100  object-contain transition-transform duration-200 hover:scale-95"
+                            className="w-full h-100 object-contain transition-transform duration-200 hover:scale-95"
                         />
                         {product.originalPrice > product.salePrice && (
                             <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
@@ -283,7 +222,6 @@ const ProductDetailPage = () => {
                     </div>
                 </div>
 
-                {/* Phần thông tin sản phẩm */}
                 <div className="space-y-6 bg-white p-6 rounded-xl shadow-lg">
                     <div>
                         <h1 className="text-4xl font-extrabold text-gray-900 leading-tight">{product.productName}</h1>
@@ -391,22 +329,21 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {/* Sản phẩm tương tự */}
             <div className="space-y-6">
                 <h2 className="text-3xl font-bold text-gray-900">Sản phẩm tương tự</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {similarProducts.length > 0 ? (
                         similarProducts.map((item) => (
                             <div
-                                key={item.id}
-                                onClick={() => handleSimilarProductClick(item.id)}
-                                className="group  rounded-xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all cursor-pointer"
+                                key={item.productId}
+                                onClick={() => handleSimilarProductClick(item.productId)}
+                                className="group rounded-xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all cursor-pointer"
                             >
                                 <div className="aspect-square relative overflow-hidden bg-gray-100">
                                     <img
-                                        src={"/" + item.imageUrl}
+                                        src={item.imageUrl}
                                         alt={item.productName}
-                                        className="m-5 h-80  mx-auto object-contain transition-transform duration-300"
+                                        className="m-5 h-80 mx-auto object-contain transition-transform duration-300"
                                     />
                                 </div>
                                 <div className="p-3">
@@ -423,21 +360,12 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {/* Thêm CSS cho hiệu ứng slide-in */}
             <style>{`
-                @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                .animate-slide-in {
-                    animation: slideIn 0.3s ease-out;
-                }
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
             `}</style>
         </div>
     )

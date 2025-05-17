@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import { Link } from "react-router-dom";
+import api from '../services/api.js'; // Import instance axios từ api.js
 
 // Hàm debounce để giảm tần suất gọi hàm tìm kiếm
 const debounce = (func, delay) => {
@@ -15,38 +17,48 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [currentCategory, setCurrentCategory] = useState(selectedCategory);
     const [currentSort, setCurrentSort] = useState('default');
-    const [searchTerm, setSearchTerm] = useState(''); // State cho từ khóa tìm kiếm
-    const [priceRange, setPriceRange] = useState({ minPrice: '', maxPrice: '' }); // State cho khoảng giá
+    const [searchTerm, setSearchTerm] = useState('');
+    const [priceRange, setPriceRange] = useState({ minPrice: '', maxPrice: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [allProducts, setAllProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
 
+    // Lấy danh sách sản phẩm và danh mục từ backend
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product");
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu sản phẩm");
-                }
-                const data = await response.json();
-                const visibleProducts = data.filter(product => product.show === true);
+                
+                // Lấy danh mục
+                const categoriesResponse = await api.get('/products/categories');
+                setCategories(categoriesResponse.data);
+
+                // Lấy sản phẩm
+                const productsResponse = await api.get('/products', {
+                    params: {
+                        page: 0,
+                        size: 100,
+                        sort: 'productId,asc'
+                    }
+                });
+                const visibleProducts = productsResponse.data.content.filter(product => product.quantityInStock > 0);
                 setAllProducts(visibleProducts);
             } catch (err) {
-                setError(err.message);
+                setError(err.response?.data?.message || 'Không thể lấy dữ liệu');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProducts();
+        fetchData();
     }, []);
 
     useEffect(() => {
         setCurrentCategory(selectedCategory);
     }, [selectedCategory]);
 
-    // Tự động lọc sản phẩm khi các tiêu chí tìm kiếm thay đổi
+    // Lọc sản phẩm khi tiêu chí thay đổi
     useEffect(() => {
         filterProducts();
     }, [currentCategory, currentSort, searchTerm, priceRange, allProducts]);
@@ -54,7 +66,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
     const filterProducts = () => {
         let result = [...allProducts];
 
-        // Lọc theo từ khóa tìm kiếm (tên sản phẩm)
+        // Lọc theo từ khóa tìm kiếm
         if (searchTerm.trim()) {
             result = result.filter(product =>
                 product.productName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -87,7 +99,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                 result.sort((a, b) => a.productName.localeCompare(b.productName));
                 break;
             case 'nameZA':
-                result.sort((a, b) => b.productName.localeCompare(a.productName));
+                result.sort((a, b) => b.productName.localeCompare(b.productName));
                 break;
             default:
                 break;
@@ -96,7 +108,7 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         setFilteredProducts(result);
     };
 
-    // Debounce tìm kiếm theo tên để tránh gọi quá nhiều lần
+    // Debounce tìm kiếm
     const debouncedFilter = debounce(() => filterProducts(), 300);
 
     const handleSearchChange = (e) => {
@@ -146,7 +158,6 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                 <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
                     <h2 className="text-2xl font-semibold mb-3 md:mb-0">Sản phẩm nổi bật</h2>
                     <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-                        {/* Tìm kiếm theo tên */}
                         <input
                             type="text"
                             placeholder="Tìm kiếm sản phẩm..."
@@ -154,19 +165,18 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                             onChange={handleSearchChange}
                             className="border border-gray-300 rounded-md p-2 w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                         />
-                        {/* Lọc theo danh mục */}
                         <select
                             value={currentCategory}
                             onChange={handleCategoryChange}
                             className="border border-gray-300 rounded-md p-2 w-full md:w-auto"
                         >
                             <option value="all">Tất cả danh mục</option>
-                            <option value="kitchen">Nhà bếp</option>
-                            <option value="bathroom">Phòng tắm</option>
-                            <option value="bedroom">Phòng ngủ</option>
-                            <option value="livingroom">Phòng khách</option>
+                            {categories.map(category => (
+                                <option key={category.categoryId} value={category.categoryId}>
+                                    {category.categoryName}
+                                </option>
+                            ))}
                         </select>
-                        {/* Lọc theo khoảng giá */}
                         <div className="flex gap-2">
                             <input
                                 type="number"
@@ -187,7 +197,6 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                                 min="0"
                             />
                         </div>
-                        {/* Sắp xếp */}
                         <select
                             value={currentSort}
                             onChange={handleSortChange}
@@ -210,14 +219,11 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
                         </div>
                     ) : (
                         filteredProducts.map(product => (
-                            <div key={product.id} className="col relative">
-                                <Link to={`/product/${product.id}`} className="block">
-                                    {/* Vùng bị làm mờ */}
+                            <div key={product.productId} className="col relative">
+                                <Link to={`/product/${product.productId}`} className="block">
                                     <div className={`${product.quantityInStock === 0 ? 'opacity-50' : ''}`}>
                                         <ProductCard product={product} />
                                     </div>
-
-                                    {/* Dòng chữ nằm trên, không bị mờ */}
                                     {product.quantityInStock === 0 && (
                                         <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded">
                                             Hết hàng

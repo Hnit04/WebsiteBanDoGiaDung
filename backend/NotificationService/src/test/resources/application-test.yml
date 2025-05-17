@@ -1,0 +1,22 @@
+spring:
+  main:
+    banner-mode: off
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/test
+  mail:
+    host: localhost
+    port: 2525
+    username: test
+    password: test
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+notification:
+  service:
+    auth-token: test-token
+    default-email: test@example.com
+jwt:
+  secret: your-very-secure-secret-key-at-least-32-bytes-long

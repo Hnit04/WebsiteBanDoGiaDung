@@ -2,13 +2,22 @@ server:
   port: 8082
 
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: trancongtinh20042004@gmail.com
+    password: oksvfmqnejhnogey
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+      mail:
+        debug: true
   application:
     name: UserService
-
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://mongo:27017/userdb}
-
   rabbitmq:
     host: rabbitmq
     port: 5672
@@ -20,11 +29,9 @@ spring:
         enabled: true
         initial-interval: 2000ms
         max-attempts: 3
-
-  # Thêm cấu hình CORS
   web:
     cors:
-      allowed-origins: "http://localhost:5173"
+      allowed-origins: "http://localhost:5173,http://api-gateway:8080"
       allowed-methods: "*"
       allowed-headers: "*"
       allow-credentials: true
@@ -52,5 +59,9 @@ app:
     enabled: false
 
 jwt:
-  secret: your-secret-key-very-long-and-secure
-  expiration: 86400000
+  secret: bXktc2VjdXJlLWtleS1mb3Itand0LTMyLWJ5dGVzISE=
+  expiration: 2592000000 # 30 ngày (1000 * 60 * 60 * 24 * 30)
+logging:
+  level:
+    iuh.fit.userservice: DEBUG
+    org.springframework.security: DEBUG
