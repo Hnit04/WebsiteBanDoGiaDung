@@ -1,11 +1,10 @@
-// File: Header.jsx
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage, clearUserFromLocalStorage } from "../assets/js/userData"
 import debounce from "lodash/debounce"
-import api from "../services/api.js" // Sử dụng instance Axios
+import api from "../services/api.js"
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,6 +14,7 @@ const Header = () => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [user, setUser] = useState(null)
     const [cartCount, setCartCount] = useState(0)
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -45,7 +45,6 @@ const Header = () => {
         }
     }, [])
 
-    // Đóng user menu khi nhấp ra ngoài
     useEffect(() => {
         const handleClickOutside = (event) => {
             const userMenu = document.querySelector(".user-menu")
@@ -70,23 +69,20 @@ const Header = () => {
         }
     }, [isUserMenuOpen])
 
-    // Fetch cart count
     const fetchCartCount = async (email) => {
-            try {
-                const response = await api.get(`/carts/user/${email}`)
-                if (response.data && response.data.cartItems) {
-                    const totalItems = response.data.cartItems.length
-                    setCartCount(totalItems)
-                } else {
-                    setCartCount(0)
-                }
-            }catch{
+        try {
+            const response = await api.get(`/carts/user/${email}`)
+            if (response.data && response.data.cartItems) {
+                const totalItems = response.data.cartItems.length
+                setCartCount(totalItems)
+            } else {
                 setCartCount(0)
             }
-
+        } catch {
+            setCartCount(0)
+        }
     }
 
-    // Fetch product suggestions
     const fetchSuggestions = useCallback(
         debounce(async (query) => {
             if (!query.trim()) {
@@ -115,12 +111,17 @@ const Header = () => {
         fetchSuggestions(searchText)
     }, [searchText, fetchSuggestions])
 
-    const handleLogout = () => {
+    const handleLogoutConfirm = () => {
         clearUserFromLocalStorage()
         setUser(null)
         setIsLoggedIn(false)
         setCartCount(0)
+        setIsLogoutModalOpen(false)
         navigate("/login")
+    }
+
+    const handleLogoutClick = () => {
+        setIsLogoutModalOpen(true)
     }
 
     const toggleMenu = () => {
@@ -193,7 +194,6 @@ const Header = () => {
                         </button>
                     </form>
 
-                    {/* Suggestions dropdown */}
                     {suggestions.length > 0 && (
                         <ul className="absolute z-20 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
                             {suggestions.map((suggestion) => (
@@ -252,7 +252,7 @@ const Header = () => {
                                         Thông tin cá nhân
                                     </Link>
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={handleLogoutClick}
                                         className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
                                     >
                                         Đăng xuất
@@ -330,7 +330,7 @@ const Header = () => {
                                         Thông tin cá nhân
                                     </Link>
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={handleLogoutClick}
                                         className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
                                     >
                                         Đăng xuất
@@ -339,6 +339,30 @@ const Header = () => {
                             )}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Logout Confirmation Modal */}
+            {isLogoutModalOpen && (
+                <div className="fixed w-screen inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+                        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Xác nhận đăng xuất</h2>
+                        <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?</p>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setIsLogoutModalOpen(false)}
+                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleLogoutConfirm}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none"
+                            >
+                                Đăng xuất
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </header>

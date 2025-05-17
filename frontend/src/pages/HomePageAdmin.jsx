@@ -364,17 +364,17 @@ const HomePageAdmin = () => {
             icon: <ShoppingBag className="h-4 w-4" />,
             title: "Đơn hàng mới",
             description: `Từ khách hàng ${
-                users.find((u) => u.userId === orders[orders.length - 1]?.userId)?.username ||
+                users.find((u) => u.email === orders[orders.length - 1]?.userId)?.username ||
                 "Nguyễn Văn A"
             }`,
-            time: "15 phút trước",
+            time: "5 phút trước",
             color: "text-green-600 bg-green-100",
         },
         {
             icon: <Users className="h-4 w-4" />,
             title: "Khách hàng mới đăng ký",
             description: customers[customers.length - 1]?.username || "Trần Thị B",
-            time: "1 giờ trước",
+            time: "7 phút trước",
             color: "text-purple-600 bg-purple-100",
         },
     ]
