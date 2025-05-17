@@ -1,10 +1,9 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
+import api from "../services/api.js" // Sử dụng instance Axios
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingCart, CheckCircle, AlertTriangle, X } from "lucide-react"
-import api from "../services/api.js" // Nhập instance Axios từ api.js
 
 const ProductDetailPage = () => {
     const { id } = useParams()
@@ -17,38 +16,23 @@ const ProductDetailPage = () => {
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
-    // Lấy user ID từ localStorage (giả định dữ liệu user là JSON)
     const user = JSON.parse(localStorage.getItem("user") || "{}")
-    const userId = user?.id && user.id.toString().trim() !== "" ? user.id.toString() : null
+    const userId = user?.email || null
 
-    // Debug userId
-    useEffect(() => {
-        if (!userId) {
-            console.log("Không tìm thấy userId. Người dùng chưa đăng nhập hoặc dữ liệu localStorage không hợp lệ.")
-        } else {
-            console.log("userId hiện tại:", userId)
-        }
-    }, [userId])
-
-    // Lấy chi tiết sản phẩm và sản phẩm tương tự
     useEffect(() => {
         const fetchProductData = async () => {
             try {
                 setLoading(true)
-                // Lấy sản phẩm theo ID
                 const productResponse = await api.get(`/products/${id}`)
                 const productData = productResponse.data
                 setProduct(productData)
 
-                // Lấy sản phẩm tương tự (cùng danh mục, loại trừ sản phẩm hiện tại)
                 const similarResponse = await api.get("/products", {
-                    params: {
-                        categoryId: productData.categoryId,
-                        size: 100, // Điều chỉnh nếu cần
-                    },
+                    params: { categoryId: productData.categoryId, size: 100 },
                 })
-                const similarProductsData = similarResponse.data.content
-                    .filter((item) => item.productId !== id && item.quantityInStock > 0)
+                const similarProductsData = similarResponse.data.content.filter(
+                    (item) => item.productId !== id && item.quantityInStock > 0
+                )
                 setSimilarProducts(similarProductsData)
             } catch (err) {
                 console.error("Lỗi khi lấy dữ liệu sản phẩm:", err)
@@ -61,7 +45,6 @@ const ProductDetailPage = () => {
         fetchProductData()
     }, [id])
 
-    // Kiểm tra sản phẩm có trong giỏ hàng không
     const [isInCart, setIsInCart] = useState(false)
     const [cartItemId, setCartItemId] = useState(null)
     const [cartQuantity, setCartQuantity] = useState(0)
@@ -71,14 +54,11 @@ const ProductDetailPage = () => {
             if (!userId || !product) return
 
             try {
-                // Giả định có endpoint /api/cart
-                const response = await api.get(`/cart?userId=${userId}`)
-                const cartData = response.data
-                const cartItem = cartData.find((item) => item.productId === id)
-
+                const response = await api.get(`/carts/user/${userId}`)
+                const cartItem = response.data.cartItems.find((item) => item.productId === id)
                 if (cartItem) {
                     setIsInCart(true)
-                    setCartItemId(cartItem.id)
+                    setCartItemId(cartItem.cartItemId)
                     setCartQuantity(cartItem.quantity)
                 } else {
                     setIsInCart(false)
@@ -93,7 +73,6 @@ const ProductDetailPage = () => {
         checkCartStatus()
     }, [userId, id, product])
 
-    // Xử lý trạng thái đang tải
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center h-[50vh] bg-gradient-to-b from-blue-50 to-gray-100">
@@ -103,7 +82,6 @@ const ProductDetailPage = () => {
         )
     }
 
-    // Xử lý lỗi hoặc sản phẩm không tồn tại
     if (error || !product) {
         return (
             <div className="flex flex-col items-center justify-center h-[50vh] bg-gradient-to-b from-blue-50 to-gray-100">
@@ -119,7 +97,6 @@ const ProductDetailPage = () => {
         )
     }
 
-    // Xử lý thay đổi số lượng
     const decreaseQuantity = () => {
         if (quantity > 1) setQuantity(quantity - 1)
     }
@@ -128,15 +105,11 @@ const ProductDetailPage = () => {
         if (quantity < product.quantityInStock) setQuantity(quantity + 1)
     }
 
-    // Hiển thị thông báo
     const showNotification = (type, message) => {
         setNotification({ type, message })
-        setTimeout(() => {
-            setNotification(null)
-        }, 3000)
+        setTimeout(() => setNotification(null), 3000)
     }
 
-    // Xử lý thêm vào giỏ hàng
     const handleAddToCart = async () => {
         if (!userId) {
             navigate("/login")
@@ -145,26 +118,16 @@ const ProductDetailPage = () => {
 
         try {
             setIsAddingToCart(true)
-
             if (isInCart && cartItemId) {
-                // Cập nhật mục giỏ hàng hiện có
                 const newQuantity = cartQuantity + quantity
-                await api.put(`/cart/${cartItemId}`, { quantity: newQuantity })
-
+                await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
                 setCartQuantity(newQuantity)
                 showNotification("success", `Đã cập nhật số lượng "${product.productName}" trong giỏ hàng!`)
             } else {
-                // Thêm mục giỏ hàng mới
-                const payload = {
-                    userId: userId,
-                    productId: id,
-                    quantity: quantity,
-                }
-                const response = await api.post("/cart", payload)
-                const responseData = response.data
-
+                const payload = { userId, productId: id, quantity }
+                const response = await api.post("/carts/items", payload)
                 setIsInCart(true)
-                setCartItemId(responseData.id)
+                setCartItemId(response.data.cartItems[0].cartItemId)
                 setCartQuantity(quantity)
                 showNotification("success", `Đã thêm ${quantity} "${product.productName}" vào giỏ hàng!`)
                 window.dispatchEvent(new Event("cartUpdated"))
@@ -177,7 +140,6 @@ const ProductDetailPage = () => {
         }
     }
 
-    // Xử lý mua ngay
     const handleBuyNow = async () => {
         if (!userId) {
             navigate("/login")
@@ -187,21 +149,13 @@ const ProductDetailPage = () => {
         try {
             setIsAddingToCart(true)
             let itemId = cartItemId
-
             if (!isInCart) {
-                // Thêm vào giỏ hàng
-                const payload = {
-                    userId: userId,
-                    productId: id,
-                    quantity: quantity,
-                }
-                const response = await api.post("/cart", payload)
-                itemId = response.data.id
+                const payload = { userId, productId: id, quantity }
+                const response = await api.post("/carts/items", payload)
+                itemId = response.data.cartItems[0].cartItemId
             } else if (cartItemId) {
-                // Cập nhật giỏ hàng
-                await api.put(`/cart/${cartItemId}`, { quantity: quantity })
+                await api.put(`/carts/items/${cartItemId}`, { quantity })
             }
-
             navigate(`/checkout?items=${itemId}`)
         } catch (error) {
             console.error("Lỗi khi xử lý mua ngay:", error)
@@ -211,7 +165,6 @@ const ProductDetailPage = () => {
         }
     }
 
-    // Xử lý nhấp vào sản phẩm tương tự
     const handleSimilarProductClick = (productId) => {
         window.scrollTo({ top: 0, behavior: "smooth" })
         navigate(`/product/${productId}`)
@@ -219,14 +172,13 @@ const ProductDetailPage = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-blue-50 to-gray-100">
-            {/* Thông báo */}
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
-    notification.type === "success"
-        ? "bg-green-100 text-green-800 border border-green-300"
-        : "bg-red-100 text-red-800 border border-red-300"
-} animate-slide-in`}
+                        notification.type === "success"
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-red-100 text-red-800 border border-red-300"
+                    } animate-slide-in`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -242,7 +194,6 @@ const ProductDetailPage = () => {
                 </div>
             )}
 
-            {/* Breadcrumb */}
             <nav className="flex items-center text-sm text-gray-600 mb-6 bg-white py-3 px-4 rounded-lg shadow-sm">
                 <Link to="/" className="hover:text-indigo-600 transition-colors font-medium">
                     Trang chủ
@@ -256,7 +207,6 @@ const ProductDetailPage = () => {
             </nav>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
-                {/* Hình ảnh sản phẩm */}
                 <div className="space-y-4">
                     <div className="relative overflow-hidden rounded-xl bg-white shadow-lg">
                         <img
@@ -272,7 +222,6 @@ const ProductDetailPage = () => {
                     </div>
                 </div>
 
-                {/* Chi tiết sản phẩm */}
                 <div className="space-y-6 bg-white p-6 rounded-xl shadow-lg">
                     <div>
                         <h1 className="text-4xl font-extrabold text-gray-900 leading-tight">{product.productName}</h1>
@@ -380,7 +329,6 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {/* Sản phẩm tương tự */}
             <div className="space-y-6">
                 <h2 className="text-3xl font-bold text-gray-900">Sản phẩm tương tự</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -412,22 +360,13 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {/* CSS cho hiệu ứng slide-in */}
             <style>{`
 @keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
-.animate-slide-in {
-    animation: slideIn 0.3s ease-out;
-}
-    `}</style>
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
+            `}</style>
         </div>
     )
 }

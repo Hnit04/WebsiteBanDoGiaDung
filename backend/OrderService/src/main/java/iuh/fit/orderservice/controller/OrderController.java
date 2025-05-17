@@ -106,4 +106,14 @@ public class OrderController {
         logger.info("Order detail added for orderId {}: {}", orderId, orderResponse);
         return ResponseEntity.status(201).body(orderResponse);
     }
+    @GetMapping("/all/user/{userId}")
+    public ResponseEntity<List<OrderResponse>> getAllOrdersByUserId(@PathVariable String userId) {
+        logger.debug("Received GET request to /api/orders/all/user/{} for userId: {}", userId, userId);
+        List<Order> orders = orderService.getAllOrdersByUserId(userId);
+        List<OrderResponse> responses = orders.stream()
+                .map(orderService::toOrderResponse)
+                .collect(Collectors.toList());
+        logger.info("Retrieved {} orders for userId: {}", responses.size(), userId);
+        return ResponseEntity.ok(responses);
+    }
 }

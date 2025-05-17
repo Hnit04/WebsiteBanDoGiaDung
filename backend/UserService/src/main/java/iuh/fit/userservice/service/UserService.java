@@ -7,55 +7,103 @@ import iuh.fit.userservice.dto.response.UserResponse;
 import iuh.fit.userservice.mapper.UserMapper;
 import iuh.fit.userservice.model.Role;
 import iuh.fit.userservice.model.User;
+import iuh.fit.userservice.model.VerificationCode;
 import iuh.fit.userservice.repository.UserRepository;
+import iuh.fit.userservice.repository.VerificationCodeRepository;
 import iuh.fit.userservice.util.JwtUtil;
+import jakarta.mail.internet.MimeMessage;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
     private final UserMapper userMapper;
     private final RabbitTemplate rabbitTemplate;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final JavaMailSender mailSender;
 
     public UserService(UserRepository userRepository,
+                       VerificationCodeRepository verificationCodeRepository,
                        UserMapper userMapper,
                        RabbitTemplate rabbitTemplate,
                        PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil) {
+                       JwtUtil jwtUtil,
+                       JavaMailSender mailSender) {
         this.userRepository = userRepository;
+        this.verificationCodeRepository = verificationCodeRepository;
         this.userMapper = userMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.mailSender = mailSender;
     }
 
     @Transactional
-    public UserResponse createUser(CreateUserRequest request) {
-        logger.info("Creating user with email: {}", request.getEmail());
+    public Map<String, Object> createUser(CreateUserRequest request) {
+        logger.info("Processing user creation request for email: {}", request.getEmail());
 
-        // Validate email exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             logger.warn("Email already exists: {}", request.getEmail());
             throw new IllegalArgumentException("Email already exists");
         }
 
-        // Validate password strength
         validatePassword(request.getPassword());
 
+        // Generate 6-digit verification code
+        String verificationCode = String.format("%06d", new Random().nextInt(999999));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiresAt = now.plusMinutes(10); // Code expires in 10 minutes
+
+        // Save verification code
+        verificationCodeRepository.deleteByEmail(request.getEmail()); // Remove old codes
+        VerificationCode code = new VerificationCode(request.getEmail(), verificationCode, now, expiresAt);
+        verificationCodeRepository.save(code);
+
+        // Send verification email
+        sendVerificationEmail(request.getEmail(), verificationCode);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Verification code sent to " + request.getEmail());
+        response.put("email", request.getEmail());
+        return response;
+    }
+
+    @Transactional
+    public Map<String, Object> verifyCodeAndCreateUser(String email, String code, CreateUserRequest request) {
+        logger.info("Verifying code for email: {}", email);
+
+        VerificationCode verificationCode = verificationCodeRepository.findByEmailAndCode(email, code)
+                .orElseThrow(() -> {
+                    logger.warn("Invalid or expired verification code for email: {}", email);
+                    return new IllegalArgumentException("Invalid or expired verification code");
+                });
+
+        if (verificationCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            verificationCodeRepository.deleteByEmail(email);
+            logger.warn("Verification code expired for email: {}", email);
+            throw new IllegalArgumentException("Verification code expired");
+        }
+
+        // Proceed with user creation
         try {
             User user = new User();
             user.setUsername(request.getUsername());
@@ -64,22 +112,73 @@ public class UserService {
             user.setPhone(request.getPhone());
             user.setAddress(request.getAddress());
 
-            // Map String role to Role enum
             if (request.getRole() != null) {
                 user.setRole(Role.valueOf(request.getRole()));
+            } else {
+                user.setRole(Role.CUSTOMER);
             }
 
             User savedUser = userRepository.save(user);
             logger.info("User created successfully with ID: {}", savedUser.getUserId());
 
+            String tokenRole = "ROLE_" + savedUser.getRole().name();
+            String token = jwtUtil.generateToken(savedUser.getEmail(), tokenRole, savedUser.getUserId());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", userMapper.toUserResponse(savedUser));
+            response.put("token", token);
+
+            // Clean up verification code
+            verificationCodeRepository.deleteByEmail(email);
+
             sendWelcomeNotification(savedUser);
-            return userMapper.toUserResponse(savedUser);
+            return response;
         } catch (org.springframework.dao.DuplicateKeyException e) {
             logger.warn("Email already exists: {}", request.getEmail());
             throw new IllegalArgumentException("Email already exists");
         } catch (IllegalArgumentException e) {
             logger.warn("Invalid role value: {}", request.getRole());
-            throw new IllegalArgumentException("Invalid role value: " + request.getRole());
+            throw new IllegalArgumentException("Role must be either CUSTOMER or ADMIN");
+        }
+    }
+
+    private void sendVerificationEmail(String email, String code) {
+        try {
+            // Kiểm tra email và code
+            if (email == null || email.contains("\"") || code == null || code.contains("\"")) {
+                logger.error("Invalid email or code: email={}, code={}", email, code);
+                throw new IllegalArgumentException("Invalid email or code");
+            }
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom("trancongtinh20042004@gmail.com", "Bán Đồ Gia Dụng");
+            helper.setTo(email);
+            helper.setReplyTo("trancongtinh20042004@gmail.com");
+            helper.setSubject("Xác nhận đăng ký tài khoản");
+
+            // Escape code để tránh lỗi
+            String safeCode = StringEscapeUtils.escapeHtml4(code);
+            String htmlContent = """
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0;">
+                <h2 style="color: #333;">Bán Đồ Gia Dụng</h2>
+                <h3 style="color: #555;">Xác nhận đăng ký tài khoản</h3>
+                <p>Cảm ơn bạn đã đăng ký tài khoản tại Bán Đồ Gia Dụng.</p>
+                <p>Mã xác nhận của bạn là:</p>
+                <h2 style="color: #007bff;">%s</h2>
+                <p>Vui lòng nhập mã này để hoàn tất đăng ký. Mã có hiệu lực trong 10 phút.</p>
+                <p>Nếu bạn không thực hiện đăng ký, vui lòng bỏ qua email này.<br>
+                   Liên hệ hỗ trợ qua <a href="mailto:trancongtinh20042004@gmail.com">trancongtinh20042004@gmail.com</a>.</p>
+                <p style="color: #777; font-size: 12px;">© 2025 Bán Đồ Gia Dụng. All rights reserved.</p>
+            </div>
+        """.formatted(safeCode);
+
+            helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
+            logger.info("Verification email sent to: {}", email);
+        } catch (Exception e) {
+            logger.error("Failed to send verification email to {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to send verification email", e);
         }
     }
 
@@ -123,7 +222,7 @@ public class UserService {
                 user.setRole(Role.valueOf(request.getRole()));
             } catch (IllegalArgumentException e) {
                 logger.warn("Invalid role value: {}", request.getRole());
-                throw new IllegalArgumentException("Invalid role value: " + request.getRole());
+                throw new IllegalArgumentException("Role must be either CUSTOMER or ADMIN");
             }
         }
 
@@ -164,30 +263,25 @@ public class UserService {
             logger.info("Sent welcome notification for user: {}", user.getUserId());
         } catch (Exception e) {
             logger.error("Failed to send welcome notification: {}", e.getMessage());
-            // Continue without notification
         }
     }
 
     public Map<String, Object> login(String email, String password) {
         logger.info("Attempting login for email: {}", email);
 
-        // Tìm người dùng theo email
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     logger.warn("Email not found: {}", email);
                     return new RuntimeException("Invalid email or password");
                 });
 
-        // Kiểm tra mật khẩu
         if (!passwordEncoder.matches(password, user.getPassword())) {
             logger.warn("Invalid password for email: {}", email);
             throw new RuntimeException("Invalid email or password");
         }
 
-        // Tạo token
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-
-        // Trả về thông tin người dùng và token
+        String tokenRole = "ROLE_" + user.getRole().name();
+        String token = jwtUtil.generateToken(user.getEmail(), tokenRole, user.getUserId());
         Map<String, Object> response = new HashMap<>();
         response.put("user", userMapper.toUserResponse(user));
         response.put("token", token);

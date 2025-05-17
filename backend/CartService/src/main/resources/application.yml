@@ -1,11 +1,10 @@
 server:
-  port: ${PORT:8084}
+  port: 8084
 
 spring:
   application:
     name: CartService
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+
   data:
     mongodb:
       uri: ${MONGODB_URI}
@@ -22,19 +21,6 @@ spring:
         multiplier: 1.5
     publisher-confirm-type: correlated
     publisher-returns: true
-#    host: rabbitmq
-#    port: 5672
-#    username: guest
-#    password: guest
-#    template:
-#      retry:
-#        enabled: true
-#        initial-interval: 2000ms
-#        max-attempts: 3
-#        multiplier: 1.5
-#    publisher-confirm-type: correlated
-#    publisher-returns: true
-
 
 eureka:
   client:

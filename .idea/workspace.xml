@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="178abc95-661e-4ae2-a30d-4ead9726e36c" name="Changes" comment="update sale, dashboard admin">
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/CheckoutPage.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ProfilePage.jsx" afterDir="false" />
+    <list default="true" id="178abc95-661e-4ae2-a30d-4ead9726e36c" name="Changes" comment="update info">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules/UserService.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CartPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CartPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePageAdmin.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePageAdmin.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/LoginPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/LoginPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/OrderService/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/backend/OrderService/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,36 +77,6 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="api-gateway" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="api-gateway" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="api-gateway" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="CartService" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="CartService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="CartService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="NotificationService" type="f1a62948:ProjectNode" />
               </path>
               <path>
@@ -121,71 +87,6 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="NotificationService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="OrderService" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="OrderService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="OrderService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PaymentService" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PaymentService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PaymentService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PaymentService" type="f1a62948:ProjectNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="ProductService" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="ProductService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="ProductService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PromotionService" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PromotionService" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="PromotionService" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
@@ -238,8 +139,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Hnit04/WebsiteBanDoGiaDung&quot;,
-    &quot;accountId&quot;: &quot;83dbef45-05c2-4a4d-81cc-9355ddd94f31&quot;
+    &quot;url&quot;: &quot;https://github.com/Hnit04/WebsiteBanDoGiaDung.git&quot;,
+    &quot;accountId&quot;: &quot;350f1583-e444-445f-b980-b121f1ec7d74&quot;
   }
 }</component>
   <component name="IlluminatedCloudWorkspaceSettings">
@@ -275,61 +176,63 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ProductServiceApplication (1).executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build CartService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build NotificationService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build OrderService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build ProductService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build UserService.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build api-gateway.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.CartService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.NotificationService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.OrderService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.PaymentService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.ProductService [:iuh.fit.productservice.ProductServiceApplication.main()].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.ProductService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.PromotionService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.UserService [:iuh.fit.userservice.UserServiceApplication.main()].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.UserService [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.UserService [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.api-gateway [:iuh.fit.apigateway.ApiGatewayApplication.main()].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.api-gateway [build].executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.CartServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.NotificationServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.OrderServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.ProductServiceApplication (1).executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;TranNgocHung&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;F:/TranNgocHung/HK2 2024-2025/Phat Trien Giao Dien/ThucHanh/Week01/WebsiteBanDoGiaDung&quot;,
-
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ProductServiceApplication (1).executor": "Run",
+    "Gradle.Build CartService.executor": "Run",
+    "Gradle.Build NotificationService.executor": "Run",
+    "Gradle.Build OrderService.executor": "Run",
+    "Gradle.Build ProductService.executor": "Run",
+    "Gradle.Build UserService.executor": "Run",
+    "Gradle.Build api-gateway.executor": "Run",
+    "Gradle.CartService [build].executor": "Run",
+    "Gradle.NotificationService [build].executor": "Run",
+    "Gradle.NotificationService [clean].executor": "Run",
+    "Gradle.OrderService [build].executor": "Run",
+    "Gradle.OrderService [clean].executor": "Run",
+    "Gradle.PaymentService [build].executor": "Run",
+    "Gradle.ProductService [:iuh.fit.productservice.ProductServiceApplication.main()].executor": "Run",
+    "Gradle.ProductService [build].executor": "Run",
+    "Gradle.PromotionService [build].executor": "Run",
+    "Gradle.UserService [:iuh.fit.userservice.UserServiceApplication.main()].executor": "Run",
+    "Gradle.UserService [build].executor": "Run",
+    "Gradle.UserService [clean].executor": "Run",
+    "Gradle.api-gateway [:iuh.fit.apigateway.ApiGatewayApplication.main()].executor": "Run",
+    "Gradle.api-gateway [build].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.CartServiceApplication.executor": "Run",
+    "Spring Boot.NotificationServiceApplication.executor": "Run",
+    "Spring Boot.OrderServiceApplication.executor": "Run",
+    "Spring Boot.ProductServiceApplication (1).executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
+    "git-widget-placeholder": "<unknown>",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Tinh/Documents/GitHub/WebsiteBanDoGiaDung/backend/NotificationService/src/test",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.5\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Tinh\Documents\GitHub\WebsiteBanDoGiaDung\backend\NotificationService\src\test" />
       <recent name="F:\TranNgocHung\HK2 2024-2025\Phat Trien Giao Dien\ThucHanh\Week01\WebsiteBanDoGiaDung" />
       <recent name="C:\Users\PC\OneDrive\Tài liệu\GitHub\WebsiteBanDoGiaDung\backend" />
     </key>
@@ -348,10 +251,10 @@
     </option>
   </component>
   <component name="RunManager" selected="Gradle.UserService [build]">
-    <configuration name="PaymentService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="NotificationService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/PaymentService" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/NotificationService" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -366,15 +269,14 @@
       </ExternalSystemSettings>
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
       <DebugAllEnabled>false</DebugAllEnabled>
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="ProductService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="NotificationService [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/ProductService" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/NotificationService" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -382,22 +284,21 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
       <DebugAllEnabled>false</DebugAllEnabled>
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="PromotionService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="OrderService [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/PromotionService" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/backend/OrderService" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -412,7 +313,6 @@
       </ExternalSystemSettings>
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <EXTENSION ID="com.haulmont.jmixstudio.runconfiguration.JmixRunConfigurationExtension" isNew="true" />
       <DebugAllEnabled>false</DebugAllEnabled>
       <RunAsTest>false</RunAsTest>
       <method v="2" />
@@ -529,17 +429,17 @@
       <list>
         <item itemvalue="Gradle.UserService [build]" />
         <item itemvalue="Gradle.UserService [clean]" />
-        <item itemvalue="Gradle.PromotionService [build]" />
-        <item itemvalue="Gradle.ProductService [build]" />
-        <item itemvalue="Gradle.PaymentService [build]" />
+        <item itemvalue="Gradle.NotificationService [build]" />
+        <item itemvalue="Gradle.NotificationService [clean]" />
+        <item itemvalue="Gradle.OrderService [build]" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
-        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
       </set>
     </attachedChunks>
   </component>
@@ -575,6 +475,9 @@
       <workItem from="1745997688098" duration="546000" />
       <workItem from="1747135339979" duration="9309000" />
       <workItem from="1747199991890" duration="311000" />
+      <workItem from="1747296000854" duration="12885000" />
+      <workItem from="1747321799374" duration="4893000" />
+      <workItem from="1747362092310" duration="3411000" />
     </task>
     <task id="LOCAL-00001" summary="comit">
       <option name="closed" value="true" />
@@ -632,7 +535,31 @@
       <option name="project" value="LOCAL" />
       <updated>1747135886297</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="commit frontend Product">
+      <option name="closed" value="true" />
+      <created>1747298215399</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1747298215399</updated>
+    </task>
+    <task id="LOCAL-00009" summary="update user-service, login, resgiter">
+      <option name="closed" value="true" />
+      <created>1747304760371</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1747304760371</updated>
+    </task>
+    <task id="LOCAL-00010" summary="update info">
+      <option name="closed" value="true" />
+      <created>1747308952612</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1747308952612</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -644,6 +571,9 @@
     <MESSAGE value="commit resolve conflict" />
     <MESSAGE value="update login, logout, addToCart, updateCart, deleteCart" />
     <MESSAGE value="update sale, dashboard admin" />
-    <option name="LAST_COMMIT_MESSAGE" value="update sale, dashboard admin" />
+    <MESSAGE value="commit frontend Product" />
+    <MESSAGE value="update user-service, login, resgiter" />
+    <MESSAGE value="update info" />
+    <option name="LAST_COMMIT_MESSAGE" value="update info" />
   </component>
 </project>

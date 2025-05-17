@@ -247,7 +247,7 @@ const Header = () => {
                                 onClick={toggleUserMenu}
                                 className="py-2 font-medium hover:text-blue-600 focus:outline-none user-menu-button"
                             >
-                                {user.fullName}
+                                {user.username}
                             </button>
                             {isUserMenuOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20 user-menu">
@@ -325,7 +325,7 @@ const Header = () => {
                                 onClick={toggleUserMenu}
                                 className="block w-full text-left px-4 py-2 text-gray-900 hover:bg-gray-100 focus:outline-none user-menu-button"
                             >
-                                {user.fullName}
+                                {user.username}
                             </button>
                             {isUserMenuOpen && (
                                 <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20 user-menu">
