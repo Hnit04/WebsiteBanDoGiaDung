@@ -15,7 +15,7 @@ const ProfilePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
-    const [oldPassword, setOldPassword] = useState("");
+    const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,6 +25,14 @@ const ProfilePage = () => {
     const [address, setAddress] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
+    const formatPhoneNumber = (phone) => {
+        if (!phone) return '';
+        // Remove +84 and ensure leading 0
+        let formatted = phone.replace(/^\+84/, '0');
+        // Remove any non-digit characters (in case there are spaces or dashes)
+        formatted = formatted.replace(/\D/g, '');
+        return formatted;
+    };
 
     const getStatusBadgeColor = (status) => {
         switch (status) {
@@ -150,10 +158,11 @@ const ProfilePage = () => {
         try {
             setIsSubmitting(true);
             const payload = {
-                username,
-                email,
-                phone: phone || null,
-                address: address || null,
+                username: user.username,
+                email: user.email,
+                password: user.password,
+                phone: user.phone,
+                address: user.address,
                 role: user.role,
             };
             const response = await api.put(`/users/${user.userId}`, payload);
@@ -171,7 +180,7 @@ const ProfilePage = () => {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
-        if (!newPassword || !confirmPassword) {
+        if (!currentPassword || !newPassword || !confirmPassword) {
             showNotification("error", "Vui lòng điền đầy đủ các trường");
             return;
         }
@@ -186,6 +195,18 @@ const ProfilePage = () => {
 
         try {
             setIsSubmitting(true);
+
+            // Verify current password
+            const verifyResponse = await api.post('/users/login', {
+                email: user.email,
+                password: currentPassword
+            });
+
+            if (!verifyResponse.data || verifyResponse.status !== 200) {
+                throw new Error("Mật khẩu hiện tại không đúng");
+            }
+
+            // Proceed with password change
             const payload = {
                 username: user.username,
                 email: user.email,
@@ -196,12 +217,12 @@ const ProfilePage = () => {
             };
             await api.put(`/users/${user.userId}`, payload);
             showNotification("success", "Đổi mật khẩu thành công");
-            setOldPassword("");
+            setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
         } catch (err) {
             console.error("Error changing password:", err);
-            showNotification("error", err.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng thử lại.");
+            showNotification("error", err.response?.data?.message || err.message || "Không thể đổi mật khẩu. Vui lòng thử lại.");
         } finally {
             setIsSubmitting(false);
         }
@@ -259,7 +280,7 @@ const ProfilePage = () => {
         .invoice-total-row .value { width: 150px; text-align: right; }
         .invoice-total-row.final { font-weight: bold; font-size: 1.2em; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; color: #4338ca; }
         .invoice-footer { margin-top: 50px; text-align: center; color: #666; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 20px; }
-        .close-btn { margin-top: 20px; text-align: center; }
+        .close-btn { margin-top: 20px text-align: center; }
         .close-btn button { padding: 10px 20px; background-color: #4338ca; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .close-btn button:hover { background-color: #3730a3; }
         @media print { .close-btn { display: none; } }
@@ -400,7 +421,7 @@ const ProfilePage = () => {
         <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
             {notification && (
                 <div
-                    className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
+                    className={`fixed top-20 mt-9 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
                         notification.type === "success"
                             ? "bg-green-100 text-green-800 border border-green-300"
                             : "bg-red-100 text-red-800 border border-red-300"
@@ -473,7 +494,7 @@ const ProfilePage = () => {
                                             <label className="block font-semibold text-gray-700">Số điện thoại</label>
                                             <input
                                                 type="tel"
-                                                value={phone}
+                                                value={formatPhoneNumber(phone)}
                                                 onChange={(e) => setPhone(e.target.value)}
                                                 placeholder="Số điện thoại"
                                                 className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
@@ -582,6 +603,18 @@ const ProfilePage = () => {
                                 <div>
                                     <h2 className="text-2xl font-semibold text-gray-800 mb-6">Thay đổi mật khẩu</h2>
                                     <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
+                                        <div>
+                                            <label htmlFor="currentPassword" className="block font-semibold text-gray-700">
+                                                Mật khẩu hiện tại
+                                            </label>
+                                            <input
+                                                type="password"
+                                                id="currentPassword"
+                                                value={currentPassword}
+                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                            />
+                                        </div>
                                         <div>
                                             <label htmlFor="newPassword" className="block font-semibold text-gray-700">
                                                 Mật khẩu mới
