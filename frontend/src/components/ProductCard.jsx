@@ -27,7 +27,7 @@ const ProductCard = ({ product }) => {
 
                 <div className="flex items-center justify-between">
                     <span className="font-bold text-blue-600">
-                        {formatPrice(product.salePrice)}
+                        {formatPrice(product.originalPrice)}
                     </span>
                 </div>
             </div>

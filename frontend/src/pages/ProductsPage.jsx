@@ -83,17 +83,17 @@ const ProductsPage = ({ onProductClick, selectedCategory = 'all' }) => {
         const maxPrice = priceRange.maxPrice ? parseFloat(priceRange.maxPrice) : Infinity;
         if (priceRange.minPrice || priceRange.maxPrice) {
             result = result.filter(product =>
-                product.salePrice >= minPrice && product.salePrice <= maxPrice
+                product.originalPrice >= minPrice && product.originalPrice <= maxPrice
             );
         }
 
         // Sắp xếp
         switch (currentSort) {
             case 'priceLow':
-                result.sort((a, b) => a.salePrice - b.salePrice);
+                result.sort((a, b) => a.originalPrice - b.originalPrice);
                 break;
             case 'priceHigh':
-                result.sort((a, b) => b.salePrice - a.salePrice);
+                result.sort((a, b) => b.originalPrice - a.originalPrice);
                 break;
             case 'nameAZ':
                 result.sort((a, b) => a.productName.localeCompare(b.productName));

@@ -1,16 +1,40 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { BarChart3, Calendar, HelpCircle, Layers, LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Truck, Users, X } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { BarChart3, HelpCircle, Layers, LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Truck, Users, X } from 'lucide-react';
+import { getUserFromLocalStorage } from "../assets/js/userData";
+import api from "../services/api";
 
-const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
-    const [activeLink, setActiveLink] = useState("/admin"); // State để theo dõi link active, mặc định là "/admin"
-    const getrole = (role) => {
+const MenuAdmin = ({ user: propUser, isSidebarOpen, toggleSidebar, handleLogout }) => {
+    const [activeLink, setActiveLink] = useState("/admin");
+    const [user, setUser] = useState(propUser);
+    const navigate = useNavigate();
+
+    const getRole = (role) => {
         switch (role) {
-            case "customer": return "Khách hàng"
-            case "admin": return "Quản lý"
-            default: return role
+            case "CUSTOMER": return "Khách hàng";
+            case "ADMIN": return "Quản lý";
+            default: return role || "Không xác định";
         }
-    }
+    };
+
+    useEffect(() => {
+        console.log("MenuAdmin - propUser:", propUser); // Debug
+        if (propUser) {
+            setUser(propUser);
+            return;
+        }
+
+        const storedUser = getUserFromLocalStorage();
+        console.log("MenuAdmin - storedUser:", storedUser); // Debug
+        if (!storedUser?.userId) {
+            console.warn("No valid user found, redirecting to login");
+            navigate("/login", { replace: true });
+            return;
+        }
+
+        setUser(storedUser);
+    }, [propUser, navigate]);
+
     return (
         <div
             className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
@@ -18,7 +42,6 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
             } lg:relative lg:translate-x-0`}
         >
             <div className="flex h-full flex-col">
-                {/* Logo and Close Button */}
                 <div className="flex h-16 items-center justify-between border-b px-4">
                     <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
@@ -34,7 +57,6 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
                     </button>
                 </div>
 
-                {/* Navigation Menu */}
                 <div className="flex-1 overflow-auto py-4">
                     <nav className="space-y-1 px-2">
                         <p className="px-3 text-xs font-semibold uppercase text-gray-500">Tổng quan</p>
@@ -123,35 +145,36 @@ const MenuAdmin = ({ user, isSidebarOpen, toggleSidebar, handleLogout }) => {
                     </nav>
                 </div>
 
-                {/* User Info (Existing Footer) */}
-                {user && (
-                    <Link
-                        to="/admin/profile">
+                {user ? (
+                    <Link to="/admin/profile">
                         <div className="border-t p-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                    <span className="font-medium text-blue-600">{user.username.charAt(0)}</span>
+                                    <span className="font-medium text-blue-600">{user.username?.charAt(0) || "U"}</span>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium">{user.username}</p>
-                                    <p className="text-xs text-gray-500">{getrole(user.role)}</p>
+                                    <p className="text-sm font-medium">{user.username || "Người dùng"}</p>
+                                    <p className="text-xs text-gray-500">{getRole(user.role)}</p>
                                 </div>
                                 <div className="ml-auto">
                                     <button
                                         onClick={handleLogout}
                                         className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
                                     >
-                                        <LogOut className="h-4 w-4"/>
+                                        <LogOut className="h-4 w-4" />
                                     </button>
                                 </div>
                             </div>
                         </div>
-
                     </Link>
+                ) : (
+                    <div className="border-t p-4">
+                        <p className="text-sm text-gray-500">Đang tải thông tin người dùng...</p>
+                    </div>
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default MenuAdmin
+export default MenuAdmin;

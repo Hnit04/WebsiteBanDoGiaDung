@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { CheckCircle, AlertTriangle, X, Clock, Truck, Package, XCircle, Search } from "lucide-react";
-import { getUserFromLocalStorage } from "../assets/js/userData"
+import { getUserFromLocalStorage } from "../assets/js/userData";
 
 const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("personal");
@@ -29,7 +28,7 @@ const ProfilePage = () => {
 
     const getStatusBadgeColor = (status) => {
         switch (status) {
-            case "PENDING": return "bg-amber-100 text-amber-800 border border-amber-200";
+            case "PAYMENT_SUCCESS": return "bg-amber-100 text-amber-800 border border-amber-200";
             case "CONFIRMED": return "bg-emerald-100 text-emerald-800 border border-emerald-200";
             case "SHIPPING": return "bg-blue-100 text-blue-800 border border-blue-200";
             case "DELIVERED": return "bg-green-100 text-green-800 border border-green-200";
@@ -40,7 +39,7 @@ const ProfilePage = () => {
 
     const getStatusText = (status) => {
         switch (status) {
-            case "PENDING": return "Chờ xác nhận";
+            case "PAYMENT_SUCCESS": return "Chờ xác nhận";
             case "CONFIRMED": return "Đã xác nhận";
             case "SHIPPING": return "Đang giao hàng";
             case "DELIVERED": return "Đã giao hàng";
@@ -59,7 +58,7 @@ const ProfilePage = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case "PENDING": return <Clock className="h-4 w-4" />;
+            case "PAYMENT_SUCCESS": return <Clock className="h-4 w-4" />;
             case "CONFIRMED": return <CheckCircle className="h-4 w-4" />;
             case "SHIPPING": return <Truck className="h-4 w-4" />;
             case "DELIVERED": return <Package className="h-4 w-4" />;
@@ -71,38 +70,49 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const storedUser = getUserFromLocalStorage()
+                const storedUser = getUserFromLocalStorage();
                 if (!storedUser?.email) {
                     throw new Error("Vui lòng đăng nhập để xem thông tin cá nhân");
                 }
 
-                // Lấy thông tin người dùng
-                const userResponse = getUserFromLocalStorage();
-                console.log(userResponse)
-                setUser(userResponse);
-                setUsername(userResponse.username);
-                setEmail(userResponse.email);
-                setPhone(userResponse.phone || "");
-                setAddress(userResponse.address || "");
-                console.log("Hung"+ userResponse.id)
-                // Lấy danh sách đơn hàng (giả định endpoint /api/orders)
-                const orderResponse = await api.get(`/orders/all/user/${userResponse.id}`);
-                console.log(orderResponse)
-                const ordersData = orderResponse.data.content || [];
+                // Set user data
+                setUser(storedUser);
+                setUsername(storedUser.username);
+                setEmail(storedUser.email);
+                setPhone(storedUser.phone || "");
+                setAddress(storedUser.address || "");
+
+                // Fetch orders for the user
+                const orderResponse = await api.get(`/orders/all/user/${storedUser.email}`);
+                const ordersData = orderResponse.data || [];
                 setOrders(ordersData);
 
-                // Lấy chi tiết đơn hàng (giả định endpoint /api/order-details)
-                const detailsResponse = await api.get(`/order-details`);
-                const detailsData = detailsResponse.data.content || [];
+                // Create a set of product IDs from order details
+                const productIds = new Set();
+                ordersData.forEach(order => {
+                    if (order.orderDetails) {
+                        order.orderDetails.forEach(detail => {
+                            productIds.add(detail.productId);
+                        });
+                    }
+                });
+
+                // Map order details by order ID
                 const detailsByOrder = ordersData.reduce((acc, order) => {
-                    acc[order.id] = detailsData.filter(detail => detail.orderId === order.id);
+                    acc[order.orderId] = order.orderDetails || [];
                     return acc;
                 }, {});
                 setOrderDetails(detailsByOrder);
 
-                // Lấy danh sách sản phẩm
-                const productsResponse = await api.get(`/products`, { params: { size: 100 } });
-                const productsData = productsResponse.data.content || [];
+                // Fetch products for relevant product IDs
+                const productPromises = Array.from(productIds).map(productId =>
+                    api.get(`/products/${productId}`)
+                );
+                const productResponses = await Promise.all(productPromises);
+                const productsData = productResponses
+                    .map(response => response.data)
+                    .filter(product => product !== null);
+
                 const productsById = productsData.reduce((acc, product) => {
                     acc[product.productId] = product;
                     return acc;
@@ -110,7 +120,13 @@ const ProfilePage = () => {
                 setProducts(productsById);
             } catch (err) {
                 console.error("Error fetching data:", err);
-                setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
+                if (err.response?.status === 404) {
+                    setOrders([]);
+                    setOrderDetails({});
+                    setProducts({});
+                } else {
+                    setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại.");
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -192,11 +208,11 @@ const ProfilePage = () => {
     };
 
     const filteredOrders = orders.filter(order => {
-        const matchesOrder = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        const matchesOrder = order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.username.toLowerCase().includes(searchQuery.toLowerCase());
 
-        const matchesProduct = orderDetails[order.id]?.some(detail => {
+        const matchesProduct = orderDetails[order.orderId]?.some(detail => {
             const product = products[detail.productId] || {};
             return product.productName?.toLowerCase().includes(searchQuery.toLowerCase());
         }) || false;
@@ -210,21 +226,11 @@ const ProfilePage = () => {
         };
 
         const formatDate = (dateString) => {
-            const date = new Date(dateString);
-            return date.toLocaleDateString("vi-VN", {
+            return dateString ? new Date(dateString).toLocaleDateString("vi-VN", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
-            });
-        };
-
-        const getPaymentMethodText = (methodId) => {
-            switch (methodId) {
-                case "PM001": return "Thẻ VISA/MasterCard";
-                case "PM002": return "MoMo";
-                case "PM003": return "Thanh toán khi nhận hàng (COD)";
-                default: return "Không xác định";
-            }
+            }) : "Chưa xác định";
         };
 
         const printWindow = window.open("", "_blank", "width=800,height=600");
@@ -232,99 +238,99 @@ const ProfilePage = () => {
         const invoiceHtml = `
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hóa đơn #${order.id}</title>
-<style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-    .invoice-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
-    .invoice-header h1 { color: #4338ca; margin-bottom: 5px; }
-    .invoice-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
-    .invoice-info-block { max-width: 50%; }
-    .invoice-info-block h4 { margin-bottom: 5px; color: #4338ca; }
-    .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    .invoice-table th { background-color: #f3f4f6; text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
-    .invoice-table td { padding: 10px; border-bottom: 1px solid #ddd; }
-    .invoice-table .amount { text-align: right; }
-    .invoice-total { margin-top: 20px; text-align: right; }
-    .invoice-total-row { display: flex; justify-content: flex-end; margin-bottom: 5px; }
-    .invoice-total-row .label { width: 150px; text-align: left; }
-    .invoice-total-row .value { width: 150px; text-align: right; }
-    .invoice-total-row.final { font-weight: bold; font-size: 1.2em; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; color: #4338ca; }
-    .invoice-footer { margin-top: 50px; text-align: center; color: #666; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 20px; }
-    .close-btn { margin-top: 20px; text-align: center; }
-    .close-btn button { padding: 10px 20px; background-color: #4338ca; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .close-btn button:hover { background-color: #3730a3; }
-    @media print { .close-btn { display: none; } }
-</style>
+    <title>Hóa đơn #${order.orderId}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .invoice-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
+        .invoice-header h1 { color: #4338ca; margin-bottom: 5px; }
+        .invoice-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .invoice-info-block { max-width: 50%; }
+        .invoice-info-block h4 { margin-bottom: 5px; color: #4338ca; }
+        .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .invoice-table th { background-color: #f3f4f6; text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+        .invoice-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+        .invoice-table .amount { text-align: right; }
+        .invoice-total { margin-top: 20px; text-align: right; }
+        .invoice-total-row { display: flex; justify-content: flex-end; margin-bottom: 5px; }
+        .invoice-total-row .label { width: 150px; text-align: left; }
+        .invoice-total-row .value { width: 150px; text-align: right; }
+        .invoice-total-row.final { font-weight: bold; font-size: 1.2em; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; color: #4338ca; }
+        .invoice-footer { margin-top: 50px; text-align: center; color: #666; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 20px; }
+        .close-btn { margin-top: 20px; text-align: center; }
+        .close-btn button { padding: 10px 20px; background-color: #4338ca; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .close-btn button:hover { background-color: #3730a3; }
+        @media print { .close-btn { display: none; } }
+    </style>
 </head>
 <body>
-<div class="invoice-header">
-    <h1>HÓA ĐƠN BÁN HÀNG</h1>
-    <p>Ngày đặt hàng: ${formatDate(order.deliveryDate)}</p>
-</div>
-<div class="invoice-info">
-    <div class="invoice-info-block">
-        <h4>Thông tin khách hàng</h4>
-        <p><strong>Khách hàng:</strong> ${user.username}</p>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>Địa chỉ giao hàng:</strong> ${order.deliveryAddress}</p>
+    <div class="invoice-header">
+        <h1>HÓA ĐƠN BÁN HÀNG</h1>
+        <p>Ngày đặt hàng: ${formatDate(order.createdDate)}</p>
     </div>
-    <div class="invoice-info-block">
-        <h4>Thông tin thanh toán</h4>
-        <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(order.paymentMethodId)}</p>
-        <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(order.status)}</p>
+    <div class="invoice-info">
+        <div class="invoice-info-block">
+            <h4>Thông tin khách hàng</h4>
+            <p><strong>Khách hàng:</strong> ${user.username}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Địa chỉ giao hàng:</strong> ${order.deliveryAddress}</p>
+        </div>
+        <div class="invoice-info-block">
+            <h4>Thông tin đơn hàng</h4>
+            <p><strong>Trạng thái đơn hàng:</strong> ${getStatusText(order.status)}</p>
+            <p><strong>Ngày giao hàng dự kiến:</strong> ${formatDate(order.deliveryDate)}</p>
+        </div>
     </div>
-</div>
-<table class="invoice-table">
-    <thead>
-    <tr>
-        <th>STT</th>
-        <th>Sản phẩm</th>
-        <th>Đơn giá</th>
-        <th>Số lượng</th>
-        <th class="amount">Thành tiền</th>
-    </tr>
-    </thead>
-    <tbody>
-    ${orderDetails[order.id]
-        .map((detail, index) => {
-            const product = products[detail.productId] || {};
-            return `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${product.productName || "Sản phẩm không xác định"}</td>
-                <td>${formatCurrency(detail.unitPrice)}</td>
-                <td>${detail.quantity}</td>
-                <td class="amount">${formatCurrency(detail.subtotal)}</td>
-              </tr>
-            `;
-        })
-        .join("")}
-    </tbody>
-</table>
-<div class="invoice-total">
-    <div class="invoice-total-row">
-        <div class="label">Tổng tiền hàng:</div>
-        <div class="value">${formatCurrency(order.totalAmount)}</div>
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th class="amount">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${orderDetails[order.orderId]
+            .map((detail, index) => {
+                const product = products[detail.productId] || {};
+                return `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${product.productName || "Sản phẩm không xác định"}</td>
+                            <td>${formatCurrency(detail.unitPrice+detail.unitPrice/10)}</td>
+                            <td>${detail.quantity}</td>
+                            <td class="amount">${formatCurrency(detail.subtotal+detail.subtotal/10)}</td>
+                        </tr>
+                    `;
+            })
+            .join("")}
+        </tbody>
+    </table>
+    <div class="invoice-total">
+        <div class="invoice-total-row">
+            <div class="label">Tổng tiền hàng:</div>
+            <div class="value">${formatCurrency(order.totalAmount+order.totalAmount/10)}</div>
+        </div>
+        <div class="invoice-total-row">
+            <div class="label">Phí vận chuyển:</div>
+            <div class="value">${formatCurrency(30000)}</div>
+        </div>
+        <div class="invoice-total-row final">
+            <div class="label">Tổng thanh toán:</div>
+            <div class="value">${formatCurrency(order.totalAmount+order.totalAmount/10+30000)}</div>
+        </div>
     </div>
-    <div class="invoice-total-row">
-        <div class="label">Phí vận chuyển:</div>
-        <div class="value">${formatCurrency(0)}</div>
+    <div class="invoice-footer">
+        <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
+        <p>Mọi thắc mắc xin vui lòng liên hệ: support@homecraft.com | 0393465113</p>
     </div>
-    <div class="invoice-total-row final">
-        <div class="label">Tổng thanh toán:</div>
-        <div class="value">${formatCurrency(order.totalAmount)}</div>
+    <div class="close-btn">
+        <button onclick="window.close()">Đóng</button>
     </div>
-</div>
-<div class="invoice-footer">
-    <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
-    <p>Mọi thắc mắc xin vui lòng liên hệ: support@homecraft.com | 0393465113</p>
-</div>
-<div class="close-btn">
-    <button onclick="window.close()">Đóng</button>
-</div>
 </body>
 </html>
 `;
@@ -395,10 +401,10 @@ const ProfilePage = () => {
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-xl max-w-md flex items-center justify-between ${
-    notification.type === "success"
-        ? "bg-green-100 text-green-800 border border-green-300"
-        : "bg-red-100 text-red-800 border border-red-300"
-} animate-slide-in`}
+                        notification.type === "success"
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-red-100 text-red-800 border border-red-300"
+                    } animate-slide-in`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -424,10 +430,10 @@ const ProfilePage = () => {
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
                                         className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all ${
-    activeTab === tab
-        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md"
-        : "text-gray-700 hover:bg-gray-100"
-}`}
+                                            activeTab === tab
+                                                ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md"
+                                                : "text-gray-700 hover:bg-gray-100"
+                                        }`}
                                     >
                                         {tab === "personal" && "Thông tin cá nhân"}
                                         {tab === "orders" && "Lịch sử đơn hàng"}
@@ -524,7 +530,7 @@ const ProfilePage = () => {
                                     ) : (
                                         <div className="space-y-4 max-h-[750px] overflow-y-auto">
                                             {filteredOrders.map((order) => (
-                                                <div key={order.id} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
+                                                <div key={order.orderId} className="border border-gray-500 rounded-lg p-4 bg-white shadow-lg hover:shadow-md transition-all">
                                                     <div className="flex items-center justify-between mb-4">
                                                         <div className="flex items-center">
                                                             {getStatusIcon(order.status)}
@@ -542,11 +548,11 @@ const ProfilePage = () => {
                                                     <div className="border-t border-gray-200 pt-4">
                                                         <p className="text-sm text-gray-600 mb-2">Địa chỉ giao: {order.deliveryAddress}</p>
                                                         <p className="text-sm font-semibold text-gray-800">
-                                                            Tổng tiền: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount)}
+                                                            Tổng tiền: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalAmount+order.totalAmount/10)}
                                                         </p>
                                                         <div className="mt-4">
                                                             <h4 className="text-sm font-semibold text-gray-700 mb-2">Sản phẩm:</h4>
-                                                            {orderDetails[order.id]?.map((detail) => {
+                                                            {orderDetails[order.orderId]?.map((detail) => {
                                                                 const product = products[detail.productId] || {};
                                                                 return (
                                                                     <div key={detail.orderDetailId} className="flex items-center space-x-4 mb-2">
@@ -558,7 +564,7 @@ const ProfilePage = () => {
                                                                         <div>
                                                                             <p className="text-sm font-medium">{product.productName || "Sản phẩm không xác định"}</p>
                                                                             <p className="text-sm text-gray-600">
-                                                                                Số lượng: {detail.quantity} x {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(detail.unitPrice)}
+                                                                                Số lượng: {detail.quantity} x {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(detail.unitPrice+detail.unitPrice/10)}
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -622,12 +628,12 @@ const ProfilePage = () => {
                 </div>
             </div>
             <style>{`
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-.animate-slide-in { animation: slideIn 0.3s ease-out; }
-    `}</style>
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                .animate-slide-in { animation: slideIn 0.3s ease-out; }
+            `}</style>
         </div>
     );
 };

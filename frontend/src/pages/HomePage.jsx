@@ -13,6 +13,7 @@ import img1 from "../assets/img.png"
 import img2 from "../assets/img.png"
 import img3 from "../assets/img.png"
 import img4 from "../assets/img.png"
+import api from "@/services/api.js";
 
 const HomePage = () => {
     const [activeIndex, setActiveIndex] = useState(0)
@@ -23,26 +24,29 @@ const HomePage = () => {
     const images = [img1, img2, img3, img4]
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
-                setLoading(true)
-                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu sản phẩm")
-                }
-                const data = await response.json()
-                // Lọc sản phẩm có show = true
-                const filteredProducts = data.filter(product => product.show === true)
-                setProductList(filteredProducts)
-            } catch (err) {
-                setError(err.message)
-            } finally {
-                setLoading(false)
-            }
-        }
+                setLoading(true);
 
-        fetchProducts()
-    }, [])
+                // Lấy sản phẩm
+                const productsResponse = await api.get('/products', {
+                    params: {
+                        page: 0,
+                        size: 100,
+                        sort: 'productId,asc'
+                    }
+                });
+                const visibleProducts = productsResponse.data.content.filter(product => product.quantityInStock > 0);
+                setProductList(visibleProducts);
+            } catch (err) {
+                setError(err.response?.data?.message || 'Không thể lấy dữ liệu');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     if (loading) {
         return (
@@ -146,7 +150,7 @@ const HomePage = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {productList.map((product) => (
                                 <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
-                                    <Link to={`/product/${product.id}`} className="block">
+                                    <Link to={`/product/${product.productId}`} className="block">
                                         <img
                                             src={product.imageUrl || "/placeholder.svg"}
                                             alt={product.productName}
@@ -154,7 +158,7 @@ const HomePage = () => {
                                         />
                                         <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
                                         <p className="text-gray-600 text-sm mb-2">{product.description.slice(0, 60)}...</p>
-                                        <div className="text-blue-600 font-bold text-lg">{product.salePrice.toLocaleString("vi-VN")}₫</div>
+                                        <div className="text-blue-600 font-bold text-lg">{product.originalPrice.toLocaleString("vi-VN")}₫</div>
                                     </Link>
                                 </div>
                             ))}
