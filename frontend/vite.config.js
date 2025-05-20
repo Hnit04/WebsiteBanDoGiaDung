@@ -11,18 +11,35 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  define: {
+    global: 'window', // Polyfill global thành window để khắc phục lỗi sockjs-client
+  },
   server: {
     port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8080', // Proxy đến backend Spring Boot
         changeOrigin: true,
-        // Bỏ rewrite để giữ /api/users
+        secure: false, // Bỏ qua kiểm tra SSL khi phát triển local
+      },
+      '/ws': {
+        target: 'http://localhost:8085', // Proxy WebSocket đến backend Spring Boot
+        changeOrigin: true,
+        ws: true, // Kích hoạt proxy WebSocket
+        secure: false,
       },
     },
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      // Tùy chọn để tối ưu hóa build nếu cần
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'axios', 'sockjs-client', '@stomp/stompjs'],
+        },
+      },
+    },
   },
 });

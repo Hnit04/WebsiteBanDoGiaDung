@@ -5,6 +5,9 @@ import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage } from "../assets/js/userData"
 import { products } from "../assets/js/productData.jsx"
 import { CheckCircle, AlertTriangle, X, ArrowLeft, ShoppingBag, ChevronDown } from "lucide-react"
+import SepayQRCode from "../components/SepayQRCode"
+import { createSepayPayment } from "../services/api"
+import toast from "react-hot-toast"
 
 // Dữ liệu địa phương Việt Nam (giả lập)
 const vietnamLocations = {
@@ -84,6 +87,8 @@ const CheckoutPage = () => {
     const [selectedWard, setSelectedWard] = useState("")
     const [detailedAddress, setDetailedAddress] = useState("")
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
+    const [isSepayModalOpen, setIsSepayModalOpen] = useState(false)
+    const [sepayPayment, setSepayPayment] = useState(null)
 
     const user = getUserFromLocalStorage()
     const userId = user?.id || null
@@ -184,12 +189,11 @@ const CheckoutPage = () => {
             }
             const orders = await response.json()
             const lastOrder = orders.length > 0 ? orders[orders.length - 1] : null
-            const lastId = lastOrder ? parseInt(lastOrder.id.replace("ORD", "")) : 0
-            const newId = lastId + 1
-            return `${newId.toString().padStart(1, "0")}`
+            const lastId = lastOrder ? parseInt(lastOrder.id.replace("THT", "")) : 0
+            return `THT${Date.now()}` // Định dạng THT + timestamp
         } catch (err) {
             console.error("Error generating order ID:", err)
-            return `ORD${Date.now()}`
+            return `THT${Date.now()}`
         }
     }
 
@@ -243,7 +247,103 @@ const CheckoutPage = () => {
         setIsLocationModalOpen(false)
     }
 
-    // Handle order submission
+    // Handle SEPay payment
+    const handleSepayPayment = async () => {
+        try {
+            setIsSubmitting(true)
+            const orderId = await generateOrderId()
+            const payload = {
+                orderId,
+                amount: calculateSummary().total,
+                description: `Thanh toán đơn hàng #${orderId}`,
+                bankAccountNumber: "0326829327", // Hardcode hoặc lấy từ cấu hình
+                bankCode: "MBBank",
+                customerEmail: user.email
+            }
+
+            const response = await createSepayPayment(payload)
+            setSepayPayment({
+                paymentId: response.paymentId,
+                qrCodeUrl: response.qrCodeUrl,
+                amount: response.amount
+            })
+            setIsSepayModalOpen(true)
+        } catch (err) {
+            console.error("Error creating SEPay payment:", err)
+            toast.error(err.message || "Không thể tạo giao dịch SEPay")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    // Handle SEPay payment success
+    const handleSepaySuccess = async () => {
+        try {
+            setIsSubmitting(true)
+            await checkStockAvailability()
+
+            const orderId = sepayPayment.paymentId
+            const orderData = {
+                id: orderId,
+                userId,
+                promotionId: null,
+                totalAmount: calculateSummary().total,
+                status: "pending",
+                deliveryAddress,
+                deliveryStatus: "pending",
+                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // Sửa lỗi
+                paymentMethodId: "sepay-qr"
+            }
+
+            const orderResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            })
+
+            if (!orderResponse.ok) {
+                throw new Error("Failed to create order")
+            }
+
+            for (const item of cartItems) {
+                const product = await getProductDetails(item.productId)
+                const orderDetailData = {
+                    orderDetailId: `OD${Date.now()}${item.id}`,
+                    quantity: item.quantity,
+                    unitPrice: product.salePrice,
+                    subtotal: product.salePrice * item.quantity,
+                    orderId,
+                    productId: item.productId
+                }
+
+                const detailResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderDetailData)
+                })
+
+                if (!detailResponse.ok) {
+                    throw new Error("Failed to create order detail")
+                }
+
+                await updateProductStock(item.productId, item.quantity)
+                await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${item.id}`, {
+                    method: "DELETE"
+                })
+            }
+
+            setOrderSuccess(orderId)
+            setIsSepayModalOpen(false)
+            toast.success("Đặt hàng thành công!")
+        } catch (err) {
+            console.error("Error submitting SEPay order:", err)
+            toast.error(err.message || "Không thể đặt hàng. Vui lòng thử lại.")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    // Handle order submission (non-SEPay)
     const handleSubmitOrder = async () => {
         if (!deliveryAddress.trim()) {
             showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
@@ -254,16 +354,16 @@ const CheckoutPage = () => {
             return
         }
 
+        if (paymentMethod === "PM004") {
+            await handleSepayPayment()
+            return
+        }
+
         try {
             setIsSubmitting(true)
-
-            // Check stock availability
             await checkStockAvailability()
-
-            // Generate sequential order ID
             const orderId = await generateOrderId()
 
-            // Create order
             const orderData = {
                 id: orderId,
                 userId,
@@ -286,7 +386,6 @@ const CheckoutPage = () => {
                 throw new Error("Failed to create order")
             }
 
-            // Create order details
             for (const item of cartItems) {
                 const product = await getProductDetails(item.productId)
                 const orderDetailData = {
@@ -308,10 +407,7 @@ const CheckoutPage = () => {
                     throw new Error("Failed to create order detail")
                 }
 
-                // Update product stock
                 await updateProductStock(item.productId, item.quantity)
-
-                // Remove item from cart
                 await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${item.id}`, {
                     method: "DELETE"
                 })
@@ -349,6 +445,7 @@ const CheckoutPage = () => {
                 case "PM001": return "Thẻ VISA/MasterCard"
                 case "PM002": return "MoMo"
                 case "PM003": return "Thanh toán khi nhận hàng (COD)"
+                case "PM004": return "SEPay QR"
                 default: return "Không xác định"
             }
         }
@@ -794,13 +891,34 @@ const CheckoutPage = () => {
                             </div>
                         )}
 
+                        {/* SEPay Modal */}
+                        {isSepayModalOpen && sepayPayment && (
+                            <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold">Thanh toán qua SEPay</h3>
+                                        <button onClick={() => setIsSepayModalOpen(false)}>
+                                            <X size={20} className="text-gray-500" />
+                                        </button>
+                                    </div>
+                                    <SepayQRCode
+                                        paymentId={sepayPayment.paymentId}
+                                        qrCodeUrl={sepayPayment.qrCodeUrl}
+                                        amount={sepayPayment.amount}
+                                        onSuccess={handleSepaySuccess}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Phương thức thanh toán</h2>
                             <div className="space-y-4">
                                 {[
                                     { id: "PM001", name: "Thẻ VISA/MasterCard" },
                                     { id: "PM002", name: "MoMo" },
-                                    { id: "PM003", name: "Thanh toán khi nhận hàng (COD)" }
+                                    { id: "PM003", name: "Thanh toán khi nhận hàng (COD)" },
+                                    { id: "PM004", name: "SEPay QR" },
                                 ].map((method) => (
                                     <div key={method.id} className="flex items-center">
                                         <input
