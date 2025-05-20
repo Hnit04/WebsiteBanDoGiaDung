@@ -8,6 +8,7 @@ import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
+    const [products, setProducts] = useState([]) // State để lưu danh sách sản phẩm
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isUpdating, setIsUpdating] = useState(false)
@@ -20,9 +21,9 @@ const CartPage = () => {
     const userId = user?.email || null
     const navigate = useNavigate()
 
-    // Fetch cart items for the current user
+    // Fetch cart items and products
     useEffect(() => {
-        const fetchCartItems = async () => {
+        const fetchData = async () => {
             if (!userId) {
                 setIsLoading(false)
                 return
@@ -30,21 +31,31 @@ const CartPage = () => {
 
             try {
                 setIsLoading(true)
-                const response = await api.get(`/carts/user/${userId}`)
-                if (response.data && response.data.cartItems) {
-                    setCartItems(response.data.cartItems)
+
+                // Lấy giỏ hàng
+                const cartResponse = await api.get(`/carts/user/${userId}`)
+                if (cartResponse.data && cartResponse.data.cartItems) {
+                    setCartItems(cartResponse.data.cartItems)
                 } else {
                     setCartItems([])
                 }
+
+                // Lấy tất cả sản phẩm
+                const productResponse = await api.get(`/products?page=0&size=1000`) // Lấy trang đầu, số lượng lớn để lấy hết
+                if (productResponse.data && productResponse.data.content) {
+                    setProducts(productResponse.data.content)
+                } else {
+                    setProducts([])
+                }
             } catch (err) {
-                console.error("Error fetching cart:", err)
-                setError("Không thể tải giỏ hàng. Vui lòng thử lại sau.")
+                console.error("Error fetching data:", err)
+                setError("Không thể tải giỏ hàng hoặc sản phẩm. Vui lòng thử lại sau.")
             } finally {
                 setIsLoading(false)
             }
         }
 
-        fetchCartItems()
+        fetchData()
     }, [userId])
 
     // Update cart item quantity
@@ -56,6 +67,8 @@ const CartPage = () => {
             const response = await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
             if (response.data && response.data.cartItems) {
                 setCartItems(response.data.cartItems)
+                // Phát sự kiện để cập nhật Header
+                window.dispatchEvent(new Event("cartUpdated"))
             }
             showNotification("success", "Cập nhật số lượng thành công!")
         } catch (err) {
@@ -93,6 +106,8 @@ const CartPage = () => {
                 newSet.delete(itemToDelete.cartItemId)
                 return newSet
             })
+            // Phát sự kiện để cập nhật Header
+            window.dispatchEvent(new Event("cartUpdated"))
             showNotification("success", `Đã xóa ${itemToDelete.productName} khỏi giỏ hàng`)
         } catch (err) {
             console.error("Error removing item:", err)
@@ -114,7 +129,11 @@ const CartPage = () => {
     const calculateSelectedSummary = () => {
         const selectedCartItems = cartItems.filter((item) => selectedItems.has(item.cartItemId))
         const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0)
-        const subtotal = selectedCartItems.reduce((total, item) => total + item.subtotal, 0)
+        const subtotal = selectedCartItems.reduce((total, item) => {
+            const productInfo = getProductInfo(item.productId)
+            console.log(productInfo)
+            return total + (productInfo.originalPrice || 0) * item.quantity
+        }, 0)
         return { totalItems, subtotal }
     }
 
@@ -142,6 +161,12 @@ const CartPage = () => {
         }
         const itemIds = Array.from(selectedItems)
         navigate(`/checkout?items=${itemIds.join(",")}`)
+    }
+
+    // Hàm lấy thông tin sản phẩm dựa trên productId
+    const getProductInfo = (productId) => {
+        const product = products.find((p) => p.productId === productId)
+        return product || { imageUrl: null, categoryId: "N/A", price: 0 }
     }
 
     if (!userId) {
@@ -236,7 +261,7 @@ const CartPage = () => {
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             {notification && (
                 <div
-                    className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
+                    className={`fixed top-20 right-4 mt-9 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
                         notification.type === "success"
                             ? "bg-green-50 text-green-800 border border-green-200"
                             : "bg-red-50 text-red-800 border border-red-200"
@@ -314,81 +339,84 @@ const CartPage = () => {
                             </div>
 
                             <div className="divide-y divide-gray-200">
-                                {cartItems.map((item) => (
-                                    <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-center">
-                                        <div className="w-6 flex-shrink-0">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedItems.has(item.cartItemId)}
-                                                onChange={() => toggleItemSelection(item.cartItemId)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                            />
-                                        </div>
-                                        <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
-                                            <img
-                                                src={item.imageUrl || "/placeholder.svg?height=96&width=96"}
-                                                alt={item.productName}
-                                                className="w-full h-full object-cover object-center"
-                                            />
-                                        </div>
-
-                                        <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
-                                            <div className="flex flex-col sm:flex-row sm:justify-between">
-                                                <div>
-                                                    <h3 className="text-lg font-medium text-gray-800">{item.productName}</h3>
-                                                    <p className="mt-1 text-sm text-gray-500">{item.categoryId || "N/A"}</p>
-                                                </div>
-                                                <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
-                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.subtotal / item.quantity)}
-                                                </p>
+                                {cartItems.map((item) => {
+                                    const productInfo = getProductInfo(item.productId)
+                                    return (
+                                        <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-center">
+                                            <div className="w-6 flex-shrink-0">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedItems.has(item.cartItemId)}
+                                                    onChange={() => toggleItemSelection(item.cartItemId)}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                />
+                                            </div>
+                                            <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden ml-4">
+                                                <img
+                                                    src={productInfo.imageUrl || "/placeholder.svg?height=96&width=96"}
+                                                    alt={item.productName}
+                                                    className="w-full h-full object-cover object-center"
+                                                />
                                             </div>
 
-                                            <div className="flex items-center justify-between mt-4">
-                                                <div className="flex items-center border border-gray-300 rounded-md">
-                                                    <button
-                                                        onClick={() => {
-                                                            const newQuantity = item.quantity - 1
-                                                            if (newQuantity >= 1) updateQuantity(item.cartItemId, newQuantity)
-                                                        }}
-                                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                                                        aria-label="Giảm số lượng"
-                                                    >
-                                                        <Minus size={16} />
-                                                    </button>
-                                                    <input
-                                                        type="text"
-                                                        value={item.quantity}
-                                                        onChange={(e) => {
-                                                            const val = parseInt(e.target.value)
-                                                            if (!isNaN(val) && val >= 1) updateQuantity(item.cartItemId, val)
-                                                        }}
-                                                        className="w-16 text-center border-x border-gray-300 py-1 outline-none"
-                                                    />
-                                                    <button
-                                                        onClick={() => {
-                                                            const newQuantity = item.quantity + 1
-                                                            updateQuantity(item.cartItemId, newQuantity)
-                                                        }}
-                                                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                                                        aria-label="Tăng số lượng"
-                                                    >
-                                                        <Plus size={16} />
-                                                    </button>
+                                            <div className="flex-1 sm:ml-6 mt-4 sm:mt-0">
+                                                <div className="flex flex-col sm:flex-row sm:justify-between">
+                                                    <div>
+                                                        <h3 className="text-lg font-medium text-gray-800">{item.productName}</h3>
+                                                        <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p>
+                                                    </div>
+                                                    <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.originalPrice)}
+                                                    </p>
                                                 </div>
 
-                                                <button
-                                                    onClick={() => confirmDelete(item)}
-                                                    disabled={isUpdating}
-                                                    className="text-red-600 hover:text-red-800 flex items-center disabled:opacity-50"
-                                                    aria-label="Xóa sản phẩm"
-                                                >
-                                                    <Trash2 size={18} className="mr-1" />
-                                                    <span>Xóa</span>
-                                                </button>
+                                                <div className="flex items-center justify-between mt-4">
+                                                    <div className="flex items-center border border-gray-300 rounded-md">
+                                                        <button
+                                                            onClick={() => {
+                                                                const newQuantity = item.quantity - 1
+                                                                if (newQuantity >= 1) updateQuantity(item.cartItemId, newQuantity)
+                                                            }}
+                                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                                            aria-label="Giảm số lượng"
+                                                        >
+                                                            <Minus size={16} />
+                                                        </button>
+                                                        <input
+                                                            type="text"
+                                                            value={item.quantity}
+                                                            onChange={(e) => {
+                                                                const val = parseInt(e.target.value)
+                                                                if (!isNaN(val) && val >= 1) updateQuantity(item.cartItemId, val)
+                                                            }}
+                                                            className="w-16 text-center border-x border-gray-300 py-1 outline-none"
+                                                        />
+                                                        <button
+                                                            onClick={() => {
+                                                                const newQuantity = item.quantity + 1
+                                                                updateQuantity(item.cartItemId, newQuantity)
+                                                            }}
+                                                            className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                                                            aria-label="Tăng số lượng"
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={() => confirmDelete(item)}
+                                                        disabled={isUpdating}
+                                                        className="text-red-600 hover:text-red-800 flex items-center disabled:opacity-50"
+                                                        aria-label="Xóa sản phẩm"
+                                                    >
+                                                        <Trash2 size={18} className="mr-1" />
+                                                        <span>Xóa</span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
 
                             <div className="p-6 border-t border-gray-200">

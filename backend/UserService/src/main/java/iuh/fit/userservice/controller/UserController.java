@@ -1,8 +1,11 @@
 package iuh.fit.userservice.controller;
 
 import iuh.fit.userservice.dto.request.CreateUserRequest;
+import iuh.fit.userservice.dto.request.ForgotPasswordRequest;
 import iuh.fit.userservice.dto.request.LoginRequest;
+import iuh.fit.userservice.dto.request.ResetPasswordRequest;
 import iuh.fit.userservice.dto.request.VerifyCodeRequest;
+import iuh.fit.userservice.dto.response.ErrorResponse;
 import iuh.fit.userservice.dto.response.UserResponse;
 import iuh.fit.userservice.service.UserService;
 import iuh.fit.userservice.util.JwtUtil;
@@ -60,7 +63,8 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id == principal.userId")
     public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+        UserResponse userResponse = userService.getUserById(id);
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping
@@ -74,7 +78,8 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable String id,
             @Valid @RequestBody CreateUserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+        UserResponse updatedUser = userService.updateUser(id, request);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
@@ -87,8 +92,50 @@ public class UserController {
     @PostMapping("/generate-service-token")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> generateServiceToken() {
-        String token = jwtUtil.generateToken("notification-service", "ROLE_ADMIN", "service");
-        return ResponseEntity.ok(token);
+        try {
+            String token = jwtUtil.generateToken("notification-service", "ROLE_ADMIN", "service");
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Không thể tạo token: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            Map<String, Object> response = userService.forgotPassword(request.getEmail());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            Map<String, Object> response = userService.resetPassword(
+                    request.getEmail(), request.getCode(), request.getNewPassword());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            Map<String, Object> response = userService.login(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        }
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -100,9 +147,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
-        Map<String, Object> response = userService.login(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(response);
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
