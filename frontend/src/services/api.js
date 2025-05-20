@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "/api", // Sử dụng proxy đến API Gateway
+    baseURL: " https://websitebandogiadung.onrender.com/api/", // Sử dụng proxy đến API Gateway
 });
 
 api.interceptors.request.use(
