@@ -11,20 +11,20 @@ spring:
       mail:
         debug: true
   rabbitmq:
-    host: rabbitmq
+    host: collie-01.lmq.cloudamqp.com
     port: 5672
-    username: guest
-    password: guest
-    virtual-host: /
-    connection-timeout: 10000
+    username: vnpaefjo
+    password: hpihASB7lUCBPmoAb_DoYDZlW2EGnaZP
+    virtual-host: vnpaefjo
+    connection-timeout: 10000  # Tăng từ 5000ms lên 10000ms
     template:
       exchange: notification-exchange
       routing-key: notification.routing.key
       retry:
         enabled: true
-        initial-interval: 3000ms
-        max-attempts: 5
-        multiplier: 1.5
+        initial-interval: 3000ms  # Tăng từ 2000ms
+        max-attempts: 5          # Tăng từ 3 lần
+        multiplier: 1.5          # Thêm nhân tố tăng dần
     listener:
       simple:
         acknowledge-mode: auto
@@ -32,28 +32,21 @@ spring:
         concurrency: 1
         max-concurrency: 5
         auto-startup: true
-        startup-timeout: 30000ms
+        startup-timeout: 30000ms  # Thêm timeout chờ
         retry:
           enabled: true
-          max-attempts: 5
-          initial-interval: 5000ms
-          max-interval: 15000ms
+          max-attempts: 5         # Tăng số lần thử
+          initial-interval: 5000ms # Tăng khoảng cách thử
+          max-interval: 15000ms    # Thêm max interval
           multiplier: 2.0
     cache:
       channel:
         size: 5
-        checkout-timeout: 10000
+        checkout-timeout: 10000    # Thêm timeout cho channel
+
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://mongo:27017/notificationdb}
+      uri: ${MONGODB_URI}
 
 server:
   port: 8089
-
-notification:
-  service:
-    auth-token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0cmFuY29uZ3RpbmgyMDA0MjAwNEBnbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsInVzZXJJZCI6IjY4MjZkNTNkZjNlYzBjNzljYjZhNmE0MyIsImlhdCI6MTc0NzM3ODE0MiwiZXhwIjoxNzQ5OTcwMTQyfQ._cWLcS1jqrjB2KqtW0X3zpLW4NxE7D1xwUUYqcjXskg
-    default-email: fallback@example.com
-
-jwt:
-  secret: bXktc2VjdXJlLWtleS1mb3Itand0LTMyLWJ5dGVzISE=

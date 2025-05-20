@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { getUserFromLocalStorage, clearUserFromLocalStorage } from "../assets/js/userData"
 import debounce from "lodash/debounce"
+import api from "../services/api.js"
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,6 +14,7 @@ const Header = () => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [user, setUser] = useState(null)
     const [cartCount, setCartCount] = useState(0)
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -21,7 +23,7 @@ const Header = () => {
         if (loggedInUser) {
             setUser(loggedInUser)
             setIsLoggedIn(true)
-            fetchCartCount(loggedInUser.id)
+            fetchCartCount(loggedInUser.email)
         } else {
             setUser(null)
             setIsLoggedIn(false)
@@ -33,7 +35,7 @@ const Header = () => {
         const handleCartUpdated = () => {
             const loggedInUser = getUserFromLocalStorage()
             if (loggedInUser) {
-                fetchCartCount(loggedInUser.id)
+                fetchCartCount(loggedInUser.email)
             }
         }
 
@@ -43,7 +45,6 @@ const Header = () => {
         }
     }, [])
 
-    // Đóng user menu khi nhấp ra ngoài
     useEffect(() => {
         const handleClickOutside = (event) => {
             const userMenu = document.querySelector(".user-menu")
@@ -68,23 +69,20 @@ const Header = () => {
         }
     }, [isUserMenuOpen])
 
-    // Fetch cart count
-    const fetchCartCount = async (userId) => {
+    const fetchCartCount = async (email) => {
         try {
-            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart?userId=${userId}`)
-            if (!response.ok) {
-                throw new Error("Không thể lấy dữ liệu giỏ hàng")
+            const response = await api.get(`/carts/user/${email}`)
+            if (response.data && response.data.cartItems) {
+                const totalItems = response.data.cartItems.length
+                setCartCount(totalItems)
+            } else {
+                setCartCount(0)
             }
-            const cartData = await response.json()
-            const totalItems = cartData.length
-            setCartCount(totalItems)
-        } catch (error) {
-            console.error("Lỗi khi lấy số lượng giỏ hàng:", error)
+        } catch {
             setCartCount(0)
         }
     }
 
-    // Fetch product suggestions
     const fetchSuggestions = useCallback(
         debounce(async (query) => {
             if (!query.trim()) {
@@ -93,21 +91,13 @@ const Header = () => {
             }
 
             try {
-                const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu sản phẩm")
-                }
-                const products = await response.json()
-                const filteredProducts = products
-                    .filter((product) =>
-                        product.productName.toLowerCase().includes(query.toLowerCase())
-                    )
-                    .slice(0, 5) // Limit to 5 suggestions
-                    .map((product) => ({
-                        id: product.id,
-                        name: product.productName,
-                        image: product.imageUrl,
-                    }))
+                const response = await api.get(`/products/search?name=${encodeURIComponent(query)}&size=5`)
+                const products = response.data?.content || []
+                const filteredProducts = products.map((product) => ({
+                    id: product.productId,
+                    name: product.productName,
+                    image: product.imageUrl,
+                }))
                 setSuggestions(filteredProducts)
             } catch (error) {
                 console.error("Lỗi khi lấy gợi ý sản phẩm:", error)
@@ -121,12 +111,17 @@ const Header = () => {
         fetchSuggestions(searchText)
     }, [searchText, fetchSuggestions])
 
-    const handleLogout = () => {
+    const handleLogoutConfirm = () => {
         clearUserFromLocalStorage()
         setUser(null)
         setIsLoggedIn(false)
         setCartCount(0)
+        setIsLogoutModalOpen(false)
         navigate("/login")
+    }
+
+    const handleLogoutClick = () => {
+        setIsLogoutModalOpen(true)
     }
 
     const toggleMenu = () => {
@@ -199,7 +194,6 @@ const Header = () => {
                         </button>
                     </form>
 
-                    {/* Suggestions dropdown */}
                     {suggestions.length > 0 && (
                         <ul className="absolute z-20 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
                             {suggestions.map((suggestion) => (
@@ -210,7 +204,7 @@ const Header = () => {
                                 >
                                     {suggestion.image && (
                                         <img
-                                            src={"/" + suggestion.image || "/placeholder.svg"}
+                                            src={suggestion.image || "/placeholder.svg"}
                                             alt={suggestion.name}
                                             className="w-8 h-8 mr-2 rounded object-cover"
                                         />
@@ -258,7 +252,7 @@ const Header = () => {
                                         Thông tin cá nhân
                                     </Link>
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={handleLogoutClick}
                                         className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
                                     >
                                         Đăng xuất
@@ -336,7 +330,7 @@ const Header = () => {
                                         Thông tin cá nhân
                                     </Link>
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={handleLogoutClick}
                                         className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
                                     >
                                         Đăng xuất
@@ -345,6 +339,30 @@ const Header = () => {
                             )}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Logout Confirmation Modal */}
+            {isLogoutModalOpen && (
+                <div className="fixed w-screen inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+                        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Xác nhận đăng xuất</h2>
+                        <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?</p>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setIsLogoutModalOpen(false)}
+                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleLogoutConfirm}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none"
+                            >
+                                Đăng xuất
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </header>

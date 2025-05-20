@@ -1,12 +1,13 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { saveUserToLocalStorage } from "../assets/js/userData.jsx"
-
+import { Link } from "react-router-dom"
 const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -47,6 +48,7 @@ const LoginPage = () => {
             const response = await api.post("/users/login", { email, password });
             const { user, token } = response.data;
 
+            // Lưu thông tin vào localStorage
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("token", token);
             localStorage.setItem("isLoggedIn", "true");
@@ -54,9 +56,9 @@ const LoginPage = () => {
 
             setEmail("");
             setPassword("");
-            saveUserToLocalStorage(user);
-            console.log("hung1" + user.userId);
-
+            saveUserToLocalStorage(user)
+            console.log("hung1"+user.userId)
+            // Chuyển hướng dựa trên vai trò
             if (user.role === "ADMIN") {
                 navigate("/admin");
             } else {

@@ -22,145 +22,108 @@ import {
     Layers,
     Check,
 } from "lucide-react"
-
-// Sample categories
-const categories = [
-    { id: "kitchen", name: "Nhà bếp" },
-    { id: "bathroom", name: "Phòng tắm" },
-    { id: "bedroom", name: "Phòng ngủ" },
-    { id: "livingroom", name: "Phòng khách" },
-    { id: "furniture", name: "Nội thất" },
-    { id: "decoration", name: "Đồ trang trí" }
-]
+import api from "../services/api.js"
 
 export default function ProductsAdminPage() {
-    // State for products data
     const [products, setProducts] = useState([])
+    const [categories, setCategories] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
-
-    // State for search and pagination
     const [searchQuery, setSearchQuery] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
     const productsPerPage = 10
-
-    // State for add/edit product modal
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
-
-    // State for notification
     const [notification, setNotification] = useState(null)
 
-    // Show notification
     const showNotification = (type, message) => {
         setNotification({ type, message })
         setTimeout(() => setNotification(null), 3000)
     }
 
-    // Fetch products from API
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get("/products/categories")
+            setCategories(response.data)
+        } catch (err) {
+            console.error("Lỗi khi tải danh mục:", err)
+            setError(err.response?.data?.message || "Không thể tải danh mục")
+        }
+    }
+
     const fetchProducts = async () => {
         try {
             setIsLoading(true)
-            const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product")
-
-            if (!response.ok) {
-                throw new Error(`Lỗi API: ${response.status}`)
-            }
-
-            const data = await response.json()
-            setProducts(data.reverse())
+            const response = await api.get(`/products?page=${currentPage - 1}&size=${productsPerPage}`)
+            setProducts(response.data.content || [])
         } catch (err) {
             console.error("Lỗi khi tải dữ liệu:", err)
-            setError(err instanceof Error ? err.message : "Không thể tải dữ liệu sản phẩm")
+            setError(err.response?.data?.message || "Không thể tải dữ liệu sản phẩm")
         } finally {
             setIsLoading(false)
         }
     }
 
-    // Fetch products on component mount
     useEffect(() => {
+        fetchCategories()
         fetchProducts()
-    }, [])
+    }, [currentPage])
 
-    // Filter products based on search query
-    // Filter and sort products based on search query
-    const filteredProducts = products
-        .filter(
-            (product) =>
-                product.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.categoryId?.toLowerCase().includes(searchQuery.toLowerCase()),
-        )
+    const filteredProducts = products.filter(
+        (product) =>
+            product.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.categoryId?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
-// Pagination
-    const indexOfLastProduct = currentPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+    const indexOfLastProduct = currentPage * productsPerPage
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage
+    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
 
-    // Handle add new product
     const handleAddProduct = () => {
         setIsAddModalOpen(true)
     }
 
-    // Handle edit product
     const handleEditProduct = (product) => {
         setSelectedProduct(product)
         setIsUpdateModalOpen(true)
     }
 
-    // Handle product added
     const handleProductAdded = (newProduct) => {
-        setProducts([...products, newProduct])
+        setProducts([newProduct, ...products])
         showNotification("success", "Sản phẩm mới đã được thêm thành công")
     }
 
-    // Handle product updated
     const handleProductUpdated = (updatedProduct) => {
-        setProducts(products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)))
+        setProducts(products.map((p) => (p.productId === updatedProduct.productId ? updatedProduct : p)))
         showNotification("success", "Sản phẩm đã được cập nhật thành công")
     }
 
-
-    // Handle toggle product visibility
     const handleToggleVisibility = async (id, currentShow) => {
         try {
-            const product = products.find((p) => p.id === id)
-
+            const product = products.find((p) => p.productId === id)
             if (!product) return
 
-            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${product.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ ...product, show: !currentShow }),
-            })
+            const updatedData = { ...product, show: !currentShow }
+            const response = await api.put(`/products/${id}`, updatedData)
 
-            if (!response.ok) {
-                throw new Error("Không thể cập nhật trạng thái sản phẩm")
-            }
-
-            const updatedProduct = await response.json()
-            setProducts(products.map((p) => (p.id === id ? updatedProduct : p)))
-
+            setProducts(products.map((p) => (p.productId === id ? response.data : p)))
             showNotification("success", `Sản phẩm đã được ${!currentShow ? "hiển thị" : "ẩn"}`)
         } catch (err) {
             console.error("Lỗi khi cập nhật trạng thái:", err)
-            showNotification("error", err instanceof Error ? err.message : "Không thể cập nhật trạng thái sản phẩm")
+            showNotification("error", err.response?.data?.message || "Không thể cập nhật trạng thái sản phẩm")
         }
     }
 
-    // Format currency
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
     }
 
-    // Get category name by ID
     const getCategoryName = (categoryId) => {
-        const category = categories.find((c) => c.id === categoryId)
-        return category ? category.name : categoryId
+        const category = categories.find((c) => c.categoryId === categoryId)
+        return category ? category.categoryName : categoryId
     }
 
     if (isLoading) {
@@ -185,7 +148,7 @@ export default function ProductsAdminPage() {
                         onClick={fetchProducts}
                         className="px-4 py-2 bg-white border border-red-300 rounded-md text-red-700 hover:bg-red-50"
                     >
-                    Thử lại
+                        Thử lại
                     </button>
                 </div>
             </div>
@@ -194,7 +157,6 @@ export default function ProductsAdminPage() {
 
     return (
         <div className="container mx-auto p-4 md:p-6">
-            {/* Notification */}
             {notification && (
                 <div
                     className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
@@ -263,9 +225,6 @@ export default function ProductsAdminPage() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
                                 Tồn kho
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-                                Trạng thái
-                            </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Thao tác
                             </th>
@@ -274,18 +233,18 @@ export default function ProductsAdminPage() {
                         <tbody className="bg-white divide-y divide-gray-200">
                         {currentProducts.length === 0 ? (
                             <tr>
-                                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                                     Không tìm thấy sản phẩm nào
                                 </td>
                             </tr>
                         ) : (
                             currentProducts.map((product) => (
-                                <tr key={product.id} className="hover:bg-gray-50">
+                                <tr key={product.productId} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-md overflow-hidden bg-gray-100 border">
                                                 <img
-                                                    src={product.imageUrl ? "/" + product.imageUrl : "/placeholder.svg?height=40&width=40"}
+                                                    src={"/" + product.imageUrl || "/placeholder.svg?height=40&width=40"}
                                                     alt={product.productName}
                                                     className="h-full w-full object-cover"
                                                     onError={(e) => {
@@ -300,30 +259,16 @@ export default function ProductsAdminPage() {
                                         {getCategoryName(product.categoryId)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatCurrency(product.originalPrice)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                                         {formatCurrency(product.salePrice)}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.quantityInStock}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              product.show ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-800"
-                          }`}
-                      >
-                        {product.show ? "Hiển thị" : "Ẩn"}
-                      </span>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                        {formatCurrency(product.originalPrice)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {product.quantityInStock}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => handleToggleVisibility(product.id, product.show)}
-                                                className="p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                                                title={product.show ? "Ẩn sản phẩm" : "Hiển thị sản phẩm"}
-                                            >
-                                                {product.show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </button>
                                             <button
                                                 onClick={() => handleEditProduct(product)}
                                                 className="p-1 rounded-md text-blue-400 hover:text-blue-500 hover:bg-blue-50"
@@ -340,8 +285,7 @@ export default function ProductsAdminPage() {
                     </table>
                 </div>
 
-                {/* Pagination */}
-                {filteredProducts.length > productsPerPage && (
+                {totalPages > 1 && (
                     <div className="flex items-center justify-between px-4 py-3 border-t">
                         <div className="text-sm text-gray-700">
                             Hiển thị <span className="font-medium">{indexOfFirstProduct + 1}</span> đến{" "}
@@ -368,17 +312,16 @@ export default function ProductsAdminPage() {
                 )}
             </div>
 
-            {/* Add Product Modal */}
             {isAddModalOpen && (
                 <AddProductModal
                     isOpen={isAddModalOpen}
                     onClose={() => setIsAddModalOpen(false)}
                     onAddProduct={handleProductAdded}
                     categories={categories}
+                    setCategories={setCategories}
                 />
             )}
 
-            {/* Update Product Modal */}
             {isUpdateModalOpen && (
                 <UpdateProductModal
                     isOpen={isUpdateModalOpen}
@@ -386,22 +329,20 @@ export default function ProductsAdminPage() {
                     product={selectedProduct}
                     onUpdateProduct={handleProductUpdated}
                     categories={categories}
+                    setCategories={setCategories}
                 />
             )}
         </div>
     )
 }
 
-// Add Product Modal Component
-function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
+function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategories }) {
     const fileInputRef = useRef(null)
 
     const initialProduct = {
         productName: "",
         originalPrice: "",
-        salePrice: "",
         imageUrl: "",
-        images: [],
         description: "",
         categoryId: "",
         quantityInStock: 0,
@@ -414,34 +355,31 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
     const [imagePreviews, setImagePreviews] = useState([])
     const [currentStep, setCurrentStep] = useState(1)
     const [successMessage, setSuccessMessage] = useState("")
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+    const [newCategoryName, setNewCategoryName] = useState("")
+    const [categoryError, setCategoryError] = useState(null)
 
     const handleRefresh = () => {
         setProduct(initialProduct)
         setImagePreviews([])
         setError(null)
+        setCurrentStep(1)
+        setShowNewCategoryInput(false)
+        setNewCategoryName("")
+        setCategoryError(null)
     }
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target
-
         if (type === "file" && files) {
             const fileList = Array.from(files)
-            const newImageUrls = fileList.map((file) => `img/${file.name}`)
+            const fileName = fileList.length > 0 ? fileList[0].name : ""
+            const newImageUrl = fileName ? `img/${fileName}` : ""
             setProduct((prev) => ({
                 ...prev,
-                imageUrl: prev.imageUrl || newImageUrls[0] || "",
-                images: [...prev.images, ...newImageUrls.slice(1)],
+                imageUrl: newImageUrl,
             }))
-
-            // Create image previews
-            const newPreviews = fileList.map((file) => {
-                const reader = new FileReader()
-                reader.readAsDataURL(file)
-                return new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result)
-                })
-            })
-            Promise.all(newPreviews).then((previews) => setImagePreviews((prev) => [...prev, ...previews]))
+            setImagePreviews(fileName ? [`img/${fileName}`] : [])
         } else {
             setProduct((prev) => ({
                 ...prev,
@@ -450,78 +388,114 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
         }
     }
 
+    const handleCreateCategory = async () => {
+        setCategoryError(null)
+        setLoading(true)
+
+        try {
+            if (!newCategoryName || newCategoryName.length < 2 || newCategoryName.length > 50) {
+                throw new Error("Tên danh mục phải từ 2 đến 50 ký tự")
+            }
+
+            const categoryData = {
+                categoryName: newCategoryName,
+            }
+
+            const response = await api.post("/products/categories", categoryData)
+            setCategories((prev) => [...prev, response.data])
+            setProduct((prev) => ({ ...prev, categoryId: response.data.categoryId }))
+            setShowNewCategoryInput(false)
+            setNewCategoryName("")
+            setSuccessMessage("Danh mục mới đã được thêm thành công!")
+            setTimeout(() => setSuccessMessage(""), 2000)
+        } catch (err) {
+            console.error("Lỗi khi tạo danh mục:", err)
+            setCategoryError(err.response?.data?.message || err.message || "Không thể tạo danh mục")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const calculateSalePrice = (originalPrice) => {
+        if (!originalPrice || isNaN(originalPrice)) return 0
+        return Number.parseFloat(originalPrice) * 1.1 // Giá bán = Giá gốc + 10%
+    }
+
     const handleSubmit = async () => {
         setError(null)
         setLoading(true)
         setSuccessMessage("")
 
         try {
-            // Validate required fields
-            if (!product.productName || !product.salePrice || !product.categoryId) {
-                setError("Vui lòng điền đầy đủ thông tin bắt buộc")
-                setLoading(false)
-                return
+            if (!product.productName || product.productName.length < 2 || product.productName.length > 100) {
+                throw new Error("Tên sản phẩm phải từ 2 đến 100 ký tự")
+            }
+            if (!product.originalPrice || Number(product.originalPrice) <= 0) {
+                throw new Error("Giá gốc phải lớn hơn 0")
+            }
+            if (!product.categoryId) {
+                throw new Error("Vui lòng chọn danh mục")
+            }
+            if (Number(product.quantityInStock) < 0) {
+                throw new Error("Số lượng tồn kho phải lớn hơn hoặc bằng 0")
+            }
+            if (product.description && product.description.length > 500) {
+                throw new Error("Mô tả không được vượt quá 500 ký tự")
+            }
+
+            const salePrice = calculateSalePrice(product.originalPrice)
+            if (salePrice <= Number(product.originalPrice)) {
+                throw new Error("Giá bán (tính từ giá gốc + 10%) phải lớn hơn giá gốc")
             }
 
             const productData = {
                 productName: product.productName,
-                description: product.description,
-                originalPrice: product.originalPrice ? Number.parseInt(product.originalPrice, 10) : 0,
-                salePrice: product.salePrice ? Number.parseInt(product.salePrice, 10) : 0,
-                quantityInStock: product.quantityInStock ? Number.parseInt(product.quantityInStock, 10) : 0,
+                description: product.description || null,
+                originalPrice: salePrice, // Giá bán (originalPrice) gửi lên backend
+                salePrice: Number.parseFloat(product.originalPrice), // Giá gốc (salePrice) gửi lên backend
+                quantityInStock: Number.parseInt(product.quantityInStock, 10),
                 categoryId: product.categoryId,
-                imageUrl: product.imageUrl,
-                show: product.show,
+                imageUrl: product.imageUrl || null,
             }
 
-            console.log("Saving product data:", productData)
+            const response = await api.post("/products", productData)
 
-            // Call API to create product
-            const response = await fetch("https://67ff3fb458f18d7209f0785a.mockapi.io/test/product", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(productData),
-            })
-
-            if (!response.ok) {
-                throw new Error("Không thể thêm sản phẩm")
-            }
-
-            const newProduct = await response.json()
-
-            // Show success message
             setSuccessMessage("Sản phẩm đã được thêm thành công!")
-
-            // If we have a response, pass it to the callback
-            if (newProduct) {
-                onAddProduct(newProduct)
-            }
-
-            // Set a short timeout before closing to show the success message
-            setTimeout(() => {
-                onClose()
-            }, 1500)
+            onAddProduct(response.data)
+            setTimeout(onClose, 1500)
         } catch (err) {
             console.error("Error saving product:", err)
-            setError(err.message || "Đã có lỗi xảy ra khi thêm sản phẩm. Vui lòng thử lại.")
+            setError(err.response?.data?.message || err.message || "Đã có lỗi xảy ra khi thêm sản phẩm")
         } finally {
             setLoading(false)
         }
     }
 
     const nextStep = () => {
-        if (currentStep === 1 && (!product.productName || !product.salePrice || !product.categoryId)) {
-            setError("Vui lòng điền đầy đủ thông tin bắt buộc")
-            return
+        try {
+            if (currentStep === 1) {
+                if (!product.productName || product.productName.length < 2 || product.productName.length > 100) {
+                    throw new Error("Tên sản phẩm phải từ 2 đến 100 ký tự")
+                }
+                if (!product.originalPrice || Number(product.originalPrice) <= 0) {
+                    throw new Error("Giá gốc phải lớn hơn 0")
+                }
+                if (!product.categoryId) {
+                    throw new Error("Vui lòng chọn danh mục")
+                }
+                if (Number(product.quantityInStock) < 0) {
+                    throw new Error("Số lượng tồn kho phải lớn hơn hoặc bằng 0")
+                }
+            }
+            setError(null)
+            setCurrentStep((prev) => prev + 1)
+        } catch (err) {
+            setError(err.message)
         }
-        setError(null)
-        setCurrentStep(currentStep + 1)
     }
 
     const prevStep = () => {
-        setCurrentStep(currentStep - 1)
+        setCurrentStep((prev) => prev - 1)
         setError(null)
     }
 
@@ -530,45 +504,46 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
     }
 
     useEffect(() => {
-        if (successMessage) {
-            const timer = setTimeout(() => {
-                onClose()
-            }, 1500)
-            return () => clearTimeout(timer)
+        return () => {
+            imagePreviews.forEach((preview) => URL.revokeObjectURL(preview))
         }
-    }, [successMessage, onClose])
+    }, [imagePreviews])
 
     if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden transform transition-all">
-                {/* Header */}
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-4 flex justify-between items-center">
                     <h2 className="text-xl font-bold">Thêm sản phẩm mới</h2>
-                    <button onClick={onClose} className="p-1 rounded-full hover:bg-white/20 transition-colors">
+                    <button onClick={onClose} className="p-1 rounded-full hover:bg-white/20">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                {/* Progress indicator */}
                 <div className="px-6 pt-4">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center">
                             <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                    currentStep >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                                }`}
                             >
                                 1
                             </div>
                             <div className={`h-1 w-12 ${currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"}`}></div>
                             <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                    currentStep >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                                }`}
                             >
                                 2
                             </div>
                             <div className={`h-1 w-12 ${currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"}`}></div>
                             <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                    currentStep >= 3 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                                }`}
                             >
                                 3
                             </div>
@@ -579,7 +554,6 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                     </div>
                 </div>
 
-                {/* Form content */}
                 <div className="px-6 py-4">
                     {currentStep === 1 && (
                         <div className="space-y-4">
@@ -596,7 +570,7 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                         placeholder="Nhập tên sản phẩm"
                                         value={product.productName}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         required
                                     />
                                 </div>
@@ -605,45 +579,68 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                         <Layers className="w-4 h-4 mr-2 text-blue-600" />
                                         Danh mục <span className="text-red-500 ml-1">*</span>
                                     </label>
-                                    <select
-                                        name="categoryId"
-                                        id="categoryId"
-                                        value={product.categoryId}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                        required
-                                    >
-                                        <option value="">Chọn danh mục</option>
-                                        {categories.map((category) => (
-                                            <option key={category.id} value={category.id}>
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="salePrice" className="flex items-center text-sm font-medium text-gray-700">
-                                        <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
-                                        Giá bán <span className="text-red-500 ml-1">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="number"
-                                            name="salePrice"
-                                            id="salePrice"
-                                            placeholder="Nhập giá bán"
-                                            value={product.salePrice}
+                                    <div className="flex items-center space-x-2">
+                                        <select
+                                            name="categoryId"
+                                            id="categoryId"
+                                            value={product.categoryId}
                                             onChange={handleChange}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             required
-                                        />
-                                        <span className="absolute left-3 top-2 text-gray-500">₫</span>
+                                        >
+                                            <option value="">Chọn danh mục</option>
+                                            {categories.map((category) => (
+                                                <option key={category.categoryId} value={category.categoryId}>
+                                                    {category.categoryName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={() => setShowNewCategoryInput(true)}
+                                            className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 flex items-center"
+                                            title="Thêm danh mục mới"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
                                     </div>
+                                    {showNewCategoryInput && (
+                                        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập tên danh mục mới"
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                />
+                                                <button
+                                                    onClick={handleCreateCategory}
+                                                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                                                    disabled={loading}
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowNewCategoryInput(false)
+                                                        setNewCategoryName("")
+                                                        setCategoryError(null)
+                                                    }}
+                                                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 flex items-center"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {categoryError && (
+                                                <p className="mt-2 text-sm text-red-600">{categoryError}</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <label htmlFor="originalPrice" className="flex items-center text-sm font-medium text-gray-700">
                                         <DollarSign className="w-4 h-4 mr-2 text-blue-600" />
-                                        Giá gốc
+                                        Giá gốc <span className="text-red-500 ml-1">*</span>
                                     </label>
                                     <div className="relative">
                                         <input
@@ -653,7 +650,8 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                             placeholder="Nhập giá gốc"
                                             value={product.originalPrice}
                                             onChange={handleChange}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            required
                                         />
                                         <span className="absolute left-3 top-2 text-gray-500">₫</span>
                                     </div>
@@ -670,26 +668,26 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                         placeholder="Nhập số lượng tồn kho"
                                         value={product.quantityInStock}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            name="show"
-                                            id="show"
-                                            checked={product.show}
-                                            onChange={handleChange}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="show" className="text-sm text-gray-700">
-                                            Hiển thị sản phẩm
-                                        </label>
-                                    </div>
-                                </div>
+                                {/*<div className="space-y-2">*/}
+                                {/*    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>*/}
+                                {/*    <div className="flex items-center space-x-2">*/}
+                                {/*        <input*/}
+                                {/*            type="checkbox"*/}
+                                {/*            name="show"*/}
+                                {/*            id="show"*/}
+                                {/*            checked={product.show}*/}
+                                {/*            onChange={handleChange}*/}
+                                {/*            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"*/}
+                                {/*        />*/}
+                                {/*        <label htmlFor="show" className="text-sm text-gray-700">*/}
+                                {/*            Hiển thị sản phẩm*/}
+                                {/*        </label>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
                             </div>
                         </div>
                     )}
@@ -707,17 +705,19 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                     placeholder="Nhập mô tả chi tiết về sản phẩm"
                                     value={product.description}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     rows={5}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="flex items-center text-sm font-medium text-gray-700">
                                     <ImageIcon className="w-4 h-4 mr-2 text-blue-600" />
-                                    Hình ảnh sản phẩm <span className="text-red-500 ml-1">*</span>
+                                    Hình ảnh sản phẩm
                                 </label>
                                 <div
-                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${imagePreviews.length > 0 ? "border-blue-300" : "border-gray-300"}`}
+                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 ${
+                                        imagePreviews.length > 0 ? "border-blue-300" : "border-gray-300"
+                                    }`}
                                     onClick={triggerFileInput}
                                 >
                                     <input
@@ -728,32 +728,26 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                         onChange={handleChange}
                                         className="hidden"
                                         accept="image/*"
-                                        multiple
                                     />
-
                                     {imagePreviews.length > 0 ? (
                                         <div className="grid grid-cols-2 gap-4 w-full">
                                             {imagePreviews.map((preview, index) => (
                                                 <div key={index} className="relative">
-                                                    <img
-                                                        src={preview || "/placeholder.svg"}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="max-h-32 mx-auto object-contain"
-                                                    />
+                                                    <img src={"/" + preview} alt={`Preview ${index + 1}`} className="max-h-32 mx-auto object-contain" />
                                                     {index === 0 && (
                                                         <span className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                              Ảnh chính
-                            </span>
+                                                            Ảnh chính
+                                                        </span>
                                                     )}
                                                 </div>
                                             ))}
-                                            <p className="text-sm text-center text-gray-500">Nhấp để thêm hoặc thay đổi hình ảnh</p>
+                                            <p className="text-sm text-center text-gray-500">Nhấp để thay đổi hình ảnh</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-2 text-center">
                                             <Upload className="w-12 h-12 mx-auto text-blue-500" />
                                             <p className="text-gray-700 font-medium">Kéo thả hoặc nhấp để tải lên</p>
-                                            <p className="text-sm text-gray-500">PNG, JPG, GIF (tối đa 5MB, nhiều ảnh)</p>
+                                            <p className="text-sm text-gray-500">PNG, JPG, GIF (tối đa 5MB)</p>
                                         </div>
                                     )}
                                 </div>
@@ -764,7 +758,6 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                     {currentStep === 3 && (
                         <div className="space-y-6">
                             <h3 className="text-lg font-medium text-gray-900">Xác nhận thông tin sản phẩm</h3>
-
                             <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <p className="text-sm text-gray-500">Tên sản phẩm</p>
@@ -773,14 +766,22 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                 <div className="space-y-2">
                                     <p className="text-sm text-gray-500">Danh mục</p>
                                     <p className="font-medium">
-                                        {categories.find((c) => c.id === product.categoryId)?.name || "Chưa chọn danh mục"}
+                                        {categories.find((c) => c.categoryId === product.categoryId)?.categoryName || "Chưa chọn danh mục"}
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-sm text-gray-500">Giá gốc</p>
+                                    <p className="font-medium text-blue-600">
+                                        {product.originalPrice
+                                            ? `${Number.parseFloat(product.originalPrice).toLocaleString("vi-VN")}₫`
+                                            : "Chưa có thông tin"}
                                     </p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm text-gray-500">Giá bán</p>
                                     <p className="font-medium text-blue-600">
-                                        {product.salePrice
-                                            ? `${Number.parseInt(product.salePrice).toLocaleString("vi-VN")}₫`
+                                        {product.originalPrice
+                                            ? `${calculateSalePrice(product.originalPrice).toLocaleString("vi-VN")}₫`
                                             : "Chưa có thông tin"}
                                     </p>
                                 </div>
@@ -799,14 +800,14 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                             {imagePreviews.map((preview, index) => (
                                                 <img
                                                     key={index}
-                                                    src={preview || "/placeholder.svg"}
+                                                    src={"/" + preview}
                                                     alt={`Preview ${index + 1}`}
                                                     className="h-32 object-contain"
                                                 />
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-red-500">Chưa có hình ảnh</p>
+                                        <p className="text-gray-500">Chưa có hình ảnh</p>
                                     )}
                                 </div>
                             </div>
@@ -826,14 +827,13 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                         </div>
                     )}
 
-                    {/* Footer */}
                     <div className="mt-6 flex justify-between items-center">
                         <div>
                             {currentStep > 1 && (
                                 <button
                                     type="button"
                                     onClick={prevStep}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                                 >
                                     Quay lại
                                 </button>
@@ -843,17 +843,16 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                             <button
                                 type="button"
                                 onClick={handleRefresh}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center"
                             >
                                 <RefreshCw className="w-4 h-4 mr-2" />
                                 Làm mới
                             </button>
-
                             {currentStep < 3 ? (
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                 >
                                     Tiếp theo
                                 </button>
@@ -861,7 +860,7 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
                                     disabled={loading}
                                 >
                                     {loading ? (
@@ -904,80 +903,95 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories }) {
     )
 }
 
-// Update Product Modal Component
-function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categories }) {
+function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categories, setCategories }) {
     const fileInputRef = useRef(null)
 
-    const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [imageFiles, setImageFiles] = useState([])
-    const [imagePreviews, setImagePreviews] = useState([])
-    const [currentStep, setCurrentStep] = useState(1)
-    const [successMessage, setSuccessMessage] = useState("")
-
     const [formData, setFormData] = useState({
-        id: "",
+        productId: "",
         productName: "",
         originalPrice: "",
-        salePrice: "",
         description: "",
         imageUrl: "",
-        images: [],
         categoryId: "",
         quantityInStock: "",
         show: true,
     })
 
+    const [error, setError] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [imagePreviews, setImagePreviews] = useState([])
+    const [currentStep, setCurrentStep] = useState(1)
+    const [successMessage, setSuccessMessage] = useState("")
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+    const [newCategoryName, setNewCategoryName] = useState("")
+    const [categoryError, setCategoryError] = useState(null)
+
     useEffect(() => {
         if (product) {
             setFormData({
-                id: product.id || "",
+                productId: product.productId || "",
                 productName: product.productName || "",
-                originalPrice: product.originalPrice || 0,
-                salePrice: product.salePrice || 0,
+                originalPrice: product.salePrice || "", // Lấy salePrice làm giá gốc trong giao diện
                 description: product.description || "",
                 imageUrl: product.imageUrl || "",
-                images: product.images || [],
                 categoryId: product.categoryId || "",
-                quantityInStock: product.quantityInStock || 0,
+                quantityInStock: product.quantityInStock || "",
                 show: product.show !== undefined ? product.show : true,
             })
-
-            // Set image previews if there are images
-            if (product.imageUrl) {
-                setImagePreviews([`/${product.imageUrl}`])
-            }
+            setImagePreviews(product.imageUrl ? [product.imageUrl] : [])
         }
     }, [product])
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }))
-    }
-
-    const handleImageChange = (e) => {
-        const files = Array.from(e.target.files)
-        if (files.length > 0) {
-            const newImageUrls = files.map((file) => `img/${file.name}`)
-            setImageFiles((prev) => [...prev, ...files])
+        const { name, value, type, checked, files } = e.target
+        if (type === "file" && files) {
+            const fileList = Array.from(files)
+            const fileName = fileList.length > 0 ? fileList[0].name : ""
+            const newImageUrl = fileName ? `img/${fileName}` : ""
             setFormData((prev) => ({
                 ...prev,
-                imageUrl: prev.imageUrl || newImageUrls[0] || "",
-                images: [...prev.images, ...newImageUrls.slice(1)],
+                imageUrl: newImageUrl,
             }))
-
-            const newPreviews = files.map((file) => {
-                const reader = new FileReader()
-                reader.readAsDataURL(file)
-                return new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result)
-                })
-            })
-            Promise.all(newPreviews).then((previews) => setImagePreviews((prev) => [...prev, ...previews]))
+            setImagePreviews(fileName ? [`img/${fileName}`] : [])
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: type === "checkbox" ? checked : value,
+            }))
         }
+    }
+
+    const handleCreateCategory = async () => {
+        setCategoryError(null)
+        setLoading(true)
+
+        try {
+            if (!newCategoryName || newCategoryName.length < 2 || newCategoryName.length > 50) {
+                throw new Error("Tên danh mục phải từ 2 đến 50 ký tự")
+            }
+
+            const categoryData = {
+                categoryName: newCategoryName,
+            }
+
+            const response = await api.post("/products/categories", categoryData)
+            setCategories((prev) => [...prev, response.data])
+            setFormData((prev) => ({ ...prev, categoryId: response.data.categoryId }))
+            setShowNewCategoryInput(false)
+            setNewCategoryName("")
+            setSuccessMessage("Danh mục mới đã được thêm thành công!")
+            setTimeout(() => setSuccessMessage(""), 2000)
+        } catch (err) {
+            console.error("Lỗi khi tạo danh mục:", err)
+            setCategoryError(err.response?.data?.message || err.message || "Không thể tạo danh mục")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const calculateSalePrice = (originalPrice) => {
+        if (!originalPrice || isNaN(originalPrice)) return 0
+        return Number.parseFloat(originalPrice) * 1.1 // Giá bán = Giá gốc + 10%
     }
 
     const handleSubmit = async () => {
@@ -986,74 +1000,75 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
         setSuccessMessage("")
 
         try {
-            if (!formData.productName || !formData.salePrice || !formData.categoryId || !formData.quantityInStock) {
-                setError("Vui lòng điền đầy đủ thông tin bắt buộc")
-                setLoading(false)
-                return
+            if (!formData.productName || formData.productName.length < 2 || formData.productName.length > 100) {
+                throw new Error("Tên sản phẩm phải từ 2 đến 100 ký tự")
+            }
+            if (!formData.originalPrice || Number(formData.originalPrice) <= 0) {
+                throw new Error("Giá gốc phải lớn hơn 0")
+            }
+            if (!formData.categoryId) {
+                throw new Error("Vui lòng chọn danh mục")
+            }
+            if (Number(formData.quantityInStock) < 0) {
+                throw new Error("Số lượng tồn kho phải lớn hơn hoặc bằng 0")
+            }
+            if (formData.description && formData.description.length > 500) {
+                throw new Error("Mô tả không được vượt quá 500 ký tự")
+            }
+
+            const salePrice = calculateSalePrice(formData.originalPrice)
+            if (salePrice <= Number(formData.originalPrice)) {
+                throw new Error("Giá bán (tính từ giá gốc + 10%) phải lớn hơn giá gốc")
             }
 
             const updatedData = {
-                id: formData.id,
                 productName: formData.productName,
-                originalPrice: Number.parseInt(formData.originalPrice?.toString() || "0", 10),
-                salePrice: Number.parseInt(formData.salePrice?.toString() || "0", 10),
-                description: formData.description,
-                imageUrl: formData.imageUrl,
+                description: formData.description || null,
+                originalPrice: salePrice, // Giá bán (originalPrice) gửi lên backend
+                salePrice: Number.parseFloat(formData.originalPrice), // Giá gốc (salePrice) gửi lên backend
+                quantityInStock: Number.parseInt(formData.quantityInStock, 10),
                 categoryId: formData.categoryId,
-                quantityInStock: Number.parseInt(formData.quantityInStock?.toString() || "0", 10),
-                show: formData.show,
+                imageUrl: formData.imageUrl || null,
             }
 
-            console.log("Updating product with data:", updatedData)
+            const response = await api.put(`/products/${formData.productId}`, updatedData)
 
-            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${formData.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedData),
-            })
-
-            if (!response.ok) {
-                throw new Error("Không thể cập nhật sản phẩm")
-            }
-
-            const updatedProduct = await response.json()
-
-            // Hiển thị thông báo thành công
             setSuccessMessage("Sản phẩm đã được cập nhật thành công!")
-
-            // Pass updated product to parent component
-            if (updatedProduct) {
-                onUpdateProduct(updatedProduct)
-            }
-
-            // Đợi một chút để người dùng thấy thông báo thành công
-            setTimeout(() => {
-                onClose()
-            }, 1500)
+            onUpdateProduct(response.data)
+            setTimeout(onClose, 1500)
         } catch (err) {
             console.error("Error updating product:", err)
-            setError(err.message || "Đã có lỗi xảy ra khi cập nhật sản phẩm. Vui lòng thử lại.")
+            setError(err.response?.data?.message || err.message || "Đã có lỗi xảy ra khi cập nhật sản phẩm")
         } finally {
             setLoading(false)
         }
     }
 
     const nextStep = () => {
-        if (
-            currentStep === 1 &&
-            (!formData.productName || !formData.salePrice || !formData.categoryId || !formData.quantityInStock)
-        ) {
-            setError("Vui lòng điền đầy đủ thông tin bắt buộc")
-            return
+        try {
+            if (currentStep === 1) {
+                if (!formData.productName || formData.productName.length < 2 || formData.productName.length > 100) {
+                    throw new Error("Tên sản phẩm phải từ 2 đến 100 ký tự")
+                }
+                if (!formData.originalPrice || Number(formData.originalPrice) <= 0) {
+                    throw new Error("Giá gốc phải lớn hơn 0")
+                }
+                if (!formData.categoryId) {
+                    throw new Error("Vui lòng chọn danh mục")
+                }
+                if (Number(formData.quantityInStock) < 0) {
+                    throw new Error("Số lượng tồn kho phải lớn hơn hoặc bằng 0")
+                }
+            }
+            setError(null)
+            setCurrentStep((prev) => prev + 1)
+        } catch (err) {
+            setError(err.message)
         }
-        setError(null)
-        setCurrentStep(currentStep + 1)
     }
 
     const prevStep = () => {
-        setCurrentStep(currentStep - 1)
+        setCurrentStep((prev) => prev - 1)
         setError(null)
     }
 
@@ -1061,14 +1076,20 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
         fileInputRef.current.click()
     }
 
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach((preview) => URL.revokeObjectURL(preview))
+        }
+    }, [imagePreviews])
+
     if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden transform transition-all">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-600 to-indigo-800 text-white px-6 py-4 flex justify-between items-center">
                     <h2 className="text-xl font-bold">Cập nhật sản phẩm</h2>
-                    <button onClick={onClose} className="p-1 rounded-full hover:bg-white/20 transition-colors">
+                    <button onClick={onClose} className="p-1 rounded-full hover:bg-white/20">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
@@ -1122,7 +1143,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         placeholder="Nhập tên sản phẩm"
                                         value={formData.productName}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                         required
                                     />
                                 </div>
@@ -1131,45 +1152,68 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         <Layers className="w-4 h-4 mr-2 text-indigo-600" />
                                         Danh mục <span className="text-red-500 ml-1">*</span>
                                     </label>
-                                    <select
-                                        name="categoryId"
-                                        id="categoryId"
-                                        value={formData.categoryId}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                                        required
-                                    >
-                                        <option value="">Chọn danh mục</option>
-                                        {categories.map((category) => (
-                                            <option key={category.id} value={category.id}>
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="salePrice" className="flex items-center text-sm font-medium text-gray-700">
-                                        <DollarSign className="w-4 h-4 mr-2 text-indigo-600" />
-                                        Giá bán <span className="text-red-500 ml-1">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="number"
-                                            name="salePrice"
-                                            id="salePrice"
-                                            placeholder="Nhập giá bán"
-                                            value={formData.salePrice}
+                                    <div className="flex items-center space-x-2">
+                                        <select
+                                            name="categoryId"
+                                            id="categoryId"
+                                            value={formData.categoryId}
                                             onChange={handleChange}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                             required
-                                        />
-                                        <span className="absolute left-3 top-2 text-gray-500">₫</span>
+                                        >
+                                            <option value="">Chọn danh mục</option>
+                                            {categories.map((category) => (
+                                                <option key={category.categoryId} value={category.categoryId}>
+                                                    {category.categoryName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={() => setShowNewCategoryInput(true)}
+                                            className="px-3 py-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 flex items-center"
+                                            title="Thêm danh mục mới"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
                                     </div>
+                                    {showNewCategoryInput && (
+                                        <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập tên danh mục mới"
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                                />
+                                                <button
+                                                    onClick={handleCreateCategory}
+                                                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                                                    disabled={loading}
+                                                >
+                                                    <Save className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowNewCategoryInput(false)
+                                                        setNewCategoryName("")
+                                                        setCategoryError(null)
+                                                    }}
+                                                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 flex items-center"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {categoryError && (
+                                                <p className="mt-2 text-sm text-red-600">{categoryError}</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <label htmlFor="originalPrice" className="flex items-center text-sm font-medium text-gray-700">
                                         <DollarSign className="w-4 h-4 mr-2 text-indigo-600" />
-                                        Giá gốc
+                                        Giá gốc <span className="text-red-500 ml-1">*</span>
                                     </label>
                                     <div className="relative">
                                         <input
@@ -1179,7 +1223,8 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                             placeholder="Nhập giá gốc"
                                             value={formData.originalPrice}
                                             onChange={handleChange}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                            required
                                         />
                                         <span className="absolute left-3 top-2 text-gray-500">₫</span>
                                     </div>
@@ -1196,26 +1241,26 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         placeholder="Nhập số lượng tồn kho"
                                         value={formData.quantityInStock}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            name="show"
-                                            id="show"
-                                            checked={formData.show}
-                                            onChange={handleChange}
-                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                        />
-                                        <label htmlFor="show" className="text-sm text-gray-700">
-                                            Hiển thị sản phẩm
-                                        </label>
-                                    </div>
-                                </div>
+                                {/*<div className="space-y-2">*/}
+                                {/*    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>*/}
+                                {/*    <div className="flex items-center space-x-2">*/}
+                                {/*        <input*/}
+                                {/*            type="checkbox"*/}
+                                {/*            name="show"*/}
+                                {/*            id="show"*/}
+                                {/*            checked={formData.show}*/}
+                                {/*            onChange={handleChange}*/}
+                                {/*            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"*/}
+                                {/*        />*/}
+                                {/*        <label htmlFor="show" className="text-sm text-gray-700">*/}
+                                {/*            Hiển thị sản phẩm*/}
+                                {/*        </label>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
                             </div>
                         </div>
                     )}
@@ -1233,7 +1278,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                     placeholder="Nhập mô tả chi tiết về sản phẩm"
                                     value={formData.description}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                     rows={5}
                                 />
                             </div>
@@ -1243,7 +1288,9 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                     Hình ảnh sản phẩm
                                 </label>
                                 <div
-                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${imagePreviews.length > 0 ? "border-indigo-300" : "border-gray-300"}`}
+                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 ${
+                                        imagePreviews.length > 0 ? "border-indigo-300" : "border-gray-300"
+                                    }`}
                                     onClick={triggerFileInput}
                                 >
                                     <input
@@ -1251,35 +1298,29 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         name="images"
                                         id="images"
                                         ref={fileInputRef}
-                                        onChange={handleImageChange}
+                                        onChange={handleChange}
                                         className="hidden"
                                         accept="image/*"
-                                        multiple
                                     />
-
                                     {imagePreviews.length > 0 ? (
                                         <div className="grid grid-cols-2 gap-4 w-full">
                                             {imagePreviews.map((preview, index) => (
                                                 <div key={index} className="relative">
-                                                    <img
-                                                        src={preview || "/placeholder.svg"}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="max-h-32 mx-auto object-contain"
-                                                    />
+                                                    <img src={"/" + preview} alt={`Preview ${index + 1}`} className="max-h-32 mx-auto object-contain" />
                                                     {index === 0 && (
                                                         <span className="absolute top-1 left-1 bg-indigo-600 text-white text-xs px-2 py-1 rounded">
-                              Ảnh chính
-                            </span>
+                                                            Ảnh chính
+                                                        </span>
                                                     )}
                                                 </div>
                                             ))}
-                                            <p className="text-sm text-center text-gray-500">Nhấp để thêm hoặc thay đổi hình ảnh</p>
+                                            <p className="text-sm text-center text-gray-500">Nhấp để thay đổi hình ảnh</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-2 text-center">
                                             <Upload className="w-12 h-12 mx-auto text-indigo-500" />
                                             <p className="text-gray-700 font-medium">Kéo thả hoặc nhấp để tải lên</p>
-                                            <p className="text-sm text-gray-500">PNG, JPG, GIF (tối đa 5MB, nhiều ảnh)</p>
+                                            <p className="text-sm text-gray-500">PNG, JPG, GIF (tối đa 5MB)</p>
                                         </div>
                                     )}
                                 </div>
@@ -1298,14 +1339,22 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                 <div className="space-y-2">
                                     <p className="text-sm text-gray-500">Danh mục</p>
                                     <p className="font-medium">
-                                        {categories.find((c) => c.id === formData.categoryId)?.name || "Chưa chọn danh mục"}
+                                        {categories.find((c) => c.categoryId === formData.categoryId)?.categoryName || "Chưa chọn danh mục"}
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-sm text-gray-500">Giá gốc</p>
+                                    <p className="font-medium text-indigo-600">
+                                        {formData.originalPrice
+                                            ? `${Number.parseFloat(formData.originalPrice).toLocaleString("vi-VN")}₫`
+                                            : "Chưa có thông tin"}
                                     </p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm text-gray-500">Giá bán</p>
                                     <p className="font-medium text-indigo-600">
-                                        {formData.salePrice
-                                            ? `${Number.parseInt(formData.salePrice.toString()).toLocaleString("vi-VN")}₫`
+                                        {formData.originalPrice
+                                            ? `${calculateSalePrice(formData.originalPrice).toLocaleString("vi-VN")}₫`
                                             : "Chưa có thông tin"}
                                     </p>
                                 </div>
@@ -1324,14 +1373,14 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                             {imagePreviews.map((preview, index) => (
                                                 <img
                                                     key={index}
-                                                    src={preview || "/placeholder.svg"}
+                                                    src={"/" + preview}
                                                     alt={`Preview ${index + 1}`}
                                                     className="h-32 object-contain"
                                                 />
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-gray-500">Không thay đổi hình ảnh</p>
+                                        <p className="text-gray-500">Chưa có hình ảnh</p>
                                     )}
                                 </div>
                             </div>
@@ -1357,7 +1406,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                 <button
                                     type="button"
                                     onClick={prevStep}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                                 >
                                     Quay lại
                                 </button>
@@ -1367,7 +1416,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center"
                             >
                                 <X className="w-4 h-4 mr-2" />
                                 Hủy
@@ -1376,7 +1425,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all"
+                                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                                 >
                                     Tiếp theo
                                 </button>
@@ -1384,7 +1433,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
                                     disabled={loading}
                                 >
                                     {loading ? (
