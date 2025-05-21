@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
-import api from "../services/api.js" // Sử dụng instance Axios
+import api from "../services/api.js"
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingCart, CheckCircle, AlertTriangle, X } from "lucide-react"
+import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const ProductDetailPage = () => {
     const { id } = useParams()
@@ -16,15 +17,14 @@ const ProductDetailPage = () => {
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
-    const user = JSON.parse(localStorage.getItem("user") || "{}")
-    const userId = user?.email || null
+    const user = getUserFromLocalStorage()
+    const userId = user?.userId || null  // Sửa lại để lấy userId thay vì email
 
     useEffect(() => {
         const fetchProductData = async () => {
             try {
                 setLoading(true)
                 const productResponse = await api.get(`/products/${id}`)
-                console.log("hung"+id)
                 const productData = productResponse.data
                 setProduct(productData)
 
@@ -68,6 +68,7 @@ const ProductDetailPage = () => {
                 }
             } catch (error) {
                 console.error("Lỗi khi kiểm tra giỏ hàng:", error)
+                showNotification("error", "Không thể kiểm tra giỏ hàng. Vui lòng thử lại.")
             }
         }
 
@@ -113,6 +114,7 @@ const ProductDetailPage = () => {
 
     const handleAddToCart = async () => {
         if (!userId) {
+            showNotification("error", "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.")
             navigate("/login")
             return
         }
@@ -143,6 +145,7 @@ const ProductDetailPage = () => {
 
     const handleBuyNow = async () => {
         if (!userId) {
+            showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
             navigate("/login")
             return
         }
@@ -211,7 +214,7 @@ const ProductDetailPage = () => {
                 <div className="space-y-4">
                     <div className="relative overflow-hidden rounded-xl bg-white shadow-lg">
                         <img
-                            src={"/"+product.imageUrl}
+                            src={"/" + product.imageUrl}
                             alt={product.productName}
                             className="w-full h-100 object-contain transition-transform duration-200 hover:scale-95"
                         />
@@ -226,7 +229,6 @@ const ProductDetailPage = () => {
                     <div className="space-y-2">
                         <div className="flex items-baseline space-x-4">
                             <span className="text-3xl font-bold text-indigo-600">{product.originalPrice.toLocaleString("vi-VN")}₫</span>
-
                         </div>
                         <p className="text-sm text-green-600 font-semibold">✓ Còn hàng: {product.quantityInStock} sản phẩm</p>
                         {isInCart && (
@@ -333,7 +335,7 @@ const ProductDetailPage = () => {
                             >
                                 <div className="aspect-square relative overflow-hidden bg-gray-100">
                                     <img
-                                        src={"/"+item.imageUrl}
+                                        src={"/" + item.imageUrl}
                                         alt={item.productName}
                                         className="m-5 h-80 mx-auto object-contain transition-transform duration-300"
                                     />
@@ -353,11 +355,11 @@ const ProductDetailPage = () => {
             </div>
 
             <style>{`
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-.animate-slide-in { animation: slideIn 0.3s ease-out; }
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                .animate-slide-in { animation: slideIn 0.3s ease-out; }
             `}</style>
         </div>
     )
