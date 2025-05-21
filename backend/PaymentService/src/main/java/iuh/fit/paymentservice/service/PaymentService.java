@@ -52,7 +52,7 @@ public class PaymentService {
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         logger.info("Bắt đầu tạo thanh toán cho đơn hàng: {}", request.getOrderId());
         try {
-            String orderUrl = "http://api-gateway:8080/api/orders/" + request.getOrderId();
+            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + request.getOrderId();
             logger.info("Gọi Order Service tại: {}", orderUrl);
             OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
             if (order == null || order.getTotalAmount() != request.getAmount()) {
@@ -84,7 +84,7 @@ public class PaymentService {
 
         // Xác thực đơn hàng
         try {
-            String orderUrl = "http://api-gateway:8080/api/orders/" + request.getOrderId();
+            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + request.getOrderId();
             OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
             if (order == null || order.getTotalAmount() != request.getAmount()) {
                 logger.error("Đơn hàng không hợp lệ hoặc số tiền không khớp.");
@@ -160,7 +160,7 @@ public class PaymentService {
 
     private String getUserIdFromOrder(String orderId) {
         try {
-            String orderUrl = "http://api-gateway:8080/api/orders/" + orderId;
+            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + orderId;
             OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
             return order != null ? order.getUserId() : null;
         } catch (Exception e) {
