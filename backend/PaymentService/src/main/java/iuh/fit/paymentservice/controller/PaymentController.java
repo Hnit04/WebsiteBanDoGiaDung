@@ -36,7 +36,7 @@ public class PaymentController {
     @PostMapping("/sepay/webhook")
     public ResponseEntity<WebhookResponse> handleWebhook(@RequestBody SepayWebhookRequest request) {
         try {
-            String paymentId = extractPaymentId(request.getContent() != null ? request.getContent() : request.getDescription());
+            String paymentId = extractPaymentId(request.getContent(), request.getDescription());
             String status = request.getTransferType().equals("in") ? "SUCCESS" : "PENDING";
             PaymentResponse updatedPayment = paymentService.updatePaymentStatus(paymentId, status, request.getTransferAmount());
             return ResponseEntity.ok().body(new WebhookResponse(true, "Webhook nhận và xử lý thành công"));
@@ -45,15 +45,26 @@ public class PaymentController {
         }
     }
 
-    private String extractPaymentId(String text) {
-        if (text != null) {
-            // Giả sử paymentId có định dạng THTxxxx
-            String regex = "THT\\d+";
-            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(regex).matcher(text);
+    private String extractPaymentId(String content, String description) {
+        String regex = "THT\\d+";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+
+        // Kiểm tra trường content
+        if (content != null) {
+            java.util.regex.Matcher matcher = pattern.matcher(content);
             if (matcher.find()) {
                 return matcher.group();
             }
         }
+
+        // Kiểm tra trường description
+        if (description != null) {
+            java.util.regex.Matcher matcher = pattern.matcher(description);
+            if (matcher.find()) {
+                return matcher.group();
+            }
+        }
+
         throw new RuntimeException("Không tìm thấy paymentId trong webhook");
     }
 }
