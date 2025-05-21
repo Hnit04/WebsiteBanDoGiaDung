@@ -1,4 +1,3 @@
-// CartPage.jsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -9,7 +8,7 @@ import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
-    const [products, setProducts] = useState([])
+    const [products, setProducts] = useState([]) // State để lưu danh sách sản phẩm
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isUpdating, setIsUpdating] = useState(false)
@@ -42,7 +41,7 @@ const CartPage = () => {
                 }
 
                 // Lấy tất cả sản phẩm
-                const productResponse = await api.get(`/products?page=0&size=1000`)
+                const productResponse = await api.get(`/products?page=0&size=1000`) // Lấy trang đầu, số lượng lớn để lấy hết
                 if (productResponse.data && productResponse.data.content) {
                     setProducts(productResponse.data.content)
                 } else {
@@ -68,6 +67,7 @@ const CartPage = () => {
             const response = await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
             if (response.data && response.data.cartItems) {
                 setCartItems(response.data.cartItems)
+                // Phát sự kiện để cập nhật Header
                 window.dispatchEvent(new Event("cartUpdated"))
             }
             showNotification("success", "Cập nhật số lượng thành công!")
@@ -106,6 +106,7 @@ const CartPage = () => {
                 newSet.delete(itemToDelete.cartItemId)
                 return newSet
             })
+            // Phát sự kiện để cập nhật Header
             window.dispatchEvent(new Event("cartUpdated"))
             showNotification("success", `Đã xóa ${itemToDelete.productName} khỏi giỏ hàng`)
         } catch (err) {
@@ -130,11 +131,15 @@ const CartPage = () => {
         const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0)
         const subtotal = selectedCartItems.reduce((total, item) => {
             const productInfo = getProductInfo(item.productId)
-            return total + (productInfo.price || 0) * item.quantity
+            return total + (productInfo.salePrice || 0) * item.quantity
         }, 0)
         return { totalItems, subtotal }
     }
 
+    const getProductInfo = (productId) => {
+        const product = products.find((p) => p.productId === productId)
+        return product || { imageUrl: null, categoryId: "N/A", salePrice: 0 }
+    }
     // Toggle selection of an item
     const toggleItemSelection = (itemId) => {
         setSelectedItems((prev) => {
@@ -159,12 +164,6 @@ const CartPage = () => {
         }
         const itemIds = Array.from(selectedItems)
         navigate(`/checkout?items=${itemIds.join(",")}`)
-    }
-
-    // Hàm lấy thông tin sản phẩm dựa trên productId
-    const getProductInfo = (productId) => {
-        const product = products.find((p) => p.productId === productId)
-        return product || { imageUrl: null, categoryId: "N/A", price: 0 }
     }
 
     if (!userId) {
@@ -364,7 +363,7 @@ const CartPage = () => {
                                                         <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p>
                                                     </div>
                                                     <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
-                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.price)}
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.originalPrice)}
                                                     </p>
                                                 </div>
 
