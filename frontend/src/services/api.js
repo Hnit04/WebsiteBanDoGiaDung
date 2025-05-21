@@ -2,6 +2,10 @@ import axios from "axios";
 
 const api = axios.create({
     baseURL: " https://websitebandogiadung.onrender.com/api/", // Sử dụng proxy đến API Gateway
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true, // Gửi cookie nếu cần
 });
 // Xử lý CORS
 api.interceptors.request.use(config => {

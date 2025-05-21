@@ -45,7 +45,7 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await api.post("users/login", { email, password });
+            const response = await api.post("/users/login", { email, password });
             const { user, token } = response.data;
 
             // Lưu thông tin vào localStorage
