@@ -18,7 +18,7 @@ const ProductDetailPage = () => {
     const navigate = useNavigate()
 
     const user = getUserFromLocalStorage()
-    const userId = user?.userId || null  // Sửa lại để lấy userId thay vì email
+    const userId = user?.userId || null
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -144,11 +144,11 @@ const ProductDetailPage = () => {
     }
 
     const handleBuyNow = async () => {
-        if (!userId) {
-            showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
-            navigate("/login")
-            return
-        }
+        // if (!userId) {
+        //     showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
+        //     navigate("/login")
+        //     return
+        // }
 
         try {
             setIsAddingToCart(true)
