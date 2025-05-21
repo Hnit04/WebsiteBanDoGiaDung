@@ -1,4 +1,3 @@
-// PaymentTimeoutTask.java
 package iuh.fit.paymentservice.service;
 
 import iuh.fit.paymentservice.dto.TransactionUpdate;
@@ -37,7 +36,12 @@ public class PaymentTimeoutTask {
         paymentRepository.findAll().stream()
                 .filter(payment -> payment.getStatus() == PaymentStatus.PENDING)
                 .filter(payment -> {
-                    LocalDateTime paymentDateTime = payment.getPaymentDate().atStartOfDay();
+                    LocalDateTime paymentDateTime = payment.getPaymentDate();
+                    if (paymentDateTime == null) {
+                        logger.warn("paymentDate null cho giao dịch: {}", payment.getPaymentId());
+                        return false;
+                    }
+                    logger.debug("paymentDate của giao dịch {}: {}", payment.getPaymentId(), paymentDateTime);
                     long secondsElapsed = ChronoUnit.SECONDS.between(paymentDateTime, LocalDateTime.now());
                     return secondsElapsed > transactionTimeout;
                 })
