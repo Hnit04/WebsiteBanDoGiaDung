@@ -1,4 +1,3 @@
-// PaymentService.java
 package iuh.fit.paymentservice.service;
 
 import iuh.fit.paymentservice.config.RabbitMQConfig;
@@ -23,7 +22,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime; // Thay đổi từ LocalDate
 
 @Service
 public class PaymentService {
@@ -63,7 +62,7 @@ public class PaymentService {
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId(request.getPaymentMethodId());
         payment.setAmount(request.getAmount());
-        payment.setPaymentDate(LocalDate.now());
+        payment.setPaymentDate(LocalDateTime.now()); // Thay đổi từ LocalDate.now()
         payment.setStatus(PaymentStatus.COMPLETED);
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -81,7 +80,7 @@ public class PaymentService {
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId("sepay-qr");
         payment.setAmount(request.getAmount());
-        payment.setPaymentDate(LocalDate.now());
+        payment.setPaymentDate(LocalDateTime.now()); // Thay đổi từ LocalDate.now()
         payment.setStatus(PaymentStatus.PENDING);
 
         String qrCodeUrl = String.format("%s?acc=%s&bank=%s&amount=%s&des=%s",

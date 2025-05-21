@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime; // Thay đổi từ LocalDate
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +16,8 @@ public class Payment {
     private String orderId;
     private String paymentMethodId;
     private double amount;
-    private LocalDate paymentDate;
+    private LocalDateTime paymentDate; // Thay đổi kiểu dữ liệu
     private PaymentStatus status;
-    private String qrCodeUrl; // Thêm trường cho URL mã QR
-    private List<String> errorLogs = new ArrayList<>(); // Thêm trường để lưu log lỗi
+    private String qrCodeUrl;
+    private List<String> errorLogs = new ArrayList<>();
 }
