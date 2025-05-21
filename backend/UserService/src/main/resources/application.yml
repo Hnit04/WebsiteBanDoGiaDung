@@ -32,13 +32,13 @@ spring:
         initial-interval: 2000ms
         max-attempts: 3
 
-  # Thêm cấu hình CORS
-  web:
-    cors:
-      allowed-origins: "https://tht-giadungthongminh.vercel.app/"
-      allowed-methods: "*"
-      allowed-headers: "*"
-      allow-credentials: true
+#  # Thêm cấu hình CORS
+#  web:
+#    cors:
+#      allowed-origins: "https://tht-giadungthongminh.vercel.app/"
+#      allowed-methods: "*"
+#      allowed-headers: "*"
+#      allow-credentials: true
 
 eureka:
   client:

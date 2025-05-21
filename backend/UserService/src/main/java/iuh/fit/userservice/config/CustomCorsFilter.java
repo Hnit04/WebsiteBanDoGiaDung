@@ -22,10 +22,8 @@ public class CustomCorsFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         logger.debug("Processing CORS for request: {}", request.getRequestURI());
 
-        // Xóa các tiêu đề CORS cũ để tránh trùng lặp
-        response.setHeader("Access-Control-Allow-Origin", null); // Xóa trước
-        response.setHeader("Access-Control-Allow-Origin", "https://tht-giadungthongminh.vercel.app");
 
+        response.setHeader("Access-Control-Allow-Origin", "https://tht-giadungthongminh.vercel.app");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
         response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, X-Requested-With");
         response.setHeader("Access-Control-Allow-Credentials", "true");
