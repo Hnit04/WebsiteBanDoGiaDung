@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import api from "../services/api.js" // Sử dụng instance Axios
+import api from "../services/api.js"
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, RefreshCw, AlertTriangle, CheckCircle, X } from "lucide-react"
 import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
-    const [products, setProducts] = useState([]) // State để lưu danh sách sản phẩm
+    const [products, setProducts] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isUpdating, setIsUpdating] = useState(false)
@@ -18,10 +18,10 @@ const CartPage = () => {
     const [selectedItems, setSelectedItems] = useState(new Set())
 
     const user = getUserFromLocalStorage()
-    const userId = user?.email || null
+    const userId = user?.userId || null  // Sửa lại để lấy userId thay vì email
+
     const navigate = useNavigate()
 
-    // Fetch cart items and products
     useEffect(() => {
         const fetchData = async () => {
             if (!userId) {
@@ -31,8 +31,6 @@ const CartPage = () => {
 
             try {
                 setIsLoading(true)
-
-                // Lấy giỏ hàng
                 const cartResponse = await api.get(`/carts/user/${userId}`)
                 if (cartResponse.data && cartResponse.data.cartItems) {
                     setCartItems(cartResponse.data.cartItems)
@@ -40,8 +38,7 @@ const CartPage = () => {
                     setCartItems([])
                 }
 
-                // Lấy tất cả sản phẩm
-                const productResponse = await api.get(`/products?page=0&size=1000`) // Lấy trang đầu, số lượng lớn để lấy hết
+                const productResponse = await api.get(`/products?page=0&size=1000`)
                 if (productResponse.data && productResponse.data.content) {
                     setProducts(productResponse.data.content)
                 } else {
@@ -58,7 +55,6 @@ const CartPage = () => {
         fetchData()
     }, [userId])
 
-    // Update cart item quantity
     const updateQuantity = async (cartItemId, newQuantity) => {
         if (newQuantity < 1) return
 
@@ -67,7 +63,6 @@ const CartPage = () => {
             const response = await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
             if (response.data && response.data.cartItems) {
                 setCartItems(response.data.cartItems)
-                // Phát sự kiện để cập nhật Header
                 window.dispatchEvent(new Event("cartUpdated"))
             }
             showNotification("success", "Cập nhật số lượng thành công!")
@@ -79,19 +74,16 @@ const CartPage = () => {
         }
     }
 
-    // Show delete confirmation
     const confirmDelete = (item) => {
         setItemToDelete(item)
         setShowConfirmDelete(true)
     }
 
-    // Cancel delete
     const cancelDelete = () => {
         setItemToDelete(null)
         setShowConfirmDelete(false)
     }
 
-    // Remove item from cart
     const removeItem = async () => {
         if (!itemToDelete) return
 
@@ -106,7 +98,6 @@ const CartPage = () => {
                 newSet.delete(itemToDelete.cartItemId)
                 return newSet
             })
-            // Phát sự kiện để cập nhật Header
             window.dispatchEvent(new Event("cartUpdated"))
             showNotification("success", `Đã xóa ${itemToDelete.productName} khỏi giỏ hàng`)
         } catch (err) {
@@ -119,13 +110,11 @@ const CartPage = () => {
         }
     }
 
-    // Show notification
     const showNotification = (type, message) => {
         setNotification({ type, message })
         setTimeout(() => setNotification(null), 3000)
     }
 
-    // Calculate total price and total items for selected items only
     const calculateSelectedSummary = () => {
         const selectedCartItems = cartItems.filter((item) => selectedItems.has(item.cartItemId))
         const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0)
@@ -136,11 +125,6 @@ const CartPage = () => {
         return { totalItems, subtotal }
     }
 
-    const getProductInfo = (productId) => {
-        const product = products.find((p) => p.productId === productId)
-        return product || { imageUrl: null, categoryId: "N/A", salePrice: 0 }
-    }
-    // Toggle selection of an item
     const toggleItemSelection = (itemId) => {
         setSelectedItems((prev) => {
             const newSet = new Set(prev)
@@ -150,13 +134,11 @@ const CartPage = () => {
         })
     }
 
-    // Toggle select all items
     const toggleSelectAll = () => {
         if (selectedItems.size === cartItems.length) setSelectedItems(new Set())
         else setSelectedItems(new Set(cartItems.map((item) => item.cartItemId)))
     }
 
-    // Navigate to checkout with selected items
     const handleCheckout = () => {
         if (selectedItems.size === 0) {
             showNotification("error", "Vui lòng chọn ít nhất một sản phẩm để thanh toán.")
@@ -164,6 +146,11 @@ const CartPage = () => {
         }
         const itemIds = Array.from(selectedItems)
         navigate(`/checkout?items=${itemIds.join(",")}`)
+    }
+
+    const getProductInfo = (productId) => {
+        const product = products.find((p) => p.productId === productId)
+        return product || { imageUrl: null, categoryId: "N/A", salePrice: 0 }
     }
 
     if (!userId) {
@@ -363,7 +350,7 @@ const CartPage = () => {
                                                         <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p>
                                                     </div>
                                                     <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
-                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.originalPrice)}
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.salePrice)}
                                                     </p>
                                                 </div>
 

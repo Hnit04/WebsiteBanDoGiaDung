@@ -1,11 +1,10 @@
-// ProductDetailPage.jsx
 "use client"
 
 import { useState, useEffect } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import api from "../services/api.js"
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingCart, CheckCircle, AlertTriangle, X } from "lucide-react"
-import { getUserFromLocalStorage } from "../assets/js/userData" // Thêm import
+import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const ProductDetailPage = () => {
     const { id } = useParams()
@@ -18,9 +17,8 @@ const ProductDetailPage = () => {
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
-    // Sử dụng getUserFromLocalStorage thay vì truy cập localStorage trực tiếp
     const user = getUserFromLocalStorage()
-    const userId = user?.email || null
+    const userId = user?.userId || null  // Sửa lại để lấy userId thay vì email
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -291,7 +289,7 @@ const ProductDetailPage = () => {
                             >
                                 {isAddingToCart ? (
                                     <>
-                                        <div className="animate-spin h-5 w-5min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
                                         Đang xử lý...
                                     </>
                                 ) : (
