@@ -191,14 +191,20 @@ const CheckoutPage = () => {
             const orderData = {
                 userId,
                 promotionId: null,
+                totalAmount: calculateSummary().total, // Thêm totalAmount
+                status: "PENDING",
                 deliveryAddress,
                 deliveryStatus: "pending",
                 deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                 paymentMethodId: "sepay-qr",
-                orderDetails: cartItems.map(item => ({
-                    productId: item.productId,
-                    quantity: item.quantity
-                }))
+                orderDetails: cartItems.map(item => {
+                    const product = products.find(p => p.productId === item.productId) || { salePrice: 0 };
+                    return {
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        unitPrice: typeof product.salePrice === "number" ? product.salePrice : 0
+                    }
+                })
             }
 
             const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
@@ -213,7 +219,7 @@ const CheckoutPage = () => {
                     const errorData = await orderResponse.json()
                     throw new Error(errorData.message || "Không thể tạo đơn hàng")
                 } else {
-                    const text = await response.text()
+                    const text = await orderResponse.text()
                     console.error("Phản hồi không phải JSON:", text)
                     throw new Error("Lỗi máy chủ, vui lòng thử lại sau")
                 }
