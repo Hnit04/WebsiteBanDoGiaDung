@@ -63,12 +63,17 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
             })
         }, 1000)
 
+        // Nhắc nhở khi thời gian còn dưới 30 giây
+        if (timeLeft <= 30 && status === "PENDING") {
+            toast("Vui lòng hoàn tất thanh toán trong 30 giây!", { icon: "⏰" })
+        }
+
         return () => {
             stompClient.disconnect()
             clearInterval(pollingInterval)
             clearInterval(timer)
         }
-    }, [paymentId, status, onSuccess])
+    }, [paymentId, status, timeLeft, onSuccess])
 
     return (
         <div className="text-center">

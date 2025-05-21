@@ -133,18 +133,6 @@ const CheckoutPage = () => {
         fetchData()
     }, [userId, location.search])
 
-    // Lấy chi tiết sản phẩm
-    const getProductDetails = async productId => {
-        try {
-            const response = await fetch(`${BASE_API_URL}/api/products/${productId}`)
-            if (!response.ok) throw new Error("Không thể tải chi tiết sản phẩm")
-            return await response.json()
-        } catch (err) {
-            console.error("Lỗi khi lấy chi tiết sản phẩm:", err)
-            return { productName: "Sản phẩm không tồn tại", price: 0, quantityInStock: 0, imageUrl: "/placeholder.svg" }
-        }
-    }
-
     // Tính toán tóm tắt đơn hàng
     const calculateSummary = () => {
         const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
@@ -166,34 +154,6 @@ const CheckoutPage = () => {
     // Tạo mã đơn hàng
     const generateOrderId = async () => {
         return `THT${Date.now()}`
-    }
-
-    // Cập nhật tồn kho sản phẩm
-    const updateProductStock = async (productId, quantity) => {
-        try {
-            const product = await getProductDetails(productId)
-            const newStock = product.quantityInStock - quantity
-            if (newStock < 0) throw new Error(`Sản phẩm "${product.productName}" không đủ hàng tồn kho.`)
-
-            const response = await fetch(`${BASE_API_URL}/api/products/${productId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ quantityInStock: newStock })
-            })
-            if (!response.ok) throw new Error("Không thể cập nhật tồn kho")
-        } catch (err) {
-            throw err
-        }
-    }
-
-    // Kiểm tra tồn kho
-    const checkStockAvailability = async () => {
-        for (const item of cartItems) {
-            const product = await getProductDetails(item.productId)
-            if (product.quantityInStock < item.quantity) {
-                throw new Error(`Sản phẩm "${product.productName}" không đủ hàng tồn kho. Chỉ còn ${product.quantityInStock} sản phẩm.`)
-            }
-        }
     }
 
     // Xử lý chọn địa chỉ
@@ -219,10 +179,8 @@ const CheckoutPage = () => {
             const payload = {
                 orderId,
                 amount: calculateSummary().total,
-                description: `Thanh toán đơn hàng #${orderId}`,
                 bankAccountNumber: process.env.REACT_APP_BANK_ACCOUNT || "0326829327",
                 bankCode: process.env.REACT_APP_BANK_CODE || "MBBank",
-                customerEmail: user.email
             }
 
             const response = await fetch(`${BASE_API_URL}/api/payments/sepay`, {
@@ -251,7 +209,6 @@ const CheckoutPage = () => {
     const handleSepaySuccess = async () => {
         try {
             setIsSubmitting(true)
-            await checkStockAvailability()
             const orderId = await generateOrderId()
 
             const orderData = {
@@ -272,19 +229,23 @@ const CheckoutPage = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData)
             })
-            if (!response.ok) throw new Error("Không thể tạo đơn hàng")
+            if (!orderResponse.ok) {
+                const errorData = await orderResponse.json();
+                throw new Error(errorData.message || "Không thể tạo đơn hàng")
+            }
             const order = await orderResponse.json()
 
             // Kiểm tra trạng thái đơn hàng
             const statusResponse = await fetch(`${BASE_API_URL}/api/orders/${order.orderId}`)
             if (!statusResponse.ok) throw new Error("Không thể kiểm tra trạng thái đơn hàng")
             const orderStatus = await statusResponse.json()
-            if (orderStatus.status !== "PAYMENT_SUCCESS") {
+            if (orderStatus.status === "PENDING") {
+                showNotification("info", "Đơn hàng đang chờ xác nhận thanh toán.")
+            } else if (orderStatus.status !== "PAYMENT_SUCCESS") {
                 throw new Error("Thanh toán chưa được xác nhận")
             }
 
             for (const item of cartItems) {
-                await updateProductStock(item.productId, item.quantity)
                 await fetch(`${BASE_API_URL}/api/carts/items`, {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
@@ -321,7 +282,6 @@ const CheckoutPage = () => {
 
         try {
             setIsSubmitting(true)
-            await checkStockAvailability()
             const orderId = await generateOrderId()
 
             const orderData = {
@@ -342,19 +302,23 @@ const CheckoutPage = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData)
             })
-            if (!orderResponse.ok) throw new Error("Không thể tạo đơn hàng")
+            if (!orderResponse.ok) {
+                const errorData = await orderResponse.json();
+                throw new Error(errorData.message || "Không thể tạo đơn hàng")
+            }
             const order = await orderResponse.json()
 
             // Kiểm tra trạng thái đơn hàng
             const statusResponse = await fetch(`${BASE_API_URL}/api/orders/${order.orderId}`)
             if (!statusResponse.ok) throw new Error("Không thể kiểm tra trạng thái đơn hàng")
             const orderStatus = await statusResponse.json()
-            if (orderStatus.status !== "PAYMENT_SUCCESS") {
+            if (orderStatus.status === "PENDING") {
+                showNotification("info", "Đơn hàng đang chờ xác nhận thanh toán.")
+            } else if (orderStatus.status !== "PAYMENT_SUCCESS") {
                 throw new Error("Thanh toán chưa được xác nhận")
             }
 
             for (const item of cartItems) {
-                await updateProductStock(item.productId, item.quantity)
                 await fetch(`${BASE_API_URL}/api/carts/items`, {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
@@ -373,7 +337,7 @@ const CheckoutPage = () => {
     }
 
     // Hiển thị chi tiết đơn hàng
-    const showOrderDetails = () => {
+    const showOrderDetails = async () => {
         if (!orderSuccess || !user || !cartItems.length) return
 
         const formatCurrency = amount => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
@@ -390,6 +354,14 @@ const CheckoutPage = () => {
                 default: return "Không xác định"
             }
         }
+
+        // Lấy thông tin đơn hàng từ API
+        const orderDetailsResponse = await fetch(`${BASE_API_URL}/api/orders/${orderSuccess}`)
+        if (!orderDetailsResponse.ok) {
+            toast.error("Không thể lấy chi tiết đơn hàng")
+            return
+        }
+        const orderDetails = await orderDetailsResponse.json()
 
         const printWindow = window.open("", "_blank", "width=800,height=600")
         const invoiceHtml = `
@@ -514,12 +486,12 @@ const CheckoutPage = () => {
             <h4>Thông tin khách hàng</h4>
             <p><strong>Khách hàng:</strong> ${user.fullName}</p>
             <p><strong>Email:</strong> ${user.email}</p>
-            <p><strong>Địa chỉ giao hàng:</strong> ${deliveryAddress}</p>
+            <p><strong>Địa chỉ giao hàng:</strong> ${orderDetails.deliveryAddress}</p>
           </div>
           <div class="invoice-info-block">
             <h4>Thông tin thanh toán</h4>
-            <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(paymentMethod)}</p>
-            <p><strong>Trạng thái đơn hàng:</strong> Chờ xác nhận</p>
+            <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(orderDetails.paymentMethodId)}</p>
+            <p><strong>Trạng thái đơn hàng:</strong> ${orderDetails.status === "PENDING" ? "Chờ xác nhận" : "Đã xác nhận"}</p>
           </div>
         </div>
         
@@ -691,12 +663,16 @@ const CheckoutPage = () => {
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
                         notification.type === "success"
                             ? "bg-green-50 text-green-800 border border-green-200"
-                            : "bg-red-50 text-red-800 border border-red-200"
+                            : notification.type === "info"
+                                ? "bg-blue-50 text-blue-800 border border-blue-200"
+                                : "bg-red-50 text-red-800 border border-red-200"
                     }`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
                             <CheckCircle size={20} className="text-green-500 mr-3" />
+                        ) : notification.type === "info" ? (
+                            <span className="text-blue-500 mr-3">ℹ️</span>
                         ) : (
                             <AlertTriangle size={20} className="text-red-500 mr-3" />
                         )}

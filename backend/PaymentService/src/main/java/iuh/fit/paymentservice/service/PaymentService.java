@@ -1,3 +1,4 @@
+// PaymentService.java
 package iuh.fit.paymentservice.service;
 
 import iuh.fit.paymentservice.config.RabbitMQConfig;
@@ -17,6 +18,8 @@ import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,13 +34,16 @@ public class PaymentService {
     private final PaymentMapper paymentMapper;
     private final RestTemplate restTemplate;
     private final RabbitTemplate rabbitTemplate;
-    private final SimpMessagingTemplate messagingTemplate; // WebSocket template
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Value("${sepay.qr-url}")
     private String sepayQrUrl;
 
     @Value("${sepay.transaction-timeout}")
     private int transactionTimeout;
+
+    @Value("${order.service.url}")
+    private String orderServiceUrl;
 
     public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper,
                           RestTemplate restTemplate, RabbitTemplate rabbitTemplate,
@@ -51,19 +57,7 @@ public class PaymentService {
 
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         logger.info("Bắt đầu tạo thanh toán cho đơn hàng: {}", request.getOrderId());
-        try {
-            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + request.getOrderId();
-            logger.info("Gọi Order Service tại: {}", orderUrl);
-            OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
-            if (order == null || order.getTotalAmount() != request.getAmount()) {
-                logger.error("Đơn hàng không hợp lệ hoặc số tiền không khớp. Order: {}, Request Amount: {}", order, request.getAmount());
-                throw new RuntimeException("Invalid order or amount");
-            }
-            logger.info("Thông tin đơn hàng hợp lệ: {}", order);
-        } catch (Exception e) {
-            logger.error("Lỗi khi xác thực đơn hàng: {}", e.getMessage());
-            throw new RuntimeException("Error validating order: " + e.getMessage());
-        }
+        validateOrder(request.getOrderId(), request.getAmount());
 
         Payment payment = new Payment();
         payment.setOrderId(request.getOrderId());
@@ -81,21 +75,8 @@ public class PaymentService {
 
     public PaymentResponse createSepayPayment(CreateSepayPaymentRequest request) {
         logger.info("Bắt đầu tạo giao dịch SEPay cho đơn hàng: {}", request.getOrderId());
+        validateOrder(request.getOrderId(), request.getAmount());
 
-        // Xác thực đơn hàng
-        try {
-            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + request.getOrderId();
-            OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
-            if (order == null || order.getTotalAmount() != request.getAmount()) {
-                logger.error("Đơn hàng không hợp lệ hoặc số tiền không khớp.");
-                throw new RuntimeException("Invalid order or amount");
-            }
-        } catch (Exception e) {
-            logger.error("Lỗi khi xác thực đơn hàng: {}", e.getMessage());
-            throw new RuntimeException("Error validating order: " + e.getMessage());
-        }
-
-        // Tạo giao dịch SEPay
         Payment payment = new Payment();
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId("sepay-qr");
@@ -103,7 +84,6 @@ public class PaymentService {
         payment.setPaymentDate(LocalDate.now());
         payment.setStatus(PaymentStatus.PENDING);
 
-        // Tạo URL mã QR
         String qrCodeUrl = String.format("%s?acc=%s&bank=%s&amount=%s&des=%s",
                 sepayQrUrl, request.getBankAccountNumber(), request.getBankCode(),
                 request.getAmount(), request.getOrderId());
@@ -112,7 +92,6 @@ public class PaymentService {
         Payment savedPayment = paymentRepository.save(payment);
         logger.info("Lưu giao dịch SEPay thành công: {}", savedPayment.getPaymentId());
 
-        // Gửi thông báo WebSocket
         messagingTemplate.convertAndSend("/topic/transactions",
                 new TransactionUpdate(savedPayment.getPaymentId(), "CREATED", qrCodeUrl));
 
@@ -123,12 +102,15 @@ public class PaymentService {
         logger.info("Cập nhật trạng thái giao dịch {} thành {}", paymentId, status);
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch: " + paymentId));
-
-        payment.setStatus(PaymentStatus.valueOf(status));
+        try {
+            payment.setStatus(PaymentStatus.valueOf(status.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            logger.error("Trạng thái không hợp lệ: {}", status);
+            throw new RuntimeException("Invalid status: " + status);
+        }
         payment.setAmount(amount);
         Payment updatedPayment = paymentRepository.save(payment);
 
-        // Gửi thông báo WebSocket
         messagingTemplate.convertAndSend("/topic/transactions",
                 new TransactionUpdate(paymentId, status, payment.getQrCodeUrl()));
 
@@ -137,6 +119,18 @@ public class PaymentService {
         }
 
         return paymentMapper.toPaymentResponse(updatedPayment);
+    }
+
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    private void validateOrder(String orderId, double amount) {
+        String orderUrl = orderServiceUrl + "/" + orderId;
+        logger.info("Gọi Order Service tại: {}", orderUrl);
+        OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
+        if (order == null || order.getTotalAmount() != amount) {
+            logger.error("Đơn hàng không hợp lệ hoặc số tiền không khớp. Order: {}, Amount: {}", order, amount);
+            throw new RuntimeException("Invalid order or amount");
+        }
+        logger.info("Thông tin đơn hàng hợp lệ: {}", order);
     }
 
     private void sendNotification(String orderId, String userId) {
@@ -160,7 +154,7 @@ public class PaymentService {
 
     private String getUserIdFromOrder(String orderId) {
         try {
-            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + orderId;
+            String orderUrl = orderServiceUrl + "/" + orderId;
             OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
             return order != null ? order.getUserId() : null;
         } catch (Exception e) {

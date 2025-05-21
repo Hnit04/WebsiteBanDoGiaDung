@@ -1,3 +1,4 @@
+// CartPage.jsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -8,7 +9,7 @@ import { getUserFromLocalStorage } from "../assets/js/userData"
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
-    const [products, setProducts] = useState([]) // State để lưu danh sách sản phẩm
+    const [products, setProducts] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isUpdating, setIsUpdating] = useState(false)
@@ -41,7 +42,7 @@ const CartPage = () => {
                 }
 
                 // Lấy tất cả sản phẩm
-                const productResponse = await api.get(`/products?page=0&size=1000`) // Lấy trang đầu, số lượng lớn để lấy hết
+                const productResponse = await api.get(`/products?page=0&size=1000`)
                 if (productResponse.data && productResponse.data.content) {
                     setProducts(productResponse.data.content)
                 } else {
@@ -67,7 +68,6 @@ const CartPage = () => {
             const response = await api.put(`/carts/items/${cartItemId}`, { quantity: newQuantity })
             if (response.data && response.data.cartItems) {
                 setCartItems(response.data.cartItems)
-                // Phát sự kiện để cập nhật Header
                 window.dispatchEvent(new Event("cartUpdated"))
             }
             showNotification("success", "Cập nhật số lượng thành công!")
@@ -106,7 +106,6 @@ const CartPage = () => {
                 newSet.delete(itemToDelete.cartItemId)
                 return newSet
             })
-            // Phát sự kiện để cập nhật Header
             window.dispatchEvent(new Event("cartUpdated"))
             showNotification("success", `Đã xóa ${itemToDelete.productName} khỏi giỏ hàng`)
         } catch (err) {
@@ -131,8 +130,7 @@ const CartPage = () => {
         const totalItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0)
         const subtotal = selectedCartItems.reduce((total, item) => {
             const productInfo = getProductInfo(item.productId)
-            console.log(productInfo)
-            return total + (productInfo.originalPrice || 0) * item.quantity
+            return total + (productInfo.price || 0) * item.quantity
         }, 0)
         return { totalItems, subtotal }
     }
@@ -366,7 +364,7 @@ const CartPage = () => {
                                                         <p className="mt-1 text-sm text-gray-500">{productInfo.categoryId}</p>
                                                     </div>
                                                     <p className="text-lg font-medium text-gray-900 mt-2 sm:mt-0">
-                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.originalPrice)}
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productInfo.price)}
                                                     </p>
                                                 </div>
 
