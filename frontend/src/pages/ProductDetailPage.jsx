@@ -215,7 +215,7 @@ const ProductDetailPage = () => {
                 <div className="space-y-4">
                     <div className="relative overflow-hidden rounded-xl bg-white shadow-lg">
                         <img
-                            src={"/" + product.imageUrl}
+                            src={product.imageUrl}
                             alt={product.productName}
                             className="w-full h-100 object-contain transition-transform duration-200 hover:scale-95"
                         />
