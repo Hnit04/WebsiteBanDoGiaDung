@@ -18,6 +18,7 @@ const ProductDetailPage = () => {
     const navigate = useNavigate()
 
     const user = getUserFromLocalStorage()
+    console.log(user)
     const userId = user?.userId || null
 
     useEffect(() => {

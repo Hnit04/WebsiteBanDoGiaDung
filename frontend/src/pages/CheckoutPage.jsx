@@ -91,6 +91,7 @@ const CheckoutPage = () => {
     const [sepayPayment, setSepayPayment] = useState(null)
 
     const user = getUserFromLocalStorage()
+    console.log(user)
     const userId = user?.userId || null  // Sửa đổi ở đây: từ user?.id thành user?.userId
 
     const navigate = useNavigate()
