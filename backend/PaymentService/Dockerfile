@@ -13,3 +13,4 @@ COPY --from=builder /app/build/libs/PaymentService-0.0.1-SNAPSHOT.jar app.jar
 COPY src/main/resources/application.yml .
 EXPOSE 8085
 CMD ["java", "-jar", "app.jar"]
+

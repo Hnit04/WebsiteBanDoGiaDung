@@ -14,37 +14,37 @@ spring:
     gateway:
       routes:
         - id: product-service-route
-          uri: http://product-service:8081
+          uri: https://websitebandogiadung-products.onrender.com/api/products/
           predicates:
             - Path=/api/products/**,/api/products/categories/**,/api/categories/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: user-service-route
-          uri: http://user-service:8082
+          uri: https://websitebandogiadung-users.onrender.com/api/users
           predicates:
             - Path=/api/users/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: order-service-route
-          uri: http://order-service:8083
+          uri: https://websitebandogiadung-order.onrender.com/api/orders
           predicates:
             - Path=/api/orders/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: cart-service-route
-          uri: http://cart-service:8084
+          uri: https://websitebandogiadung-cart.onrender.com/api/carts/items
           predicates:
             - Path=/api/carts/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: notification-service-route
-          uri: http://notification-service:8089
+          uri: https://websitebandogiadung-notification.onrender.com/api/notifications
           predicates:
             - Path=/api/notifications/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: payment-service-route
-          uri: http://payment-service:8085
+          uri: https://websitebandogiadung-payment.onrender.com/api/payments
           predicates:
             - Path=/api/payments/**
           # Xóa filter RemoveRequestHeader=Authorization
@@ -62,7 +62,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: ["http://localhost:5173", "http://localhost:5174"] # Thêm 5174
+            allowedOrigins: ["http://localhost:5173", "http://localhost:5174","https://tht-giadungthongminh.vercel.app/"] # Thêm 5174
             allowedMethods: ["*"]
             allowedHeaders: ["*"]
             allowCredentials: true

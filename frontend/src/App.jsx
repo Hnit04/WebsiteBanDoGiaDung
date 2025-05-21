@@ -10,7 +10,6 @@ import ProductsPage from './pages/ProductsPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'; // Thêm import
 import ProductDetailPage from "@/pages/ProductDetailPage.jsx";
 import Contact from './pages/Contact.jsx';
 import HomePageAdmin from './pages/HomePageAdmin.jsx';
@@ -27,6 +26,7 @@ import OrderAdminPage from "@/pages/OrderAdminPage.jsx"
 import CustomerAdminPage from "@/pages/CustomerAdminPage.jsx";
 import Statistical from "@/pages/Statistical.jsx"
 import Transport from "@/pages/Transport.jsx"
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage.jsx";
 
 export default function App() {
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -47,7 +47,6 @@ export default function App() {
         updateTotalItems();
         window.addEventListener('storage', updateTotalItems);
 
-        // Giả lập thời gian tải ứng dụng
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 500);
@@ -70,24 +69,21 @@ export default function App() {
     // Component bảo vệ route cho Admin
     const AdminRoute = ({ element }) => {
         const user = getUserFromLocalStorage();
-
-        if (!user || user.role !== "admin") {
-            // Nếu không đăng nhập hoặc không phải admin, chuyển hướng về trang đăng nhập
+        if (!user || user.role !== "ADMIN") {
             return <Navigate to="/login" replace />;
         }
-
         return element;
     };
 
     // Component bảo vệ route cho User đã đăng nhập
-    const ProtectedRoute = ({ element }) => {
+    const ProtectedRoute = ({ element, allowedRoles }) => {
         const user = getUserFromLocalStorage();
-
         if (!user) {
-            // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
             return <Navigate to="/login" replace />;
         }
-
+        if (allowedRoles && !allowedRoles.includes(user.role)) {
+            return <Navigate to="/" replace />;
+        }
         return element;
     };
 
@@ -107,58 +103,33 @@ export default function App() {
                     <Route element={<UserLayout onCartClick={toggleCart} totalItems={totalItems} />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
-                        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Thêm tuyến đường */}
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/products" element={<ProductsPage onProductClick={handleProductClick} />} />
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/product/:id" element={<ProductDetailPage />} />
                         <Route path="/contact" element={<Contact />} />
-                        <Route path="/cart" element={<CartPage />} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/cart" element={<ProtectedRoute element={<CartPage />} allowedRoles={["CUSTOMER"]} />} />
+                        <Route path="/checkout" element={<ProtectedRoute element={<CheckoutPage />} allowedRoles={["CUSTOMER"]} />} />
+                        <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} allowedRoles={["CUSTOMER"]} />} />
                     </Route>
 
                     {/* Route cho admin với AdminLayout */}
                     <Route element={<AdminLayout />}>
-                        <Route
-                            path="/admin"
-                            element={<AdminRoute element={<HomePageAdmin />} />}
-                        />
-                        <Route
-                            path="/admin/*"
-                            element={<AdminRoute element={<HomePageAdmin />} />}
-                        />
-                        <Route
-                            path="/admin/products"
-                            element={<AdminRoute element={<ProductsAdminPage />} />}
-                        />
-                        <Route
-                            path="/admin/orders"
-                            element={<AdminRoute element={<OrderAdminPage />} />}
-                        />
-                        <Route
-                            path="/admin/customers"
-                            element={<AdminRoute element={<CustomerAdminPage />} />}
-                        />
-                        <Route
-                            path="/admin/analytics"
-                            element={<AdminRoute element={<Statistical />} />}
-                        />
-                        <Route
-                            path="/admin/shipping"
-                            element={<AdminRoute element={<Transport />} />}
-                        />
-                        <Route
-                            path="/admin/profile"
-                            element={<AdminRoute element={<ProfilePage />} />}
-                        />
+                        <Route path="/admin" element={<AdminRoute element={<HomePageAdmin />} />} />
+                        <Route path="/admin/products" element={<AdminRoute element={<ProductsAdminPage />} />} />
+                        <Route path="/admin/orders" element={<AdminRoute element={<OrderAdminPage />} />} />
+                        <Route path="/admin/customers" element={<AdminRoute element={<CustomerAdminPage />} />} />
+                        <Route path="/admin/analytics" element={<AdminRoute element={<Statistical />} />} />
+                        <Route path="/admin/shipping" element={<AdminRoute element={<Transport />} />} />
+                        <Route path="/admin/profile" element={<AdminRoute element={<ProfilePage />} />} />
+                        <Route path="/admin/*" element={<AdminRoute element={<HomePageAdmin />} />} />
                     </Route>
 
                     {/* Chuyển hướng các đường dẫn không xác định về trang chủ */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
 
-                {/* Các thành phần dùng chung */}
                 <ProductModal
                     product={currentProduct}
                     isOpen={isModalOpen}

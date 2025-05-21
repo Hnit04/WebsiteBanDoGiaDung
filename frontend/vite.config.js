@@ -18,12 +18,7 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // Proxy đến backend Spring Boot
-        changeOrigin: true,
-        secure: false, // Bỏ qua kiểm tra SSL khi phát triển local
-      },
-      '/ws': {
-        target: 'http://localhost:8085', // Proxy WebSocket đến backend Spring Boot
+        target: 'https://websitebandogiadung.onrender.com/',
         changeOrigin: true,
         ws: true, // Kích hoạt proxy WebSocket
         secure: false,

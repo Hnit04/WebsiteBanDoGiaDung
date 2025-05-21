@@ -1,4 +1,4 @@
-
+"use client"
 
 import { useState, useEffect } from "react"
 import {
@@ -16,33 +16,7 @@ import {
     Key,
     Users,
 } from "lucide-react"
-import { users } from "../assets/js/userData"
-
-// Modal Component for Editing User
-function EditUserModal({ isOpen, onClose, user, onUpdateUser }) {
-    const [formData, setFormData] = useState({
-        id: "",
-        username: "",
-        email: "",
-        fullName: "",
-        role: "",
-    })
-    const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [successMessage, setSuccessMessage] = useState("")
-
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                id: user.id || "",
-                username: user.username || "",
-                email: user.email || "",
-                fullName: user.fullName || "",
-                role: user.role || "",
-            })
-        }
-    }, [user])
-}
+import api from "../services/api.js"
 
 export default function CustomerPage() {
     const [customers, setCustomers] = useState([])
@@ -54,6 +28,14 @@ export default function CustomerPage() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedCustomer, setSelectedCustomer] = useState(null)
     const customersPerPage = 10
+    const formatPhoneNumber = (phone) => {
+        if (!phone) return '';
+        // Remove +84 and ensure leading 0
+        let formatted = phone.replace(/^\+84/, '0');
+        // Remove any non-digit characters (in case there are spaces or dashes)
+        formatted = formatted.replace(/\D/g, '');
+        return formatted;
+    };
 
     // Show notification
     const showNotification = (type, message) => {
@@ -62,28 +44,40 @@ export default function CustomerPage() {
     }
 
     // Fetch customers
-    useEffect(() => {
+    const fetchCustomers = async () => {
         try {
             setIsLoading(true)
-            // Lọc chỉ lấy user có role là customer và sắp xếp từ dưới lên theo ID
-            const filteredCustomers = users
-                .filter((user) => user.role === "customer")
-                .sort((a, b) => b.id - a.id) // Sắp xếp giảm dần theo ID
+            setError(null)
+
+            const response = await api.get("/users")
+            const usersData = Array.isArray(response.data) ? response.data : []
+            console.log("Users data:", usersData)
+
+            // Lọc chỉ lấy user có role là CUSTOMER và sắp xếp từ dưới lên theo _id
+            const filteredCustomers = usersData
+                .filter((user) => user.role === "CUSTOMER")
+                .sort((a, b) => b._id.localeCompare(a._id)) // Sắp xếp giảm dần theo _id
             setCustomers(filteredCustomers)
         } catch (err) {
             console.error("Lỗi khi tải dữ liệu khách hàng:", err)
-            setError("Không thể tải dữ liệu khách hàng. Vui lòng thử lại.")
+            setError(
+                err.response?.data?.message ||
+                "Không thể tải dữ liệu khách hàng. Vui lòng thử lại."
+            )
         } finally {
             setIsLoading(false)
         }
+    }
+
+    useEffect(() => {
+        fetchCustomers()
     }, [])
 
     // Filter customers based on search query
     const filteredCustomers = customers.filter(
         (customer) =>
-            customer.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            customer.username.toLowerCase().includes(searchQuery.toLowerCase()),
+            customer.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            customer.email.toLowerCase().includes(searchQuery.toLowerCase()),
     )
 
     // Pagination
@@ -102,17 +96,19 @@ export default function CustomerPage() {
     const handleCustomerUpdated = (updatedCustomer) => {
         setCustomers(
             customers
-                .map((c) => (c.id === updatedCustomer.id ? updatedCustomer : c))
-                .sort((a, b) => b.id - a.id), // Đảm bảo sắp xếp lại sau khi cập nhật
+                .map((c) => (c._id === updatedCustomer._id ? updatedCustomer : c))
+                .sort((a, b) => b._id.localeCompare(a._id)), // Đảm bảo sắp xếp lại sau khi cập nhật
         )
+        setIsEditModalOpen(false)
         showNotification("success", "Khách hàng đã được cập nhật thành công")
     }
 
     // Handle delete customer
-    const handleDeleteCustomer = (id) => {
+    const handleDeleteCustomer = async (id) => {
         if (confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) {
             try {
-                setCustomers(customers.filter((c) => c.id !== id))
+                await api.delete(`/users/${id}`)
+                setCustomers(customers.filter((c) => c._id !== id))
                 showNotification("success", "Khách hàng đã được xóa")
             } catch (err) {
                 console.error("Lỗi khi xóa khách hàng:", err)
@@ -137,12 +133,16 @@ export default function CustomerPage() {
         return (
             <div className="flex items-center justify-center h-screen bg-gradient-to-br from-purple-100 to-pink-100">
                 <div className="bg-red-100 text-red-800 p-8 rounded-2xl shadow-lg max-w-md">
-                    <h3 className="text-xl font-semibold mb-3">Đã xảy ra lỗi</h3>
+                    <div className="flex items-center mb-6">
+                        <AlertTriangle className="h-8 w-8 text-red-600 mr-3" />
+                        <h3 className="text-xl font-semibold">Đã xảy ra lỗi</h3>
+                    </div>
                     <p className="mb-5 text-sm">{error}</p>
                     <button
-                        onClick={() => window.location.reload()}
-                        className="px-6 py-3 bg-white border border-red-300 rounded-xl text-red-700 hover:bg-red-50 transition-all"
+                        onClick={fetchCustomers}
+                        className="px-6 py-3 bg-white border border-red-300 rounded-xl text-red-700 hover:bg-red-50 transition-all flex items-center justify-center"
                     >
+                        <CheckCircle className="h-5 w-5 mr-2" />
                         Thử lại
                     </button>
                 </div>
@@ -156,10 +156,10 @@ export default function CustomerPage() {
             {notification && (
                 <div
                     className={`fixed top-6 right-6 z-50 p-5 rounded-xl shadow-2xl max-w-sm flex items-center justify-between animate-slide-in ${
-    notification.type === "success"
-        ? "bg-green-100 text-green-800 border border-green-300"
-        : "bg-red-100 text-red-800 border border-red-300"
-}`}
+                        notification.type === "success"
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-red-100 text-red-800 border border-red-300"
+                    }`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
@@ -200,63 +200,47 @@ export default function CustomerPage() {
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-100">
                         <thead className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                            <tr>
-                                {/*<th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">ID</th>*/}
-                                <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Tên khách hàng</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Email</th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Vai trò</th>
-                                {/*<th className="px-6 py-4 text-right text-sm font-semibold tracking-wider">Thao tác</th>*/}
-                            </tr>
+                        <tr>
+                            <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Tên khách hàng</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Email</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Số đện thoại</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">Địa chỉ</th>
+                        </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {currentCustomers.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-6 text-center text-gray-600 font-medium">
-                                        Không tìm thấy khách hàng nào
+                        {currentCustomers.length === 0 ? (
+                            <tr>
+                                <td colSpan={4} className="px-6 py-6 text-center text-gray-600 font-medium">
+                                    Không tìm thấy khách hàng nào
+                                </td>
+                            </tr>
+                        ) : (
+                            currentCustomers.map((customer) => (
+                                <tr key={customer._id}
+                                    className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all">
+                                    <td className="px-6 py-5 whitespace-nowrap">
+                                        <div className="flex items-center gap-4">
+                                            <div
+                                                className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-lg">
+                                                {customer.username.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <div
+                                                    className="text-sm font-semibold text-gray-900">{customer.username}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">{customer.email}</td>
+                                    <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600"> {formatPhoneNumber(customer.phone)}</td>
+                                    <td className="px-6 py-5 whitespace-nowrap">
+                                            <span
+                                                className="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-green-100 text-green-800">
+                                                {customer.address}
+                                            </span>
                                     </td>
                                 </tr>
-                            ) : (
-                                currentCustomers.map((customer) => (
-                                    <tr key={customer.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all">
-                                        {/*<td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-900">{customer.id}</td>*/}
-                                        <td className="px-6 py-5 whitespace-nowrap">
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-lg">
-                                                    {customer.fullName.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <div className="text-sm font-semibold text-gray-900">{customer.fullName}</div>
-                                                    <div className="text-xs text-gray-500">{customer.username}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">{customer.email}</td>
-                                        <td className="px-6 py-5 whitespace-nowrap">
-                                            <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-green-100 text-green-800">
-                                                Khách hàng
-                                            </span>
-                                        </td>
-                                        {/*<td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">*/}
-                                        {/*    <div className="flex justify-end gap-3">*/}
-                                        {/*        <button*/}
-                                        {/*            onClick={() => handleEditCustomer(customer)}*/}
-                                        {/*            className="p-2 rounded-full text-purple-500 hover:text-purple-600 hover:bg-purple-100 transition-all"*/}
-                                        {/*            title="Chỉnh sửa khách hàng"*/}
-                                        {/*        >*/}
-                                        {/*            <Edit className="h-5 w-5" />*/}
-                                        {/*        </button>*/}
-                                        {/*        <button*/}
-                                        {/*            onClick={() => handleDeleteCustomer(customer.id)}*/}
-                                        {/*            className="p-2 rounded-full text-red-500 hover:text-red-600 hover:bg-red-100 transition-all"*/}
-                                        {/*            title="Xóa khách hàng"*/}
-                                        {/*        >*/}
-                                        {/*            <Trash2 className="h-5 w-5" />*/}
-                                        {/*        </button>*/}
-                                        {/*    </div>*/}
-                                        {/*</td>*/}
-                                    </tr>
-                                ))
-                            )}
+                            ))
+                        )}
                         </tbody>
                     </table>
                 </div>
@@ -289,15 +273,6 @@ export default function CustomerPage() {
                 )}
             </div>
 
-            {/* Edit Customer Modal */}
-            {isEditModalOpen && (
-                <EditUserModal
-                    isOpen={isEditModalOpen}
-                    onClose={() => setIsEditModalOpen(false)}
-                    user={selectedCustomer}
-                    onUpdateUser={handleCustomerUpdated}
-                />
-            )}
         </div>
     )
 }
