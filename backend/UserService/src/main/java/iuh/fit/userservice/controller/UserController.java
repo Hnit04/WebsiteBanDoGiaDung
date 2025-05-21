@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "https://tht-giadungthongminh.vercel.app")
 @RequestMapping("/api/users")
 public class UserController {
 

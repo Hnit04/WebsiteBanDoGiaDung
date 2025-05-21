@@ -243,7 +243,7 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
 
         // Validate product
-        String productUrl = "http://api-gateway:8080/api/products/" + request.getProductId();
+        String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + request.getProductId();
         logger.debug("Validating product at: {}", productUrl);
         ProductResponse product = null;
         try {
