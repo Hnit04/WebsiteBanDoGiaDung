@@ -244,7 +244,7 @@ export default function ProductsAdminPage() {
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-md overflow-hidden bg-gray-100 border">
                                                 <img
-                                                    src={"/" + product.imageUrl || "/placeholder.svg?height=40&width=40"}
+                                                    src={product.imageUrl || "/placeholder.svg?height=40&width=40"}
                                                     alt={product.productName}
                                                     className="h-full w-full object-cover"
                                                     onError={(e) => {
