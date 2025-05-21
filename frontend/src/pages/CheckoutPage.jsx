@@ -178,14 +178,60 @@ const CheckoutPage = () => {
 
     // Xử lý thanh toán SEPay
     const handleSepayPayment = async () => {
+        if (!deliveryAddress.trim()) {
+            showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
+            return
+        }
+
         try {
             setIsSubmitting(true)
             const orderId = await generateOrderId()
+
+            // Tạo đơn hàng trước
+            const orderData = {
+                userId,
+                promotionId: null,
+                deliveryAddress,
+                deliveryStatus: "pending",
+                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+                paymentMethodId: "sepay-qr",
+                orderDetails: cartItems.map(item => ({
+                    productId: item.productId,
+                    quantity: item.quantity
+                }))
+            }
+
+            const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            })
+
+            const contentType = orderResponse.headers.get("Content-Type")
+            if (!orderResponse.ok) {
+                if (contentType && contentType.includes("application/json")) {
+                    const errorData = await orderResponse.json()
+                    throw new Error(errorData.message || "Không thể tạo đơn hàng")
+                } else {
+                    const text = await response.text()
+                    console.error("Phản hồi không phải JSON:", text)
+                    throw new Error("Lỗi máy chủ, vui lòng thử lại sau")
+                }
+            }
+
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Dữ liệu trả về không đúng định dạng")
+            }
+            const order = await orderResponse.json()
+
+            // Gọi API tạo thanh toán SEPay
             const payload = {
-                orderId,
+                orderId: order.orderId,
                 amount: calculateSummary().total,
                 bankAccountNumber: process.env.REACT_APP_BANK_ACCOUNT || "0326829327",
                 bankCode: process.env.REACT_APP_BANK_CODE || "MBBank",
+                description: `Thanh toán đơn hàng ${order.orderId}`,
+                customerEmail: user?.email || "user@example.com"
             }
 
             const response = await fetch(`${BASE_API_URL}/api/payments/sepay`, {
@@ -194,10 +240,9 @@ const CheckoutPage = () => {
                 body: JSON.stringify(payload),
             })
 
-            // Kiểm tra Content-Type của phản hồi
-            const contentType = response.headers.get("Content-Type")
+            const paymentContentType = response.headers.get("Content-Type")
             if (!response.ok) {
-                if (contentType && contentType.includes("application/json")) {
+                if (paymentContentType && paymentContentType.includes("application/json")) {
                     const errorData = await response.json()
                     throw new Error(errorData.message || "Không thể tạo giao dịch SEPay")
                 } else {
@@ -207,8 +252,7 @@ const CheckoutPage = () => {
                 }
             }
 
-            // Nếu phản hồi thành công, parse JSON
-            if (!contentType || !contentType.includes("application/json")) {
+            if (!paymentContentType || !paymentContentType.includes("application/json")) {
                 throw new Error("Dữ liệu trả về không đúng định dạng")
             }
             const data = await response.json()
@@ -232,67 +276,27 @@ const CheckoutPage = () => {
     const handleSepaySuccess = async () => {
         try {
             setIsSubmitting(true)
-            const orderId = await generateOrderId()
 
-            const orderData = {
-                userId,
-                promotionId: null,
-                deliveryAddress,
-                deliveryStatus: "pending",
-                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                paymentMethodId: "sepay-qr",
-                orderDetails: cartItems.map(item => ({
-                    productId: item.productId,
-                    quantity: item.quantity
-                }))
-            }
-
-            const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(orderData)
-            })
-
-            // Kiểm tra Content-Type của phản hồi
-            const contentType = orderResponse.headers.get("Content-Type")
-            if (!orderResponse.ok) {
-                if (contentType && contentType.includes("application/json")) {
-                    const errorData = await orderResponse.json()
-                    throw new Error(errorData.message || "Không thể tạo đơn hàng")
-                } else {
-                    const text = await orderResponse.text()
-                    console.error("Phản hồi không phải JSON:", text)
-                    throw new Error("Lỗi máy chủ, vui lòng thử lại sau")
-                }
-            }
-
-            // Nếu phản hồi thành công, parse JSON
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Dữ liệu trả về không đúng định dạng")
-            }
-            const order = await orderResponse.json()
-
-            // Kiểm tra trạng thái đơn hàng
-            const statusResponse = await fetch(`${BASE_API_URL}/api/orders/${order.orderId}`)
+            // Kiểm tra trạng thái thanh toán
+            const statusResponse = await fetch(`${BASE_API_URL}/api/payments/${sepayPayment.paymentId}`)
             if (!statusResponse.ok) {
                 const statusContentType = statusResponse.headers.get("Content-Type")
                 if (statusContentType && statusContentType.includes("application/json")) {
                     const errorData = await statusResponse.json()
-                    throw new Error(errorData.message || "Không thể kiểm tra trạng thái đơn hàng")
+                    throw new Error(errorData.message || "Không thể kiểm tra trạng thái thanh toán")
                 } else {
                     const text = await statusResponse.text()
                     console.error("Phản hồi không phải JSON:", text)
-                    throw new Error("Lỗi máy chủ khi kiểm tra trạng thái đơn hàng")
+                    throw new Error("Lỗi máy chủ khi kiểm tra trạng thái thanh toán")
                 }
             }
 
-            const orderStatus = await statusResponse.json()
-            if (orderStatus.status === "PENDING") {
-                showNotification("info", "Đơn hàng đang chờ xác nhận thanh toán.")
-            } else if (orderStatus.status !== "PAYMENT_SUCCESS") {
+            const paymentStatus = await statusResponse.json()
+            if (paymentStatus.status !== "SUCCESS") {
                 throw new Error("Thanh toán chưa được xác nhận")
             }
 
+            // Xóa các mục trong giỏ hàng
             for (const item of cartItems) {
                 await fetch(`${BASE_API_URL}/api/carts/items`, {
                     method: "DELETE",
@@ -301,12 +305,12 @@ const CheckoutPage = () => {
                 })
             }
 
-            setOrderSuccess(orderId)
+            setOrderSuccess(sepayPayment.paymentId)
             setIsSepayModalOpen(false)
             toast.success("Đặt hàng thành công!")
         } catch (err) {
             console.error("Lỗi khi xử lý đơn hàng SEPay:", err)
-            toast.error(err.message || "Không thể đặt hàng. Vui lòng thử lại.")
+            toast.error(err.message || "Không thể hoàn tất thanh toán. Vui lòng thử lại.")
         } finally {
             setIsSubmitting(false)
         }
