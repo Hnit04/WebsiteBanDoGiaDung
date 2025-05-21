@@ -12,7 +12,7 @@ spring:
       connect-timeout: 5000
       socket-timeout: 3000
   rabbitmq:
-    host: rabbitmq  # Giữ nguyên từ application.yml (có thể thay thành "localhost" nếu cần)
+    host: rabbitmq
     port: 5672
     username: guest
     password: guest
@@ -26,7 +26,7 @@ spring:
     publisher-returns: true
   websocket:
     path: /ws
-    allowed-origins:  # Thêm từ application.properties
+    allowed-origins:
       - http://localhost:3000
       - https://tht-store.vercel.app
 
@@ -34,7 +34,7 @@ sepay:
   api-key: ${SEPAY_API_KEY:VEVQTLYOZLWJXJ0NGHUMPI84UBLDZS6TEPKUWCDOKSJFGEMKDV7X9WCNSEQP2IO6}
   client-key: ${SEPAY_CLIENT_KEY:VEVQTLYOZLWJXJ0NGHUMPI84UBLDZS6TEPKUWCDOKSJFGEMKDV7X9WCNSEQP2IO6}
   env: ${SEPAY_ENV:production}
-  qr-url: https://qr.sepay.vn/img  # Giữ nguyên từ application.yml (có thể thay thành "https://sepay.vn/qr" nếu cần)
+  qr-url: https://qr.sepay.vn/img
   webhook-url: ${SEPAY_WEBHOOK_URL:https://websitebandogiadung-payment.onrender.com/api/payments/sepay/webhook}
   transaction-timeout: ${TRANSACTION_TIMEOUT:300}
   client-urls: ${CLIENT_URL:https://tht-store.vercel.app,http://localhost:3000}
@@ -48,11 +48,16 @@ eureka:
 app:
   security:
     enabled: false
-  services:  # Thêm phần này để lưu trữ URL của các dịch vụ
+  services:
     order:
       url: https://websitebandogiadung.onrender.com/api/orders
     product:
       url: https://websitebandogiadung.onrender.com/api/products
+
+# Thêm trực tiếp order.service.url để giải quyết lỗi
+order:
+  service:
+    url: https://websitebandogiadung.onrender.com/api/orders
 
 management:
   endpoints:
