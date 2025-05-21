@@ -185,7 +185,7 @@ const CheckoutPage = () => {
             setIsSubmitting(true);
             let orderId;
 
-            // Tính subtotal (không bao gồm phí ship) để so sánh
+            // Tính subtotal và total
             const { subtotal, total } = calculateSummary();
 
             // Kiểm tra đơn hàng hiện có
@@ -197,7 +197,7 @@ const CheckoutPage = () => {
             }
             const existingOrders = await existingOrdersResponse.json();
 
-            // Tìm đơn hàng phù hợp (PENDING hoặc PAYMENT_SUCCESS)
+            // Tìm đơn hàng phù hợp
             const matchingOrder = existingOrders.find(
                 order => order.totalAmount === subtotal && ["PENDING", "PAYMENT_SUCCESS"].includes(order.status)
             );
@@ -205,11 +205,11 @@ const CheckoutPage = () => {
             if (matchingOrder) {
                 orderId = matchingOrder.orderId;
             } else {
-                // Tạo đơn hàng mới (không bao gồm phí ship trong totalAmount)
+                // Tạo đơn hàng mới
                 const orderData = {
                     userId,
                     promotionId: null,
-                    totalAmount: subtotal, // Chỉ dùng subtotal
+                    totalAmount: subtotal, // Không bao gồm phí ship
                     status: "PENDING",
                     deliveryAddress,
                     deliveryStatus: "PREPARING",
@@ -250,10 +250,10 @@ const CheckoutPage = () => {
                 orderId = order.orderId;
             }
 
-            // Gọi API tạo thanh toán SEPay (bao gồm phí ship)
+            // Gọi API tạo thanh toán SEPay
             const payload = {
                 orderId,
-                amount: total, // Dùng total (bao gồm phí ship)
+                amount: total, // Bao gồm phí ship (subtotal + 1000)
                 bankAccountNumber: process.env.REACT_APP_BANK_ACCOUNT || "0326829327",
                 bankCode: process.env.REACT_APP_BANK_CODE || "MBBank",
                 description: `Thanh toán đơn hàng ${orderId}`,

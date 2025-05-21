@@ -126,7 +126,7 @@ public class OrderService {
                 PaymentRequest paymentRequest = new PaymentRequest(
                         savedOrder.getOrderId(),
                         request.getPaymentMethodId(),
-                        savedOrder.getTotalAmount() + 30000 // Thêm phí ship
+                        savedOrder.getTotalAmount() + 1000 // Thêm phí ship
                 );
                 logger.debug("Payment request body: {}", paymentRequest);
                 HttpEntity<PaymentRequest> entity = new HttpEntity<>(paymentRequest, headers);
