@@ -18,6 +18,7 @@ const ProductDetailPage = () => {
     const navigate = useNavigate()
 
     const user = getUserFromLocalStorage()
+    console.log(user)
     const userId = user?.userId || null
 
     useEffect(() => {
@@ -144,11 +145,11 @@ const ProductDetailPage = () => {
     }
 
     const handleBuyNow = async () => {
-        // if (!userId) {
-        //     showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
-        //     navigate("/login")
-        //     return
-        // }
+        if (!userId) {
+            showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
+            navigate("/login")
+            return
+        }
 
         try {
             setIsAddingToCart(true)
