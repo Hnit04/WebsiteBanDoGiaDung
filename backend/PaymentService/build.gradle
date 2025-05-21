@@ -46,6 +46,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.7")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation 'org.springframework.boot:spring-boot-starter-websocket' // Thêm WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 

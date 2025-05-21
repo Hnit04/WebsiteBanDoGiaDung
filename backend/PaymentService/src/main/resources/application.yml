@@ -13,12 +13,12 @@ spring:
       uri: ${MONGODB_URI}
       connect-timeout: 5000
       socket-timeout: 3000
-
   rabbitmq:
-    host: ${RABBITMQ_HOST}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME}
-    password: ${RABBITMQ_PASSWORD}
+    host: ${RABBITMQ_HOST:collie.lmq.cloudamqp.com}
+    port: ${RABBITMQ_PORT:5671}
+    username: ${RABBITMQ_USERNAME:vnpaefjo}
+    password: ${RABBITMQ_PASSWORD:hpihASB7IUCBPmoAb_DoYDZIV2EGnaZP}
+    virtual-host: ${RABBITMQ_VHOST:vnpaefjo}
     template:
       retry:
         enabled: true
@@ -39,6 +39,15 @@ spring:
 #        multiplier: 1.5
 #    publisher-confirm-type: correlated
 #    publisher-returns: true
+
+sepay:
+  api-key: ${SEPAY_API_KEY:VEVQTLYOZLWJXJ0NGHUMPI84UBLDZS6TEPKUWCDOKSJFGEMKDV7X9WCNSEQP2IO6}
+  client-key: ${SEPAY_CLIENT_KEY:VEVQTLYOZLWJXJ0NGHUMPI84UBLDZS6TEPKUWCDOKSJFGEMKDV7X9WCNSEQP2IO6}
+  env: ${SEPAY_ENV:production}
+  qr-url: https://qr.sepay.vn/img
+  webhook-url: ${SEPAY_WEBHOOK_URL:https://websitebandogiadung-payment.onrender.com/api/payments/sepay/webhook}
+  transaction-timeout: ${TRANSACTION_TIMEOUT:300}
+  client-urls: ${CLIENT_URL:https://tht-store.vercel.app,http://localhost:3000}
 
 eureka:
   client:
