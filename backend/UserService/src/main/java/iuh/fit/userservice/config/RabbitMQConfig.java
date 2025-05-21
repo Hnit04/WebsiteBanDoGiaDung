@@ -43,13 +43,5 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
     }
-    @Bean
-    public ConnectionFactory connectionFactory() {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-        connectionFactory.setHost("your-rabbitmq-host");
-        connectionFactory.setPort(5672);
-        connectionFactory.setUsername("your-username");
-        connectionFactory.setPassword("your-password");
-        return connectionFactory;
-    }
+
 }

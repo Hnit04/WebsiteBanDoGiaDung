@@ -7,13 +7,24 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://mongo:27017/userdb}
-
+      uri: ${MONGODB_URI}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: trancongtinh20042004@gmail.com
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+      mail:
+        debug: true
+    protocol: smtp
   rabbitmq:
-    host: rabbitmq
+    host: collie-01.lmq.cloudamqp.com
     port: 5672
-    username: guest
-    password: guest
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
     connection-timeout: 5000
     template:
       retry:
@@ -24,7 +35,7 @@ spring:
   # Thêm cấu hình CORS
   web:
     cors:
-      allowed-origins: "http://localhost:5173"
+      allowed-origins: "http://localhost:5173,http://localhost:5174,https://websitebandogiadung.onrender.com "
       allowed-methods: "*"
       allowed-headers: "*"
       allow-credentials: true
@@ -52,5 +63,5 @@ app:
     enabled: false
 
 jwt:
-  secret: your-secret-key-very-long-and-secure
+  secret: ${JWT_SECRET}
   expiration: 86400000
