@@ -40,7 +40,7 @@ public class PaymentService {
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         logger.info("Bắt đầu tạo thanh toán cho đơn hàng: {}", request.getOrderId());
         try {
-            String orderUrl = "http://api-gateway:8080/api/orders/" + request.getOrderId();
+            String orderUrl = "https://websitebandogiadung.onrender.com/api/orders/" + request.getOrderId();
             logger.info("Gọi Order Service tại: {}", orderUrl);
             OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
             if (order == null || order.getTotalAmount() != request.getAmount()) {

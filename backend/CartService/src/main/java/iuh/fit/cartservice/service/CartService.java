@@ -25,7 +25,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final CartMapper cartMapper;
     private final RestTemplate restTemplate;
-    private static final String PRODUCT_SERVICE_URL = "http://api-gateway:8080/api/products/";
+    private static final String PRODUCT_SERVICE_URL = "https://websitebandogiadung.onrender.com/api/products/";
 
     @Autowired
     public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,

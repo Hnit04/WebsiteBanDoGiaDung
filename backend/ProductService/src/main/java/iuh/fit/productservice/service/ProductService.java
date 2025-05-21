@@ -266,7 +266,7 @@ public class ProductService {
 
     private void validateUser(String userId) {
         try {
-            String userServiceUrl = "http://api-gateway:8080/api/users/" + userId;
+            String userServiceUrl = "https://websitebandogiadung.onrender.com/api/users/" + userId;
             ResponseEntity<String> response = restTemplate.getForEntity(userServiceUrl, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new IllegalArgumentException("User not found with id: " + userId);

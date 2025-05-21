@@ -142,7 +142,7 @@ public class NotificationService {
                             <p style="color: #333333; font-size: 16px; line-height: 1.5; margin: 0 0 20px;">
                                 """ + message.getMessage() + """
                             </p>
-                            <a href="https://your-website.com" style="display: inline-block; padding: 12px 24px; background-color: #3498db; color: #ffffff; text-decoration: none; font-size: 16px; border-radius: 5px; margin: 20px 0;">Khám phá cửa hàng</a>
+                            <a href="https://tht-giadungthongminh.vercel.app/" style="display: inline-block; padding: 12px 24px; background-color: #3498db; color: #ffffff; text-decoration: none; font-size: 16px; border-radius: 5px; margin: 20px 0;">Khám phá cửa hàng</a>
                         </td>
                     </tr>
                     <tr>
@@ -172,7 +172,7 @@ public class NotificationService {
 
     private String getUserEmail(String userId) {
         try {
-            String userServiceUrl = "http://api-gateway:8080/api/users/" + userId;
+            String userServiceUrl = "https://websitebandogiadung.onrender.com/api/users/" + userId;
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(serviceToken); // Sử dụng token từ cấu hình
             HttpEntity<?> entity = new HttpEntity<>(headers);

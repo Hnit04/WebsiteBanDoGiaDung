@@ -74,7 +74,7 @@ public class OrderService {
             orderDetail.setQuantity(detail.getQuantity());
 
             // Gọi Product Service để lấy unitPrice
-            String productUrl = "http://api-gateway:8080/api/products/" + detail.getProductId();
+            String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + detail.getProductId();
             logger.debug("Calling Product Service at: {}", productUrl);
             try {
                 ResponseEntity<ProductResponse> response = restTemplate.getForEntity(productUrl, ProductResponse.class);
@@ -125,7 +125,7 @@ public class OrderService {
 
         // Gọi payment-service
         try {
-            String paymentUrl = "http://api-gateway:8080/api/payments";
+            String paymentUrl = "https://websitebandogiadung.onrender.com/api/payments";
             logger.info("Initiating payment request to: {}", paymentUrl);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -243,7 +243,7 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
 
         // Validate product
-        String productUrl = "http://api-gateway:8080/api/products/" + request.getProductId();
+        String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + request.getProductId();
         logger.debug("Validating product at: {}", productUrl);
         ProductResponse product = null;
         try {
