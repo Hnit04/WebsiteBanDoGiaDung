@@ -36,11 +36,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Thêm dòng này
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/api/users/**").permitAll()
-                        .requestMatchers("/api/users/login", "/api/users", "/api/users/verify").permitAll() // Thêm /api/users/verify vào danh sách permitAll
+                        .requestMatchers("/api/users/login", "/api/users", "/api/users/verify").permitAll()
                         .requestMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CUSTOMER")
                         .anyRequest().authenticated()
                 )
@@ -58,10 +59,11 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://tht-giadungthongminh.vercel.app")); // Chỉ một nguồn
+        configuration.setAllowedOrigins(List.of("https://tht-giadungthongminh.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -70,6 +72,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
