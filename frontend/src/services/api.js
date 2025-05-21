@@ -3,6 +3,11 @@ import axios from "axios";
 const api = axios.create({
     baseURL: " https://websitebandogiadung.onrender.com/api/", // Sử dụng proxy đến API Gateway
 });
+// Xử lý CORS
+api.interceptors.request.use(config => {
+    config.headers["Access-Control-Allow-Origin"] = "https://tht-giadungthongminh.vercel.app";
+    return config;
+});
 
 api.interceptors.request.use(
     (config) => {
