@@ -1,20 +1,22 @@
+// SepayQRCode.jsx
 import { useState, useEffect } from "react"
 import { Stomp } from "@stomp/stompjs"
 import SockJS from "sockjs-client"
 import { CheckCircle, AlertTriangle } from "lucide-react"
-import { checkTransactionStatus } from "../services/api"
 import toast from "react-hot-toast"
 
-const SepayQRCode = ({ paymentId, qrCodeUrl, amount, onSuccess }) => {
+const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSuccess }) => {
     const [status, setStatus] = useState("PENDING")
-    const [timeLeft, setTimeLeft] = useState(300) // 300 giây từ TRANSACTION_TIMEOUT
+    const [timeLeft, setTimeLeft] = useState(transactionTimeout || 300)
+    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung.onrender.com"
+    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || "https://websitebandogiadung.onrender.com/ws"
 
     useEffect(() => {
         // Kết nối WebSocket
-        const socket = new SockJS("http://localhost:8085/ws") // Thay bằng URL backend thực tế
+        const socket = new SockJS(WEBSOCKET_URL)
         const stompClient = Stomp.over(socket)
         stompClient.connect({}, () => {
-            stompClient.subscribe("/topic/transactions", (message) => {
+            stompClient.subscribe("/topic/transactions", message => {
                 const data = JSON.parse(message.body)
                 if (data.paymentId === paymentId) {
                     setStatus(data.status)
@@ -25,31 +27,33 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, onSuccess }) => {
                     }
                 }
             })
-        }, (error) => {
-            console.error("WebSocket error:", error)
+        }, error => {
+            console.error("Lỗi WebSocket:", error)
             toast.error("Lỗi kết nối WebSocket")
         })
 
         // Polling dự phòng
         const pollingInterval = setInterval(async () => {
             try {
-                const response = await checkTransactionStatus(paymentId)
-                if (response.status !== status) {
-                    setStatus(response.status)
-                    if (response.status === "SUCCESS") {
+                const response = await fetch(`${BASE_API_URL}/api/payments/${paymentId}`)
+                if (!response.ok) throw new Error("Không thể kiểm tra trạng thái giao dịch")
+                const data = await response.json()
+                if (data.status !== status) {
+                    setStatus(data.status)
+                    if (data.status === "SUCCESS") {
                         onSuccess()
-                    } else if (response.status === "FAILED" || response.status === "EXPIRED") {
-                        toast.error(`Giao dịch ${response.status === "FAILED" ? "thất bại" : "hết hạn"}`)
+                    } else if (data.status === "FAILED" || data.status === "EXPIRED") {
+                        toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
                     }
                 }
             } catch (err) {
-                console.error("Error polling transaction status:", err)
+                console.error("Lỗi khi kiểm tra trạng thái giao dịch:", err)
             }
         }, 5000)
 
         // Đếm ngược thời gian
         const timer = setInterval(() => {
-            setTimeLeft((prev) => {
+            setTimeLeft(prev => {
                 if (prev <= 1) {
                     setStatus("EXPIRED")
                     toast.error("Giao dịch đã hết hạn")
