@@ -1,6 +1,7 @@
 package iuh.fit.userservice.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -41,5 +42,14 @@ public class RabbitMQConfig {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
+    }
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setHost("your-rabbitmq-host");
+        connectionFactory.setPort(5672);
+        connectionFactory.setUsername("your-username");
+        connectionFactory.setPassword("your-password");
+        return connectionFactory;
     }
 }

@@ -7,7 +7,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://mongo:27017/productdb}
+      uri: ${MONGODB_URI}
 
 eureka:
   client:

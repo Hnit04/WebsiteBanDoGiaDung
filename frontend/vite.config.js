@@ -15,7 +15,7 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://websitebandogiadung.onrender.com/',
         changeOrigin: true,
         // Bỏ rewrite để giữ /api/users
       },
