@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CustomCorsFilter extends OncePerRequestFilter {
@@ -22,13 +23,24 @@ public class CustomCorsFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         logger.debug("Processing CORS for request: {}", request.getRequestURI());
 
+        // Loại bỏ tất cả các tiêu đề CORS cũ
+        response.setHeader("Access-Control-Allow-Origin", null);
+        response.setHeader("Access-Control-Allow-Methods", null);
+        response.setHeader("Access-Control-Allow-Headers", null);
+        response.setHeader("Access-Control-Allow-Credentials", null);
+        response.setHeader("Access-Control-Max-Age", null);
+        response.setHeader("Access-Control-Expose-Headers", null);
 
+        // Đặt lại tiêu đề CORS
         response.setHeader("Access-Control-Allow-Origin", "https://tht-giadungthongminh.vercel.app");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
         response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, X-Requested-With");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
+
+        // Log tiêu đề sau khi đặt
+        logger.debug("Set Access-Control-Allow-Origin to: {}", response.getHeader("Access-Control-Allow-Origin"));
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             logger.debug("Handling OPTIONS request for: {}", request.getRequestURI());
