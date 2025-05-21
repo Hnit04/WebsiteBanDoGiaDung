@@ -91,7 +91,6 @@ const CheckoutPage = () => {
     const [sepayPayment, setSepayPayment] = useState(null)
 
     const user = getUserFromLocalStorage()
-    console.log(user)
     const userId = user?.userId || null
 
     const navigate = useNavigate()
@@ -112,19 +111,15 @@ const CheckoutPage = () => {
                 const itemIds = params.get("items")?.split(",") || []
                 if (itemIds.length === 0) throw new Error("Không có sản phẩm nào được chọn")
 
-                // Lấy giỏ hàng
                 const cartResponse = await fetch(`${BASE_API_URL}/api/carts/user/${userId}`)
                 if (!cartResponse.ok) throw new Error("Không thể tải giỏ hàng")
                 const cartData = await cartResponse.json()
-                console.log("Cart data:", cartData) // Kiểm tra dữ liệu giỏ hàng
                 const selectedItems = cartData.cartItems.filter(item => itemIds.includes(item.cartItemId))
                 setCartItems(selectedItems)
 
-                // Lấy danh sách sản phẩm
                 const productResponse = await fetch(`${BASE_API_URL}/api/products?page=0&size=1000`)
                 if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
                 const productData = await productResponse.json()
-                console.log("Product data:", productData) // Kiểm tra dữ liệu sản phẩm
                 setProducts(productData.content || [])
             } catch (err) {
                 console.error("Lỗi khi tải giỏ hàng:", err)
@@ -140,13 +135,13 @@ const CheckoutPage = () => {
     // Tính toán tóm tắt đơn hàng
     const calculateSummary = () => {
         const subtotal = cartItems.reduce((sum, item) => {
-            const product = products.find(p => p.productId === item.productId);
-            return sum + (product?.salePrice || 0) * item.quantity;
-        }, 0);
-        const shipping = 1000; // Phí ship cố định 30k
-        const total = subtotal + shipping;
-        return { subtotal, shipping, total };
-    };
+            const product = products.find(p => p.productId === item.productId)
+            return sum + (product?.salePrice || 0) * item.quantity
+        }, 0)
+        const shipping = 1000 // Phí ship cố định 1k
+        const total = subtotal + shipping
+        return { subtotal, shipping, total }
+    }
 
     // Hiển thị thông báo
     const showNotification = (type, message) => {
@@ -177,148 +172,141 @@ const CheckoutPage = () => {
     // Xử lý thanh toán SEPay
     const handleSepayPayment = async () => {
         if (!deliveryAddress.trim()) {
-            showNotification("error", "Vui lòng nhập địa chỉ giao hàng");
-            return;
+            showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
+            return
         }
 
         try {
-            setIsSubmitting(true);
-            let orderId;
+            setIsSubmitting(true)
+            let orderId
 
-            // Tính subtotal và total
-            const { subtotal, total } = calculateSummary();
+            const { subtotal, total } = calculateSummary()
 
-            // Kiểm tra đơn hàng hiện có
-            const existingOrdersResponse = await fetch(
-                `${BASE_API_URL}/api/orders?userId=${userId}`
-            );
+            const existingOrdersResponse = await fetch(`${BASE_API_URL}/api/orders?userId=${userId}`)
             if (!existingOrdersResponse.ok) {
-                throw new Error("Không thể kiểm tra đơn hàng hiện có");
+                throw new Error("Không thể kiểm tra đơn hàng hiện có")
             }
-            const existingOrders = await existingOrdersResponse.json();
+            const existingOrders = await existingOrdersResponse.json()
 
-            // Tìm đơn hàng phù hợp
             const matchingOrder = existingOrders.find(
                 order => order.totalAmount === subtotal && ["PENDING", "PAYMENT_SUCCESS"].includes(order.status)
-            );
+            )
 
             if (matchingOrder) {
-                orderId = matchingOrder.orderId;
+                orderId = matchingOrder.orderId
             } else {
-                // Tạo đơn hàng mới
                 const orderData = {
                     userId,
                     promotionId: null,
-                    totalAmount: subtotal, // Không bao gồm phí ship
+                    totalAmount: subtotal,
                     status: "PENDING",
                     deliveryAddress,
                     deliveryStatus: "PREPARING",
                     deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                     paymentMethodId: "sepay-qr",
                     orderDetails: cartItems.map(item => {
-                        const product = products.find(p => p.productId === item.productId) || { salePrice: 0 };
+                        const product = products.find(p => p.productId === item.productId) || { salePrice: 0 }
                         return {
                             productId: item.productId,
                             quantity: item.quantity,
                             unitPrice: typeof product.salePrice === "number" ? product.salePrice : 0
-                        };
+                        }
                     })
-                };
+                }
 
                 const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(orderData)
-                });
+                })
 
-                const contentType = orderResponse.headers.get("Content-Type");
+                const contentType = orderResponse.headers.get("Content-Type")
                 if (!orderResponse.ok) {
                     if (contentType && contentType.includes("application/json")) {
-                        const errorData = await orderResponse.json();
-                        throw new Error(errorData.message || "Không thể tạo đơn hàng");
+                        const errorData = await orderResponse.json()
+                        throw new Error(errorData.message || "Không thể tạo đơn hàng")
                     } else {
-                        const text = await orderResponse.text();
-                        console.error("Phản hồi không phải JSON:", text);
-                        throw new Error("Lỗi máy chủ, vui lòng thử lại sau");
+                        const text = await orderResponse.text()
+                        console.error("Phản hồi không phải JSON:", text)
+                        throw new Error("Lỗi máy chủ, vui lòng thử lại sau")
                     }
                 }
 
                 if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Dữ liệu trả về không đúng định dạng");
+                    throw new Error("Dữ liệu trả về không đúng định dạng")
                 }
-                const order = await orderResponse.json();
-                orderId = order.orderId;
+                const order = await orderResponse.json()
+                orderId = order.orderId
             }
 
-            // Gọi API tạo thanh toán SEPay
             const payload = {
                 orderId,
-                amount: total, // Bao gồm phí ship (subtotal + 1000)
+                amount: total,
                 bankAccountNumber: process.env.REACT_APP_BANK_ACCOUNT || "0326829327",
                 bankCode: process.env.REACT_APP_BANK_CODE || "MBBank",
                 description: `Thanh toán đơn hàng ${orderId}`,
                 customerEmail: user?.email || "user@example.com"
-            };
+            }
 
             const response = await fetch(`${BASE_API_URL}/api/payments/sepay`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+                body: JSON.stringify(payload)
+            })
 
-            const paymentContentType = response.headers.get("Content-Type");
+            const paymentContentType = response.headers.get("Content-Type")
             if (!response.ok) {
                 if (paymentContentType && paymentContentType.includes("application/json")) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || "Không thể tạo giao dịch SEPay");
+                    const errorData = await response.json()
+                    throw new Error(errorData.message || "Không thể tạo giao dịch SEPay")
                 } else {
-                    const text = await response.text();
-                    console.error("Phản hồi không phải JSON:", text);
-                    throw new Error("Lỗi máy chủ, vui lòng thử lại sau");
+                    const text = await response.text()
+                    console.error("Phản hồi không phải JSON:", text)
+                    throw new Error("Lỗi máy chủ, vui lòng thử lại sau")
                 }
             }
 
             if (!paymentContentType || !paymentContentType.includes("application/json")) {
-                throw new Error("Dữ liệu trả về không đúng định dạng");
+                throw new Error("Dữ liệu trả về không đúng định dạng")
             }
-            const data = await response.json();
+            const data = await response.json()
 
             setSepayPayment({
                 paymentId: data.paymentId,
                 qrCodeUrl: data.qrCodeUrl,
                 amount: data.amount,
-                transactionTimeout: data.transactionTimeout || 300,
-            });
-            setIsSepayModalOpen(true);
+                transactionTimeout: data.transactionTimeout || 300
+            })
+            setIsSepayModalOpen(true)
         } catch (err) {
-            console.error("Lỗi khi tạo giao dịch SEPay:", err);
-            toast.error(err.message || "Không thể tạo giao dịch SEPay");
+            console.error("Lỗi khi tạo giao dịch SEPay:", err)
+            toast.error(err.message || "Không thể tạo giao dịch SEPay")
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     // Xử lý khi thanh toán SEPay thành công
     const handleSepaySuccess = async () => {
         try {
-            setIsSubmitting(true);
+            setIsSubmitting(true)
 
-            const statusResponse = await fetch(`${BASE_API_URL}/api/payments/${sepayPayment.paymentId}`);
+            const statusResponse = await fetch(`${BASE_API_URL}/api/payments/${sepayPayment.paymentId}`)
             if (!statusResponse.ok) {
-                const statusContentType = statusResponse.headers.get("Content-Type");
+                const statusContentType = statusResponse.headers.get("Content-Type")
                 if (statusContentType && statusContentType.includes("application/json")) {
-                    const errorData = await statusResponse.json();
-                    throw new Error(errorData.message || "Không thể kiểm tra trạng thái thanh toán");
+                    const errorData = await statusResponse.json()
+                    throw new Error(errorData.message || "Không thể kiểm tra trạng thái thanh toán")
                 } else {
-                    const text = await statusResponse.text();
-                    console.error("Phản hồi không phải JSON:", text);
-                    throw new Error("Lỗi máy chủ khi kiểm tra trạng thái thanh toán");
+                    const text = await statusResponse.text()
+                    console.error("Phản hồi không phải JSON:", text)
+                    throw new Error("Lỗi máy chủ khi kiểm tra trạng thái thanh toán")
                 }
             }
 
-            const paymentStatus = await statusResponse.json();
+            const paymentStatus = await statusResponse.json()
             if (paymentStatus.status !== "SUCCESS") {
-                throw new Error("Thanh toán chưa được xác nhận");
+                throw new Error("Thanh toán chưa được xác nhận")
             }
 
             for (const item of cartItems) {
@@ -326,19 +314,20 @@ const CheckoutPage = () => {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ userId, productId: item.productId })
-                });
+                })
             }
 
-            setOrderSuccess(sepayPayment.paymentId);
-            setIsSepayModalOpen(false);
-            toast.success("Đặt hàng thành công!");
+            setOrderSuccess(sepayPayment.paymentId)
+            setIsSepayModalOpen(false)
+            toast.success("Đặt hàng thành công!")
+            await showOrderDetails(sepayPayment.paymentId)
         } catch (err) {
-            console.error("Lỗi khi xử lý đơn hàng SEPay:", err);
-            toast.error(err.message || "Không thể hoàn tất thanh toán. Vui lòng thử lại.");
+            console.error("Lỗi khi xử lý đơn hàng SEPay:", err)
+            toast.error(err.message || "Không thể hoàn tất thanh toán. Vui lòng thử lại.")
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     // Xử lý đặt hàng (non-SEPay)
     const handleSubmitOrder = async () => {
@@ -363,14 +352,19 @@ const CheckoutPage = () => {
             const orderData = {
                 userId,
                 promotionId: null,
+                totalAmount: calculateSummary().subtotal,
                 deliveryAddress,
-                deliveryStatus: "pending",
+                deliveryStatus: "PREPARING",
                 deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                 paymentMethodId: paymentMethod,
-                orderDetails: cartItems.map(item => ({
-                    productId: item.productId,
-                    quantity: item.quantity
-                }))
+                orderDetails: cartItems.map(item => {
+                    const product = products.find(p => p.productId === item.productId) || { salePrice: 0 }
+                    return {
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        unitPrice: typeof product.salePrice === "number" ? product.salePrice : 0
+                    }
+                })
             }
 
             const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
@@ -379,7 +373,6 @@ const CheckoutPage = () => {
                 body: JSON.stringify(orderData)
             })
 
-            // Kiểm tra Content-Type của phản hồi
             const contentType = orderResponse.headers.get("Content-Type")
             if (!orderResponse.ok) {
                 if (contentType && contentType.includes("application/json")) {
@@ -392,13 +385,11 @@ const CheckoutPage = () => {
                 }
             }
 
-            // Nếu phản hồi thành công, parse JSON
             if (!contentType || !contentType.includes("application/json")) {
                 throw new Error("Dữ liệu trả về không đúng định dạng")
             }
             const order = await orderResponse.json()
 
-            // Kiểm tra trạng thái đơn hàng
             const statusResponse = await fetch(`${BASE_API_URL}/api/orders/${order.orderId}`)
             if (!statusResponse.ok) {
                 const statusContentType = statusResponse.headers.get("Content-Type")
@@ -415,7 +406,7 @@ const CheckoutPage = () => {
             const orderStatus = await statusResponse.json()
             if (orderStatus.status === "PENDING") {
                 showNotification("info", "Đơn hàng đang chờ xác nhận thanh toán.")
-            } else if (orderStatus.status !== "PAYMENT_SUCCESS") {
+            } else if (orderStatus.status !== "PAYMENT_SUCCESS" && paymentMethod !== "PM003") {
                 throw new Error("Thanh toán chưa được xác nhận")
             }
 
@@ -427,8 +418,9 @@ const CheckoutPage = () => {
                 })
             }
 
-            setOrderSuccess(orderId)
+            setOrderSuccess(order.orderId)
             showNotification("success", "Đặt hàng thành công!")
+            await showOrderDetails(order.orderId)
         } catch (err) {
             console.error("Lỗi khi đặt hàng:", err)
             showNotification("error", err.message || "Không thể đặt hàng. Vui lòng thử lại.")
@@ -438,8 +430,8 @@ const CheckoutPage = () => {
     }
 
     // Hiển thị chi tiết đơn hàng
-    const showOrderDetails = async () => {
-        if (!orderSuccess || !user || !cartItems.length) return
+    const showOrderDetails = async (customOrderId = orderSuccess) => {
+        if (!customOrderId || !user || !cartItems.length) return
 
         const formatCurrency = amount => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
         const formatDate = dateString => {
@@ -456,8 +448,7 @@ const CheckoutPage = () => {
             }
         }
 
-        // Lấy thông tin đơn hàng từ API
-        const orderDetailsResponse = await fetch(`${BASE_API_URL}/api/orders/${orderSuccess}`)
+        const orderDetailsResponse = await fetch(`${BASE_API_URL}/api/orders/${customOrderId}`)
         if (!orderDetailsResponse.ok) {
             toast.error("Không thể lấy chi tiết đơn hàng")
             return
@@ -471,7 +462,7 @@ const CheckoutPage = () => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hóa đơn #${orderSuccess}</title>
+        <title>Hóa đơn #${customOrderId}</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -635,7 +626,7 @@ const CheckoutPage = () => {
           </div>
           <div class="invoice-total-row">
             <div class="label">Phí vận chuyển:</div>
-            <div class="value">${formatCurrency(calculateSummary().shippingFee)}</div>
+            <div class="value">${formatCurrency(calculateSummary().shipping)}</div>
           </div>
           <div class="invoice-total-row final">
             <div class="label">Tổng thanh toán:</div>
@@ -744,7 +735,7 @@ const CheckoutPage = () => {
                                 Tiếp tục mua sắm
                             </Link>
                             <button
-                                onClick={showOrderDetails}
+                                onClick={() => showOrderDetails()}
                                 className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors"
                             >
                                 Xem chi tiết đơn hàng
@@ -756,7 +747,7 @@ const CheckoutPage = () => {
         )
     }
 
-    const { totalItems, subtotal, shippingFee, total } = calculateSummary()
+    const { subtotal, shipping, total } = calculateSummary()
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -809,7 +800,6 @@ const CheckoutPage = () => {
                             </div>
                         </div>
 
-                        {/* Location Selection Modal */}
                         {isLocationModalOpen && (
                             <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -897,7 +887,6 @@ const CheckoutPage = () => {
                             </div>
                         )}
 
-                        {/* SEPay Modal */}
                         {isSepayModalOpen && sepayPayment && (
                             <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -946,7 +935,7 @@ const CheckoutPage = () => {
                         </div>
 
                         <div className="bg-white shadow-md rounded-lg p-6">
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Sản phẩm ({totalItems})</h2>
+                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Sản phẩm ({cartItems.length})</h2>
                             <div className="divide-y divide-gray-200">
                                 {cartItems.map(item => {
                                     const product = products.find(p => p.productId === item.productId) || {
@@ -997,7 +986,7 @@ const CheckoutPage = () => {
                             <h2 className="text-xl font-semibold text-gray-800 mb-6">Tóm tắt đơn hàng</h2>
                             <div className="space-y-4">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600">Tạm tính ({totalItems} sản phẩm)</span>
+                                    <span className="text-gray-600">Tạm tính ({cartItems.length} sản phẩm)</span>
                                     <span className="text-gray-800 font-medium">
                                         {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(subtotal)}
                                     </span>
@@ -1005,7 +994,7 @@ const CheckoutPage = () => {
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Phí vận chuyển</span>
                                     <span className="text-gray-800 font-medium">
-                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(shippingFee)}
+                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(shipping)}
                                     </span>
                                 </div>
                                 <div className="border-t border-gray-200 pt-4 flex justify-between">
