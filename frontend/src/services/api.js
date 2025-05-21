@@ -1,18 +1,12 @@
 import axios from "axios";
 
+// Tạo instance axios với cấu hình cơ bản
 const api = axios.create({
-    baseURL: " https://websitebandogiadung.onrender.com/api/", // Sử dụng proxy đến API Gateway
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true, // Gửi cookie nếu cần
-});
-// Xử lý CORS
-api.interceptors.request.use(config => {
-    config.headers["Access-Control-Allow-Origin"] = "https://tht-giadungthongminh.vercel.app";
-    return config;
+    baseURL: "https://websitebandogiadung.onrender.com/api/", // Xóa khoảng trắng thừa
+    withCredentials: true, // Gửi cookie nếu cần, phù hợp với backend
 });
 
+// Xử lý request interceptor (kết hợp cả token và CORS)
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -27,6 +21,7 @@ api.interceptors.request.use(
     }
 );
 
+// Xử lý response interceptor
 api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -37,6 +32,7 @@ api.interceptors.response.use(
             sessionStorage.removeItem("token");
             window.location.href = "/login";
         }
+        console.error("API error:", error.message || error); // Log lỗi chi tiết
         return Promise.reject(error);
     }
 );
