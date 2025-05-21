@@ -172,7 +172,7 @@ public class NotificationService {
 
     private String getUserEmail(String userId) {
         try {
-            String userServiceUrl = "http://api-gateway:8080/api/users/" + userId;
+            String userServiceUrl = "https://websitebandogiadung.onrender.com/api/users/" + userId;
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(serviceToken); // Sử dụng token từ cấu hình
             HttpEntity<?> entity = new HttpEntity<>(headers);
