@@ -143,7 +143,7 @@ const CheckoutPage = () => {
             const product = products.find(p => p.productId === item.productId);
             return sum + (product?.salePrice || 0) * item.quantity;
         }, 0);
-        const shipping = 30000; // Phí ship cố định 30k
+        const shipping = 1000; // Phí ship cố định 30k
         const total = subtotal + shipping;
         return { subtotal, shipping, total };
     };
