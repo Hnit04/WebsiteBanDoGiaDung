@@ -130,7 +130,7 @@ public class PaymentService {
             throw new RuntimeException("Invalid order");
         }
         // Cho phép amount bao gồm phí ship (order.totalAmount + 30000)
-        if (order.getTotalAmount() + 30000 != amount) {
+        if (order.getTotalAmount() + 1000 != amount) {
             logger.error("Số tiền không khớp. Expected: {}, Provided: {}", order.getTotalAmount() + 30000, amount);
             throw new RuntimeException("Invalid amount");
         }
