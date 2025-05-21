@@ -11,18 +11,30 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  define: {
+    global: 'window', // Polyfill global thành window để khắc phục lỗi sockjs-client
+  },
   server: {
     port: 5174,
     proxy: {
       '/api': {
         target: 'https://websitebandogiadung.onrender.com/',
         changeOrigin: true,
-        // Bỏ rewrite để giữ /api/users
+        ws: true, // Kích hoạt proxy WebSocket
+        secure: false,
       },
     },
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      // Tùy chọn để tối ưu hóa build nếu cần
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'axios', 'sockjs-client', '@stomp/stompjs'],
+        },
+      },
+    },
   },
 });

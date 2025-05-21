@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
-import api from "../services/api"
 import { getUserFromLocalStorage } from "../assets/js/userData"
+import { products } from "../assets/js/productData.jsx"
 import { CheckCircle, AlertTriangle, X, ArrowLeft, ShoppingBag, ChevronDown } from "lucide-react"
+import SepayQRCode from "../components/SepayQRCode"
+import { createSepayPayment } from "../services/api"
+import toast from "react-hot-toast"
 
 // Dữ liệu địa phương Việt Nam (giả lập)
 const vietnamLocations = {
@@ -72,7 +75,6 @@ const vietnamLocations = {
 
 const CheckoutPage = () => {
     const [cartItems, setCartItems] = useState([])
-    const [products, setProducts] = useState({})
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -85,56 +87,17 @@ const CheckoutPage = () => {
     const [selectedWard, setSelectedWard] = useState("")
     const [detailedAddress, setDetailedAddress] = useState("")
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
+    const [isSepayModalOpen, setIsSepayModalOpen] = useState(false)
+    const [sepayPayment, setSepayPayment] = useState(null)
 
     const user = getUserFromLocalStorage()
-    const userId = user?.email || null
+    const userId = user?.id || null
     const navigate = useNavigate()
     const location = useLocation()
 
-    // Hàm tìm ID từ tên trong vietnamLocations
-    const findLocationId = (type, name, parentId = null) => {
-        if (!name) return ""
-        if (type === "province") {
-            const province = vietnamLocations.provinces.find(p => p.name === name)
-            return province ? province.id : ""
-        }
-        if (type === "district" && parentId) {
-            const district = vietnamLocations.districts[parentId]?.find(d => d.name === name)
-            return district ? district.id : ""
-        }
-        if (type === "ward" && parentId) {
-            const ward = vietnamLocations.wards[parentId]?.find(w => w.name === name)
-            return ward ? ward.id : ""
-        }
-        return ""
-    }
-
-    // Thiết lập địa chỉ mặc định từ thông tin người dùng
+    // Fetch cart items based on selected items from query params
     useEffect(() => {
-        if (user?.address) {
-            const { province, district, ward, detailedAddress: userDetailedAddress } = user.address
-            const provinceId = findLocationId("province", province)
-            const districtId = provinceId ? findLocationId("district", district, provinceId) : ""
-            const wardId = districtId ? findLocationId("ward", ward, districtId) : ""
-
-            if (provinceId && districtId && wardId && userDetailedAddress) {
-                setSelectedProvince(provinceId)
-                setSelectedDistrict(districtId)
-                setSelectedWard(wardId)
-                setDetailedAddress(userDetailedAddress)
-
-                const provinceName = vietnamLocations.provinces.find(p => p.id === provinceId)?.name || ""
-                const districtName = vietnamLocations.districts[provinceId]?.find(d => d.id === districtId)?.name || ""
-                const wardName = vietnamLocations.wards[districtId]?.find(w => w.id === wardId)?.name || ""
-                const fullAddress = `${userDetailedAddress}, ${wardName}, ${districtName}, ${provinceName}`
-                setDeliveryAddress(fullAddress)
-            }
-        }
-    }, [user])
-
-    // Fetch cart items and product details
-    useEffect(() => {
-        const fetchCartAndProducts = async () => {
+        const fetchCartItems = async () => {
             if (!userId) {
                 setIsLoading(false)
                 return
@@ -146,47 +109,63 @@ const CheckoutPage = () => {
                 const itemIds = params.get("items")?.split(",") || []
 
                 if (itemIds.length === 0) {
-                    throw new Error("Không có sản phẩm nào được chọn")
+                    throw new Error("No items selected")
                 }
 
-                // Fetch cart
-                const cartResponse = await api.get(`/carts/user/${userId}`)
-                const cartData = cartResponse.data
-                if (!cartData.cartItems) {
-                    throw new Error("Không tìm thấy giỏ hàng")
+                const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart?userId=${userId}`)
+                if (!response.ok) {
+                    throw new Error("Failed to fetch cart items")
                 }
 
-                // Filter selected cart items
-                const selectedItems = cartData.cartItems.filter(item => itemIds.includes(item.cartItemId))
+                const data = await response.json()
+                const selectedItems = data.filter(item => itemIds.includes(item.id))
                 setCartItems(selectedItems)
-
-                // Fetch product details for selected items
-                const productIds = [...new Set(selectedItems.map(item => item.productId))]
-                const productPromises = productIds.map(id => api.get(`/products/${id}`))
-                const productResponses = await Promise.all(productPromises)
-                const productData = productResponses.reduce((acc, response) => {
-                    const product = response.data
-                    acc[product.productId] = product
-                    return acc
-                }, {})
-                setProducts(productData)
             } catch (err) {
-                console.error("Error fetching cart or products:", err)
-                setError(err.response?.data?.message || "Không thể tải thông tin thanh toán. Vui lòng thử lại.")
+                console.error("Error fetching cart:", err)
+                setError("Không thể tải thông tin thanh toán. Vui lòng thử lại.")
             } finally {
                 setIsLoading(false)
             }
         }
 
-        fetchCartAndProducts()
+        fetchCartItems()
     }, [userId, location.search])
+
+    // Get product details by ID from API
+    const getProductDetails = async (productId) => {
+        try {
+            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${productId}`)
+            if (!response.ok) {
+                throw new Error("Failed to fetch product details")
+            }
+            const product = await response.json()
+            return product || {
+                productName: "Sản phẩm không tồn tại",
+                originalPrice: 0,
+                salePrice: 0,
+                imageUrl: "/placeholder.svg",
+                categoryId: "",
+                quantityInStock: 0,
+            }
+        } catch (err) {
+            console.error("Error fetching product details:", err)
+            return products.find((product) => product.id.toString() === productId) || {
+                productName: "Sản phẩm không tồn tại",
+                originalPrice: 0,
+                salePrice: 0,
+                imageUrl: "/placeholder.svg",
+                categoryId: "",
+                quantityInStock: 0,
+            }
+        }
+    }
 
     // Calculate order summary
     const calculateSummary = () => {
         const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
         const subtotal = cartItems.reduce((total, item) => {
-            const product = products[item.productId] || { originalPrice: 0 }
-            return total + product.originalPrice * item.quantity
+            const product = products.find((p) => p.id.toString() === item.productId) || { salePrice: 0 }
+            return total + product.salePrice * item.quantity
         }, 0)
         const shippingFee = 30000
         const total = subtotal + shippingFee
@@ -196,7 +175,60 @@ const CheckoutPage = () => {
     // Show notification
     const showNotification = (type, message) => {
         setNotification({ type, message })
-        setTimeout(() => setNotification(null), 3000)
+        setTimeout(() => {
+            setNotification(null)
+        }, 3000)
+    }
+
+    // Generate sequential order ID
+    const generateOrderId = async () => {
+        try {
+            const response = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/order")
+            if (!response.ok) {
+                throw new Error("Failed to fetch orders")
+            }
+            const orders = await response.json()
+            const lastOrder = orders.length > 0 ? orders[orders.length - 1] : null
+            const lastId = lastOrder ? parseInt(lastOrder.id.replace("THT", "")) : 0
+            return `THT${Date.now()}` // Định dạng THT + timestamp
+        } catch (err) {
+            console.error("Error generating order ID:", err)
+            return `THT${Date.now()}`
+        }
+    }
+
+    // Update product stock after order
+    const updateProductStock = async (productId, quantity) => {
+        try {
+            const product = await getProductDetails(productId)
+            const newStock = product.quantityInStock - quantity
+
+            if (newStock < 0) {
+                throw new Error(`Sản phẩm "${product.productName}" không đủ hàng tồn kho.`)
+            }
+
+            const response = await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/product/${productId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...product, quantityInStock: newStock })
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to update product stock")
+            }
+        } catch (err) {
+            throw err
+        }
+    }
+
+    // Check stock availability before placing order
+    const checkStockAvailability = async () => {
+        for (const item of cartItems) {
+            const product = await getProductDetails(item.productId)
+            if (product.quantityInStock < item.quantity) {
+                throw new Error(`Sản phẩm "${product.productName}" không đủ hàng tồn kho. Chỉ còn ${product.quantityInStock} sản phẩm.`)
+            }
+        }
     }
 
     // Handle location selection
@@ -215,7 +247,103 @@ const CheckoutPage = () => {
         setIsLocationModalOpen(false)
     }
 
-    // Handle order submission
+    // Handle SEPay payment
+    const handleSepayPayment = async () => {
+        try {
+            setIsSubmitting(true)
+            const orderId = await generateOrderId()
+            const payload = {
+                orderId,
+                amount: calculateSummary().total,
+                description: `Thanh toán đơn hàng #${orderId}`,
+                bankAccountNumber: "0326829327", // Hardcode hoặc lấy từ cấu hình
+                bankCode: "MBBank",
+                customerEmail: user.email
+            }
+
+            const response = await createSepayPayment(payload)
+            setSepayPayment({
+                paymentId: response.paymentId,
+                qrCodeUrl: response.qrCodeUrl,
+                amount: response.amount
+            })
+            setIsSepayModalOpen(true)
+        } catch (err) {
+            console.error("Error creating SEPay payment:", err)
+            toast.error(err.message || "Không thể tạo giao dịch SEPay")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    // Handle SEPay payment success
+    const handleSepaySuccess = async () => {
+        try {
+            setIsSubmitting(true)
+            await checkStockAvailability()
+
+            const orderId = sepayPayment.paymentId
+            const orderData = {
+                id: orderId,
+                userId,
+                promotionId: null,
+                totalAmount: calculateSummary().total,
+                status: "pending",
+                deliveryAddress,
+                deliveryStatus: "pending",
+                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // Sửa lỗi
+                paymentMethodId: "sepay-qr"
+            }
+
+            const orderResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            })
+
+            if (!orderResponse.ok) {
+                throw new Error("Failed to create order")
+            }
+
+            for (const item of cartItems) {
+                const product = await getProductDetails(item.productId)
+                const orderDetailData = {
+                    orderDetailId: `OD${Date.now()}${item.id}`,
+                    quantity: item.quantity,
+                    unitPrice: product.salePrice,
+                    subtotal: product.salePrice * item.quantity,
+                    orderId,
+                    productId: item.productId
+                }
+
+                const detailResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderDetailData)
+                })
+
+                if (!detailResponse.ok) {
+                    throw new Error("Failed to create order detail")
+                }
+
+                await updateProductStock(item.productId, item.quantity)
+                await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${item.id}`, {
+                    method: "DELETE"
+                })
+            }
+
+            setOrderSuccess(orderId)
+            setIsSepayModalOpen(false)
+            toast.success("Đặt hàng thành công!")
+        } catch (err) {
+            console.error("Error submitting SEPay order:", err)
+            toast.error(err.message || "Không thể đặt hàng. Vui lòng thử lại.")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    // Handle order submission (non-SEPay)
     const handleSubmitOrder = async () => {
         if (!deliveryAddress.trim()) {
             showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
@@ -226,50 +354,62 @@ const CheckoutPage = () => {
             return
         }
 
+        if (paymentMethod === "PM004") {
+            await handleSepayPayment()
+            return
+        }
+
         try {
             setIsSubmitting(true)
+            await checkStockAvailability()
+            const orderId = await generateOrderId()
 
-            // Check stock availability
-            for (const item of cartItems) {
-                const product = products[item.productId]
-                if (!product || product.quantityInStock < item.quantity) {
-                    throw new Error(`Sản phẩm "${item.productName}" không đủ hàng tồn kho. Chỉ còn ${product?.quantityInStock || 0} sản phẩm.`)
-                }
-            }
-
-            // Create order payload
-            const { subtotal, shippingFee, total } = calculateSummary()
             const orderData = {
+                id: orderId,
                 userId,
+                promotionId: null,
+                totalAmount: calculateSummary().total,
+                status: "pending",
                 deliveryAddress,
-                paymentMethodId: paymentMethod,
-                totalAmount: total,
-                status: "PENDING",
-                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-                orderDetails: cartItems.map(item => ({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    unitPrice: products[item.productId].originalPrice,
-                    subtotal: item.quantity * products[item.productId].originalPrice
-                }))
+                deliveryStatus: "pending",
+                deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+                paymentMethodId: paymentMethod
             }
 
-            // Submit order
-            const orderResponse = await api.post("/orders", orderData)
-            const orderId = orderResponse.data.orderId
+            const orderResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            })
 
-            // Update product stock
+            if (!orderResponse.ok) {
+                throw new Error("Failed to create order")
+            }
+
             for (const item of cartItems) {
-                const product = products[item.productId]
-                const newStock = product.quantityInStock - item.quantity
-                await api.put(`/products/${item.productId}`, {
-                    ...product,
-                    quantityInStock: newStock
+                const product = await getProductDetails(item.productId)
+                const orderDetailData = {
+                    orderDetailId: `OD${Date.now()}${item.id}`,
+                    quantity: item.quantity,
+                    unitPrice: product.salePrice,
+                    subtotal: product.salePrice * item.quantity,
+                    orderId,
+                    productId: item.productId
+                }
+
+                const detailResponse = await fetch("https://67ffd634b72e9cfaf7260bc4.mockapi.io/orderDetail", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderDetailData)
                 })
 
-                // Remove item from cart
-                await api.delete("/carts/items", {
-                    data: { userId, productId: item.productId }
+                if (!detailResponse.ok) {
+                    throw new Error("Failed to create order detail")
+                }
+
+                await updateProductStock(item.productId, item.quantity)
+                await fetch(`https://67ff3fb458f18d7209f0785a.mockapi.io/test/cart/${item.id}`, {
+                    method: "DELETE"
                 })
             }
 
@@ -277,7 +417,7 @@ const CheckoutPage = () => {
             showNotification("success", "Đặt hàng thành công!")
         } catch (err) {
             console.error("Error submitting order:", err)
-            showNotification("error", err.response?.data?.message || "Không thể đặt hàng. Vui lòng thử lại.")
+            showNotification("error", err.message || "Không thể đặt hàng. Vui lòng thử lại.")
         } finally {
             setIsSubmitting(false)
         }
@@ -305,6 +445,7 @@ const CheckoutPage = () => {
                 case "PM001": return "Thẻ VISA/MasterCard"
                 case "PM002": return "MoMo"
                 case "PM003": return "Thanh toán khi nhận hàng (COD)"
+                case "PM004": return "SEPay QR"
                 default: return "Không xác định"
             }
         }
@@ -425,13 +566,13 @@ const CheckoutPage = () => {
       <body>
         <div class="invoice-header">
           <h1>HÓA ĐƠN BÁN HÀNG</h1>
-          <p>Ngày đặt hàng: ${formatDate(new Date().toISOString())}</p>
+          <p>Ngày đặt hàng: ${formatDate(new Date().toISOString().split("T")[0])}</p>
         </div>
         
         <div class="invoice-info">
           <div class="invoice-info-block">
             <h4>Thông tin khách hàng</h4>
-            <p><strong>Khách hàng:</strong> ${user.username || 'Khách hàng'}</p>
+            <p><strong>Khách hàng:</strong> ${user.fullName}</p>
             <p><strong>Email:</strong> ${user.email}</p>
             <p><strong>Địa chỉ giao hàng:</strong> ${deliveryAddress}</p>
           </div>
@@ -456,14 +597,17 @@ const CheckoutPage = () => {
             ${cartItems
             .map(
                 (item, index) => {
-                    const product = products[item.productId] || { productName: "Sản phẩm không tồn tại", originalPrice: 0 }
+                    const product = products.find((p) => p.id.toString() === item.productId) || {
+                        productName: "Sản phẩm không tồn tại",
+                        salePrice: 0
+                    }
                     return `
               <tr>
                 <td>${index + 1}</td>
                 <td>${product.productName}</td>
-                <td>${formatCurrency(product.originalPrice)}</td>
+                <td>${formatCurrency(product.salePrice)}</td>
                 <td>${item.quantity}</td>
-                <td class="amount">${formatCurrency(product.originalPrice * item.quantity)}</td>
+                <td class="amount">${formatCurrency(product.salePrice * item.quantity)}</td>
               </tr>
             `
                 },
@@ -489,7 +633,7 @@ const CheckoutPage = () => {
         
         <div class="invoice-footer">
           <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
-          <p>Mọi thắc mắc xin vui lòng liên hệ: support@homecraft.com | 0393465113</p>
+          <p>Mọi thắc mắc xin vui lòng liên hệ: tranngochung19112004@gmail.com | 0393465113</p>
         </div>
         
         <div class="close-btn">
@@ -643,7 +787,7 @@ const CheckoutPage = () => {
                                         className="border border-gray-300 rounded-md shadow-sm py-2 px-3 cursor-pointer flex items-center justify-between bg-gray-50 hover:bg-gray-100"
                                     >
                                         <span className="text-gray-600">
-                                            {deliveryAddress || user.address}
+                                            {deliveryAddress || "Chọn tỉnh/thành, quận/huyện, phường/xã"}
                                         </span>
                                         <ChevronDown size={18} className="text-gray-500" />
                                     </div>
@@ -747,13 +891,34 @@ const CheckoutPage = () => {
                             </div>
                         )}
 
+                        {/* SEPay Modal */}
+                        {isSepayModalOpen && sepayPayment && (
+                            <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold">Thanh toán qua SEPay</h3>
+                                        <button onClick={() => setIsSepayModalOpen(false)}>
+                                            <X size={20} className="text-gray-500" />
+                                        </button>
+                                    </div>
+                                    <SepayQRCode
+                                        paymentId={sepayPayment.paymentId}
+                                        qrCodeUrl={sepayPayment.qrCodeUrl}
+                                        amount={sepayPayment.amount}
+                                        onSuccess={handleSepaySuccess}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Phương thức thanh toán</h2>
                             <div className="space-y-4">
                                 {[
                                     { id: "PM001", name: "Thẻ VISA/MasterCard" },
                                     { id: "PM002", name: "MoMo" },
-                                    { id: "PM003", name: "Thanh toán khi nhận hàng (COD)" }
+                                    { id: "PM003", name: "Thanh toán khi nhận hàng (COD)" },
+                                    { id: "PM004", name: "SEPay QR" },
                                 ].map((method) => (
                                     <div key={method.id} className="flex items-center">
                                         <input
@@ -777,13 +942,13 @@ const CheckoutPage = () => {
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Sản phẩm ({totalItems})</h2>
                             <div className="divide-y divide-gray-200">
                                 {cartItems.map((item) => {
-                                    const product = products[item.productId] || {
+                                    const product = products.find((p) => p.id.toString() === item.productId) || {
                                         productName: "Sản phẩm không tồn tại",
                                         imageUrl: "/placeholder.svg",
-                                        originalPrice: 0
+                                        salePrice: 0
                                     }
                                     return (
-                                        <div key={item.cartItemId} className="py-4 flex items-center">
+                                        <div key={item.id} className="py-4 flex items-center">
                                             <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
                                                 <img
                                                     src={product.imageUrl || "/placeholder.svg?height=64&width=64"}
@@ -796,7 +961,7 @@ const CheckoutPage = () => {
                                                 <p className="mt-1 text-sm text-gray-500">Số lượng: {item.quantity}</p>
                                                 <p className="mt-1 text-sm font-medium text-gray-900">
                                                     {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                        product.originalPrice * item.quantity
+                                                        product.salePrice * item.quantity
                                                     )}
                                                 </p>
                                             </div>

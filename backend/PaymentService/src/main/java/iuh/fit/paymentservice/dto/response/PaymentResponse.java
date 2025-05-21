@@ -13,4 +13,5 @@ public class PaymentResponse {
     private double amount;
     private LocalDate paymentDate;
     private PaymentStatus status;
+    private String qrCodeUrl; // Thêm trường qrCodeUrl
 }

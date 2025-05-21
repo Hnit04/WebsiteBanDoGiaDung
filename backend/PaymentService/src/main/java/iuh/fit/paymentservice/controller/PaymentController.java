@@ -1,7 +1,10 @@
 package iuh.fit.paymentservice.controller;
 
 import iuh.fit.paymentservice.dto.request.CreatePaymentRequest;
+import iuh.fit.paymentservice.dto.request.CreateSepayPaymentRequest;
+import iuh.fit.paymentservice.dto.request.SepayWebhookRequest;
 import iuh.fit.paymentservice.dto.response.PaymentResponse;
+import iuh.fit.paymentservice.dto.response.WebhookResponse;
 import iuh.fit.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,5 +25,35 @@ public class PaymentController {
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody CreatePaymentRequest request) {
         PaymentResponse payment = paymentService.createPayment(request);
         return ResponseEntity.status(201).body(payment);
+    }
+
+    @PostMapping("/sepay")
+    public ResponseEntity<PaymentResponse> createSepayPayment(@RequestBody CreateSepayPaymentRequest request) {
+        PaymentResponse payment = paymentService.createSepayPayment(request);
+        return ResponseEntity.status(201).body(payment);
+    }
+
+    @PostMapping("/sepay/webhook")
+    public ResponseEntity<WebhookResponse> handleWebhook(@RequestBody SepayWebhookRequest request) {
+        try {
+            String paymentId = extractPaymentId(request.getContent() != null ? request.getContent() : request.getDescription());
+            String status = request.getTransferType().equals("in") ? "SUCCESS" : "PENDING";
+            PaymentResponse updatedPayment = paymentService.updatePaymentStatus(paymentId, status, request.getTransferAmount());
+            return ResponseEntity.ok().body(new WebhookResponse(true, "Webhook nhận và xử lý thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new WebhookResponse(false, "Lỗi xử lý webhook: " + e.getMessage()));
+        }
+    }
+
+    private String extractPaymentId(String text) {
+        if (text != null) {
+            // Giả sử paymentId có định dạng THTxxxx
+            String regex = "THT\\d+";
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(regex).matcher(text);
+            if (matcher.find()) {
+                return matcher.group();
+            }
+        }
+        throw new RuntimeException("Không tìm thấy paymentId trong webhook");
     }
 }
