@@ -123,11 +123,15 @@ public class PaymentService {
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     private void validateOrder(String orderId, double amount) {
         String orderUrl = orderServiceUrl + "/" + orderId;
-        logger.info("Gọi Order Service tại: {}", orderUrl);
+        logger.info("Kiểm tra đơn hàng: orderId={}, amount={}", orderId, amount);
         OrderResponse order = restTemplate.getForObject(orderUrl, OrderResponse.class);
-        if (order == null || order.getTotalAmount() != amount) {
-            logger.error("Đơn hàng không hợp lệ hoặc số tiền không khớp. Order: {}, Amount: {}", order, amount);
-            throw new RuntimeException("Invalid order or amount");
+        if (order == null) {
+            logger.error("Đơn hàng không tồn tại: {}", orderId);
+            throw new RuntimeException("Invalid order");
+        }
+        if (order.getTotalAmount() != amount) {
+            logger.error("Số tiền không khớp. Order Amount: {}, Provided Amount: {}", order.getTotalAmount(), amount);
+            throw new RuntimeException("Invalid amount");
         }
         logger.info("Thông tin đơn hàng hợp lệ: {}", order);
     }
