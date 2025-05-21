@@ -46,18 +46,15 @@ public class OrderService {
         logger.info("Processing CreateOrderRequest at {}", LocalDate.now());
         logger.debug("Request details: {}", request);
 
-        // Kiểm tra orderDetails
         if (request.getOrderDetails() == null || request.getOrderDetails().isEmpty()) {
             logger.warn("No orderDetails provided in request at {}", LocalDate.now());
             throw new IllegalArgumentException("Chi tiết đơn hàng là bắt buộc.");
         }
 
-        // Khởi tạo và xử lý orderDetails
         List<OrderDetail> orderDetails = new ArrayList<>();
         logger.info("Processing orderDetails list: {}", request.getOrderDetails().size());
         double calculatedTotal = 0.0;
 
-        // Tạo Order trước để có orderId
         Order order = new Order();
         order.setUserId(request.getUserId());
         order.setPromotionId(request.getPromotionId());
@@ -73,7 +70,6 @@ public class OrderService {
             orderDetail.setProductId(detail.getProductId());
             orderDetail.setQuantity(detail.getQuantity());
 
-            // Gọi Product Service để lấy unitPrice
             String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + detail.getProductId();
             logger.debug("Calling Product Service at: {}", productUrl);
             try {
@@ -101,12 +97,11 @@ public class OrderService {
             logger.debug("Created OrderDetail: {}", orderDetail);
         }
 
-        order.setTotalAmount(calculatedTotal);
+        order.setTotalAmount(calculatedTotal); // Không bao gồm phí ship
         order.setOrderDetails(orderDetails);
 
         logger.debug("Order before save: {}", order);
 
-        // Lưu Order
         Order savedOrder;
         try {
             savedOrder = orderRepository.save(order);
@@ -131,7 +126,7 @@ public class OrderService {
                 PaymentRequest paymentRequest = new PaymentRequest(
                         savedOrder.getOrderId(),
                         request.getPaymentMethodId(),
-                        savedOrder.getTotalAmount()
+                        savedOrder.getTotalAmount() + 30000 // Thêm phí ship
                 );
                 logger.debug("Payment request body: {}", paymentRequest);
                 HttpEntity<PaymentRequest> entity = new HttpEntity<>(paymentRequest, headers);
@@ -161,7 +156,6 @@ public class OrderService {
             }
         }
 
-        // Lưu lại Order với trạng thái đã cập nhật
         Order finalOrder = orderRepository.save(savedOrder);
         logger.info("Final order saved with status: {}, ID: {}", finalOrder.getStatus(), finalOrder.getOrderId());
         return orderMapper.toOrderResponse(finalOrder);

@@ -129,8 +129,9 @@ public class PaymentService {
             logger.error("Đơn hàng không tồn tại: {}", orderId);
             throw new RuntimeException("Invalid order");
         }
-        if (order.getTotalAmount() != amount) {
-            logger.error("Số tiền không khớp. Order Amount: {}, Provided Amount: {}", order.getTotalAmount(), amount);
+        // Cho phép amount bao gồm phí ship (order.totalAmount + 30000)
+        if (order.getTotalAmount() + 30000 != amount) {
+            logger.error("Số tiền không khớp. Expected: {}, Provided: {}", order.getTotalAmount() + 30000, amount);
             throw new RuntimeException("Invalid amount");
         }
         logger.info("Thông tin đơn hàng hợp lệ: {}", order);

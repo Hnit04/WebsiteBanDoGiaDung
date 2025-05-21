@@ -139,16 +139,14 @@ const CheckoutPage = () => {
 
     // Tính toán tóm tắt đơn hàng
     const calculateSummary = () => {
-        const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
-        const subtotal = cartItems.reduce((total, item) => {
-            const product = products.find(p => p.productId === item.productId) || { salePrice: 0 }
-            const salePrice = typeof product.salePrice === "number" ? product.salePrice : 0
-            return total + salePrice * item.quantity
-        }, 0)
-        const shippingFee = 30000
-        const total = subtotal + shippingFee
-        return { totalItems, subtotal, shippingFee, total }
-    }
+        const subtotal = cartItems.reduce((sum, item) => {
+            const product = products.find(p => p.productId === item.productId);
+            return sum + (product?.salePrice || 0) * item.quantity;
+        }, 0);
+        const shipping = 30000; // Phí ship cố định 30k
+        const total = subtotal + shipping;
+        return { subtotal, shipping, total };
+    };
 
     // Hiển thị thông báo
     const showNotification = (type, message) => {
@@ -179,36 +177,39 @@ const CheckoutPage = () => {
     // Xử lý thanh toán SEPay
     const handleSepayPayment = async () => {
         if (!deliveryAddress.trim()) {
-            showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
-            return
+            showNotification("error", "Vui lòng nhập địa chỉ giao hàng");
+            return;
         }
 
         try {
-            setIsSubmitting(true)
+            setIsSubmitting(true);
             let orderId;
 
-            // Kiểm tra xem đơn hàng đã tồn tại chưa (dựa trên userId và trạng thái PENDING)
+            // Tính subtotal (không bao gồm phí ship) để so sánh
+            const { subtotal, total } = calculateSummary();
+
+            // Kiểm tra đơn hàng hiện có
             const existingOrdersResponse = await fetch(
-                `${BASE_API_URL}/api/orders?userId=${userId}&status=PENDING`
+                `${BASE_API_URL}/api/orders?userId=${userId}`
             );
             if (!existingOrdersResponse.ok) {
                 throw new Error("Không thể kiểm tra đơn hàng hiện có");
             }
             const existingOrders = await existingOrdersResponse.json();
 
-            if (existingOrders.length > 0) {
-                // Sử dụng đơn hàng PENDING đầu tiên (hoặc logic khác để chọn đơn hàng)
-                orderId = existingOrders[0].orderId;
-                const orderAmount = existingOrders[0].totalAmount;
-                if (orderAmount !== calculateSummary().total) {
-                    throw new Error("Số tiền đơn hàng không khớp với giỏ hàng");
-                }
+            // Tìm đơn hàng phù hợp (PENDING hoặc PAYMENT_SUCCESS)
+            const matchingOrder = existingOrders.find(
+                order => order.totalAmount === subtotal && ["PENDING", "PAYMENT_SUCCESS"].includes(order.status)
+            );
+
+            if (matchingOrder) {
+                orderId = matchingOrder.orderId;
             } else {
-                // Tạo đơn hàng mới
+                // Tạo đơn hàng mới (không bao gồm phí ship trong totalAmount)
                 const orderData = {
                     userId,
                     promotionId: null,
-                    totalAmount: calculateSummary().total,
+                    totalAmount: subtotal, // Chỉ dùng subtotal
                     status: "PENDING",
                     deliveryAddress,
                     deliveryStatus: "PREPARING",
@@ -220,7 +221,7 @@ const CheckoutPage = () => {
                             productId: item.productId,
                             quantity: item.quantity,
                             unitPrice: typeof product.salePrice === "number" ? product.salePrice : 0
-                        }
+                        };
                     })
                 };
 
@@ -249,10 +250,10 @@ const CheckoutPage = () => {
                 orderId = order.orderId;
             }
 
-            // Gọi API tạo thanh toán SEPay
+            // Gọi API tạo thanh toán SEPay (bao gồm phí ship)
             const payload = {
                 orderId,
-                amount: calculateSummary().total,
+                amount: total, // Dùng total (bao gồm phí ship)
                 bankAccountNumber: process.env.REACT_APP_BANK_ACCOUNT || "0326829327",
                 bankCode: process.env.REACT_APP_BANK_CODE || "MBBank",
                 description: `Thanh toán đơn hàng ${orderId}`,
@@ -302,7 +303,6 @@ const CheckoutPage = () => {
         try {
             setIsSubmitting(true);
 
-            // Kiểm tra trạng thái thanh toán
             const statusResponse = await fetch(`${BASE_API_URL}/api/payments/${sepayPayment.paymentId}`);
             if (!statusResponse.ok) {
                 const statusContentType = statusResponse.headers.get("Content-Type");
@@ -321,7 +321,6 @@ const CheckoutPage = () => {
                 throw new Error("Thanh toán chưa được xác nhận");
             }
 
-            // Xóa các mục trong giỏ hàng
             for (const item of cartItems) {
                 await fetch(`${BASE_API_URL}/api/carts/items`, {
                     method: "DELETE",
