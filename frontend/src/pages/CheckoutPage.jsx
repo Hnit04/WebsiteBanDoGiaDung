@@ -91,7 +91,8 @@ const CheckoutPage = () => {
     const [sepayPayment, setSepayPayment] = useState(null)
 
     const user = getUserFromLocalStorage()
-    const userId = user?.id || null
+    const userId = user?.userId || null  // Sửa đổi ở đây: từ user?.id thành user?.userId
+
     const navigate = useNavigate()
     const location = useLocation()
     const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung.onrender.com"
@@ -411,6 +412,8 @@ const CheckoutPage = () => {
             background-color: #f3f4f6;
             text-align: left;
             padding: 10px;
+           Transcript
+
             border-bottom: 1px solid #ddd;
           }
           .invoice-table td {
@@ -854,7 +857,7 @@ const CheckoutPage = () => {
                                     }
                                     return (
                                         <div key={item.cartItemId} className="py-4 flex items-center">
-                                            <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+                                            <div className="w-16 h-16 flex-shrink-0 bg aquella-100 rounded-md overflow-hidden">
                                                 <img
                                                     src={product.imageUrl || "/placeholder.svg?height=64&width=64"}
                                                     alt={product.productName}

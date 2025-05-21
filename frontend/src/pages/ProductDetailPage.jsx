@@ -144,11 +144,11 @@ const ProductDetailPage = () => {
     }
 
     const handleBuyNow = async () => {
-        // if (!userId) {
-        //     showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
-        //     navigate("/login")
-        //     return
-        // }
+        if (!userId) {
+            showNotification("error", "Vui lòng đăng nhập để tiếp tục thanh toán.")
+            navigate("/login")
+            return
+        }
 
         try {
             setIsAddingToCart(true)
