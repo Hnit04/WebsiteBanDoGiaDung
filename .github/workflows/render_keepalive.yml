@@ -1,0 +1,20 @@
+name: Auto-redeploy Render Service
+on:
+  schedule:
+    # Chạy mỗi 14 phút (để đảm bảo service không sleep)
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Cho phép kích hoạt thủ công
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: "srv-d0i1e2t6ubrc73d2qgk0" # Thay bằng ID thực
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/$SERVICE_ID/deploys"
