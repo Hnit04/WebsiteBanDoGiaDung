@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PaymentMapper {
-
     public PaymentResponse toPaymentResponse(Payment payment) {
         PaymentResponse response = new PaymentResponse();
         response.setPaymentId(payment.getPaymentId());
@@ -15,6 +14,7 @@ public class PaymentMapper {
         response.setAmount(payment.getAmount());
         response.setPaymentDate(payment.getPaymentDate());
         response.setStatus(payment.getStatus());
+        response.setQrCodeUrl(payment.getQrCodeUrl()); // Thêm qrCodeUrl
         return response;
     }
 }

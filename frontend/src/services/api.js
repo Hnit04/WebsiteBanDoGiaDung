@@ -35,10 +35,30 @@ api.interceptors.response.use(
             localStorage.removeItem("token");
             sessionStorage.removeItem("user");
             sessionStorage.removeItem("token");
-            window.location.href = "/login"; // Sửa lỗi cú pháp
+            window.location.href = "/login";
         }
         return Promise.reject(error);
     }
 );
+
+// Hàm gọi API SEPay
+export const createSepayPayment = async (payload) => {
+    try {
+        const response = await api.post("/payments/sepay", payload);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Không thể tạo giao dịch SEPay");
+    }
+};
+
+// Hàm kiểm tra trạng thái giao dịch
+export const checkTransactionStatus = async (paymentId) => {
+    try {
+        const response = await api.get(`/payments/${paymentId}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Lỗi kiểm tra trạng thái giao dịch");
+    }
+};
 
 export default api;
