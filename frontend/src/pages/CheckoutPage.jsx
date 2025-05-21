@@ -115,15 +115,17 @@ const CheckoutPage = () => {
                 if (!cartResponse.ok) throw new Error("Không thể tải giỏ hàng")
                 const cartData = await cartResponse.json()
                 const selectedItems = cartData.cartItems.filter(item => itemIds.includes(item.cartItemId))
+                if (!selectedItems.length) throw new Error("Không có sản phẩm hợp lệ trong giỏ hàng")
                 setCartItems(selectedItems)
 
                 const productResponse = await fetch(`${BASE_API_URL}/api/products?page=0&size=1000`)
                 if (!productResponse.ok) throw new Error("Không thể tải sản phẩm")
                 const productData = await productResponse.json()
-                setProducts(productData.content || [])
+                if (!productData.content?.length) throw new Error("Không có sản phẩm nào được tải")
+                setProducts(productData.content)
             } catch (err) {
                 console.error("Lỗi khi tải giỏ hàng:", err)
-                setError("Không thể tải thông tin thanh toán. Vui lòng thử lại.")
+                setError(err.message || "Không thể tải thông tin thanh toán. Vui lòng thử lại.")
             } finally {
                 setIsLoading(false)
             }
@@ -136,7 +138,8 @@ const CheckoutPage = () => {
     const calculateSummary = () => {
         const subtotal = cartItems.reduce((sum, item) => {
             const product = products.find(p => p.productId === item.productId)
-            return sum + (product?.salePrice || 0) * item.quantity
+            const salePrice = product && typeof product.salePrice === "number" && product.salePrice > 0 ? product.salePrice : 0
+            return sum + salePrice * item.quantity
         }, 0)
         const shipping = 1000 // Phí ship cố định 1k
         const total = subtotal + shipping
@@ -175,12 +178,19 @@ const CheckoutPage = () => {
             showNotification("error", "Vui lòng nhập địa chỉ giao hàng")
             return
         }
+        if (!cartItems.length || !products.length) {
+            showNotification("error", "Giỏ hàng trống hoặc không tải được sản phẩm")
+            return
+        }
+        const { subtotal, total } = calculateSummary()
+        if (subtotal <= 0) {
+            showNotification("error", "Tổng tiền hàng phải lớn hơn 0")
+            return
+        }
 
         try {
             setIsSubmitting(true)
             let orderId
-
-            const { subtotal, total } = calculateSummary()
 
             const existingOrdersResponse = await fetch(`${BASE_API_URL}/api/orders?userId=${userId}`)
             if (!existingOrdersResponse.ok) {
@@ -203,16 +213,22 @@ const CheckoutPage = () => {
                     deliveryAddress,
                     deliveryStatus: "PREPARING",
                     deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                    paymentMethodId: "sepay-qr",
+                    paymentMethodId: "PM004",
                     orderDetails: cartItems.map(item => {
                         const product = products.find(p => p.productId === item.productId) || { salePrice: 0 }
+                        const unitPrice = typeof product.salePrice === "number" && product.salePrice > 0 ? product.salePrice : 0
+                        if (unitPrice === 0) {
+                            throw new Error(`Sản phẩm ${item.productId} có giá không hợp lệ`)
+                        }
                         return {
                             productId: item.productId,
                             quantity: item.quantity,
-                            unitPrice: typeof product.salePrice === "number" ? product.salePrice : 0
+                            unitPrice
                         }
                     })
                 }
+
+                console.log("Sending orderData:", JSON.stringify(orderData)) // Debug
 
                 const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
                     method: "POST",
@@ -339,6 +355,15 @@ const CheckoutPage = () => {
             showNotification("error", "Vui lòng chọn phương thức thanh toán")
             return
         }
+        if (!cartItems.length || !products.length) {
+            showNotification("error", "Giỏ hàng trống hoặc không tải được sản phẩm")
+            return
+        }
+        const { subtotal } = calculateSummary()
+        if (subtotal <= 0) {
+            showNotification("error", "Tổng tiền hàng phải lớn hơn 0")
+            return
+        }
 
         if (paymentMethod === "PM004") {
             await handleSepayPayment()
@@ -352,20 +377,27 @@ const CheckoutPage = () => {
             const orderData = {
                 userId,
                 promotionId: null,
-                totalAmount: calculateSummary().subtotal,
+                totalAmount: subtotal,
+                status: "PENDING",
                 deliveryAddress,
                 deliveryStatus: "PREPARING",
                 deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                 paymentMethodId: paymentMethod,
                 orderDetails: cartItems.map(item => {
                     const product = products.find(p => p.productId === item.productId) || { salePrice: 0 }
+                    const unitPrice = typeof product.salePrice === "number" && product.salePrice > 0 ? product.salePrice : 0
+                    if (unitPrice === 0) {
+                        throw new Error(`Sản phẩm ${item.productId} có giá không hợp lệ`)
+                    }
                     return {
                         productId: item.productId,
                         quantity: item.quantity,
-                        unitPrice: typeof product.salePrice === "number" ? product.salePrice : 0
+                        unitPrice
                     }
                 })
             }
+
+            console.log("Sending orderData:", JSON.stringify(orderData)) // Debug
 
             const orderResponse = await fetch(`${BASE_API_URL}/api/orders`, {
                 method: "POST",
@@ -375,7 +407,7 @@ const CheckoutPage = () => {
 
             const contentType = orderResponse.headers.get("Content-Type")
             if (!orderResponse.ok) {
-                if (contentType && contentType.includes("application/json")) {
+                if (contentType && contentType.includes("-Ljson")) {
                     const errorData = await orderResponse.json()
                     throw new Error(errorData.message || "Không thể tạo đơn hàng")
                 } else {
@@ -604,7 +636,7 @@ const CheckoutPage = () => {
                     productName: "Sản phẩm không tồn tại",
                     salePrice: 0
                 }
-                const salePrice = typeof product.salePrice === "number" ? product.salePrice : 0
+                const salePrice = typeof product.salePrice === "number" && product.salePrice > 0 ? product.salePrice : 0
                 return `
               <tr>
                 <td>${index + 1}</td>
