@@ -11,6 +11,7 @@ import iuh.fit.paymentservice.mapper.PaymentMapper;
 import iuh.fit.paymentservice.model.Payment;
 import iuh.fit.paymentservice.model.PaymentStatus;
 import iuh.fit.paymentservice.repository.PaymentRepository;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.MessageDeliveryMode;
@@ -22,7 +23,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime; // Thay đổi từ LocalDate
+import java.time.LocalDateTime;
 
 @Service
 public class PaymentService {
@@ -59,10 +60,11 @@ public class PaymentService {
         validateOrder(request.getOrderId(), request.getAmount());
 
         Payment payment = new Payment();
+        payment.setPaymentId(new ObjectId().toString()); // Tạo paymentId rõ ràng
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId(request.getPaymentMethodId());
         payment.setAmount(request.getAmount());
-        payment.setPaymentDate(LocalDateTime.now()); // Thay đổi từ LocalDate.now()
+        payment.setPaymentDate(LocalDateTime.now());
         payment.setStatus(PaymentStatus.COMPLETED);
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -77,15 +79,16 @@ public class PaymentService {
         validateOrder(request.getOrderId(), request.getAmount());
 
         Payment payment = new Payment();
+        payment.setPaymentId(new ObjectId().toString()); // Tạo paymentId rõ ràng
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId("sepay-qr");
         payment.setAmount(request.getAmount());
-        payment.setPaymentDate(LocalDateTime.now()); // Thay đổi từ LocalDate.now()
+        payment.setPaymentDate(LocalDateTime.now());
         payment.setStatus(PaymentStatus.PENDING);
 
         String qrCodeUrl = String.format("%s?acc=%s&bank=%s&amount=%s&des=%s",
                 sepayQrUrl, request.getBankAccountNumber(), request.getBankCode(),
-                request.getAmount(), request.getOrderId());
+                request.getAmount(), payment.getPaymentId()); // Dùng paymentId thay vì orderId
         payment.setQrCodeUrl(qrCodeUrl);
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -99,15 +102,22 @@ public class PaymentService {
 
     public PaymentResponse updatePaymentStatus(String paymentId, String status, double amount) {
         logger.info("Cập nhật trạng thái giao dịch {} thành {}", paymentId, status);
-        Payment payment = paymentRepository.findById(paymentId)
+        Payment payment = paymentRepository.findByPaymentId(paymentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch: " + paymentId));
+
+        // Kiểm tra số tiền
+        if (Math.abs(payment.getAmount() - amount) > 0.01) {
+            logger.error("Số tiền không khớp: {} != {}", amount, payment.getAmount());
+            throw new RuntimeException("Số tiền giao dịch không khớp");
+        }
+
         try {
             payment.setStatus(PaymentStatus.valueOf(status.toUpperCase()));
         } catch (IllegalArgumentException e) {
             logger.error("Trạng thái không hợp lệ: {}", status);
             throw new RuntimeException("Invalid status: " + status);
         }
-        payment.setAmount(amount);
+        payment.setPaymentDate(LocalDateTime.now());
         Payment updatedPayment = paymentRepository.save(payment);
 
         messagingTemplate.convertAndSend("/topic/transactions",
@@ -129,9 +139,9 @@ public class PaymentService {
             logger.error("Đơn hàng không tồn tại: {}", orderId);
             throw new RuntimeException("Invalid order");
         }
-        // Cho phép amount bao gồm phí ship (order.totalAmount + 30000)
+        // Sửa phí ship
         if (order.getTotalAmount() + 1000 != amount) {
-            logger.error("Số tiền không khớp. Expected: {}, Provided: {}", order.getTotalAmount() + 30000, amount);
+            logger.error("Số tiền không khớp. Expected: {}, Provided: {}", order.getTotalAmount() + 1000, amount);
             throw new RuntimeException("Invalid amount");
         }
         logger.info("Thông tin đơn hàng hợp lệ: {}", order);

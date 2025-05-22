@@ -12,10 +12,10 @@ spring:
       connect-timeout: 5000
       socket-timeout: 3000
   rabbitmq:
-    host: rabbitmq
+    host: ${RABBITMQ_HOST}
     port: 5672
-    username: guest
-    password: guest
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
     template:
       retry:
         enabled: true
