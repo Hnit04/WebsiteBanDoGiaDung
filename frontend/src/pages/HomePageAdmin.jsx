@@ -86,7 +86,7 @@ const HomePageAdmin = () => {
             case "cancelled":
                 return "Đã hủy"
             default:
-                return "Không xác định"
+                return "Chờ lấy hàng"
         }
     }
 
@@ -106,7 +106,7 @@ const HomePageAdmin = () => {
             case "cancelled":
                 return "bg-rose-100 text-rose-800 border border-rose-200"
             default:
-                return "bg-gray-100 text-gray-800 border border-gray-200"
+                return "bg-blue-100 text-blue-800 border border-blue-200"
         }
     }
 
@@ -126,7 +126,7 @@ const HomePageAdmin = () => {
             case "cancelled":
                 return <XCircle className="h-4 w-4" />
             default:
-                return <AlertTriangle className="h-4 w-4" />
+                return <PackageCheck className="h-4 w-4" />
         }
     }
 
@@ -572,7 +572,9 @@ const HomePageAdmin = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
                             {filteredOrders.map((order) => {
-                                const customer = users.find((u) => u.email === order.userId)
+                                const customer = users.find((u) => u.userId === order.userId)
+                                console.log(users.data)
+                                console.log("hung"+customer)
                                 return (
                                     <tr key={order.orderId} className="hover:bg-gray-50">
 
