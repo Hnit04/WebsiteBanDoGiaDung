@@ -1,3 +1,4 @@
+
 // CheckoutPage.jsx
 "use client"
 
@@ -321,7 +322,7 @@ const CheckoutPage = () => {
             }
 
             const paymentStatus = await statusResponse.json()
-            if (paymentStatus.status !== "SUCCESS") {
+            if (paymentStatus.status !== "COMPLETED") {
                 throw new Error("Thanh toán chưa được xác nhận")
             }
 
@@ -407,7 +408,7 @@ const CheckoutPage = () => {
 
             const contentType = orderResponse.headers.get("Content-Type")
             if (!orderResponse.ok) {
-                if (contentType && contentType.includes("-Ljson")) {
+                if (contentType && contentType.includes("application/json")) {
                     const errorData = await orderResponse.json()
                     throw new Error(errorData.message || "Không thể tạo đơn hàng")
                 } else {
@@ -489,155 +490,155 @@ const CheckoutPage = () => {
 
         const printWindow = window.open("", "_blank", "width=800,height=600")
         const invoiceHtml = `
-      <!DOCTYPE html>
-      <html lang="vi">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hóa đơn #${customOrderId}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .invoice-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-          }
-          .invoice-header h1 {
-            color: #4338ca;
-            margin-bottom: 5px;
-          }
-          .invoice-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-          }
-          .invoice-info-block {
-            max-width: 50%;
-          }
-          .invoice-info-block h4 {
-            margin-bottom: 5px;
-            color: #4338ca;
-          }
-          .invoice-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-          }
-          .invoice-table th {
-            background-color: #f3f4f6;
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-          }
-          .invoice-table td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-          }
-          .invoice-table .amount {
-            text-align: right;
-          }
-          .invoice-total {
-            margin-top: 20px;
-            text-align: right;
-          }
-          .invoice-total-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 5px;
-          }
-          .invoice-total-row .label {
-            width: 150px;
-            text-align: left;
-          }
-          .invoice-total-row .value {
-            width: 150px;
-            text-align: right;
-          }
-          .invoice-total-row.final {
-            font-weight: bold;
-            font-size: 1.2em;
-            border-top: 1px solid #ddd;
-            padding-top: 10px;
-            margin-top: 10px;
-            color: #4338ca;
-          }
-          .invoice-footer {
-            margin-top: 50px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-          }
-          .close-btn {
-            margin-top: 20px;
-            text-align: center;
-          }
-          .close-btn button {
-            padding: 10px 20px;
-            background-color: #4338ca;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-          .close-btn button:hover {
-            background-color: #3730a3;
-          }
-          @media print {
-            .close-btn {
-              display: none;
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa đơn #${customOrderId}</title>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+    .invoice-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+    .invoice-header h1 {
+    color: #4338ca;
+    margin-bottom: 5px;
+}
+    .invoice-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+    .invoice-info-block {
+    max-width: 50%;
+}
+    .invoice-info-block h4 {
+    margin-bottom: 5px;
+    color: #4338ca;
+}
+    .invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+    .invoice-table th {
+    background-color: #f3f4f6;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+    .invoice-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+    .invoice-table .amount {
+    text-align: right;
+}
+    .invoice-total {
+    margin-top: 20px;
+    text-align: right;
+}
+    .invoice-total-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 5px;
+}
+    .invoice-total-row .label {
+    width: 150px;
+    text-align: left;
+}
+    .invoice-total-row .value {
+    width: 150px;
+    text-align: right;
+}
+    .invoice-total-row.final {
+    font-weight: bold;
+    font-size: 1.2em;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+    margin-top: 10px;
+    color: #4338ca;
+}
+    .invoice-footer {
+    margin-top: 50px;
+    text-align: center;
+    color: #666;
+    font-size: 0.9em;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+    .close-btn {
+    margin-top: 20px;
+    text-align: center;
+}
+    .close-btn button {
+    padding: 10px 20px;
+    background-color: #4338ca;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+    .close-btn button:hover {
+    background-color: #3730a3;
+}
+    @media print {
+    .close-btn {
+    display: none;
+}
+}
+</style>
+</head>
+<body>
+<div class="invoice-header">
+    <h1>HÓA ĐƠN BÁN HÀNG</h1>
+    <p>Ngày đặt hàng: ${formatDate(new Date().toISOString().split("T")[0])}</p>
+</div>
+
+<div class="invoice-info">
+    <div class="invoice-info-block">
+        <h4>Thông tin khách hàng</h4>
+        <p><strong>Khách hàng:</strong> ${user.fullName}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Địa chỉ giao hàng:</strong> ${orderDetails.deliveryAddress}</p>
+    </div>
+    <div class="invoice-info-block">
+        <h4>Thông tin thanh toán</h4>
+        <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(orderDetails.paymentMethodId)}</p>
+        <p><strong>Trạng thái đơn hàng:</strong> ${orderDetails.status === "PENDING" ? "Chờ xác nhận" : "Đã xác nhận"}</p>
+    </div>
+</div>
+
+<table class="invoice-table">
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Sản phẩm</th>
+        <th>Đơn giá</th>
+        <th>Số lượng</th>
+        <th class="amount">Thành tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    ${cartItems
+        .map((item, index) => {
+            const product = products.find(p => p.productId === item.productId) || {
+                productName: "Sản phẩm không tồn tại",
+                salePrice: 0
             }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="invoice-header">
-          <h1>HÓA ĐƠN BÁN HÀNG</h1>
-          <p>Ngày đặt hàng: ${formatDate(new Date().toISOString().split("T")[0])}</p>
-        </div>
-        
-        <div class="invoice-info">
-          <div class="invoice-info-block">
-            <h4>Thông tin khách hàng</h4>
-            <p><strong>Khách hàng:</strong> ${user.fullName}</p>
-            <p><strong>Email:</strong> ${user.email}</p>
-            <p><strong>Địa chỉ giao hàng:</strong> ${orderDetails.deliveryAddress}</p>
-          </div>
-          <div class="invoice-info-block">
-            <h4>Thông tin thanh toán</h4>
-            <p><strong>Phương thức thanh toán:</strong> ${getPaymentMethodText(orderDetails.paymentMethodId)}</p>
-            <p><strong>Trạng thái đơn hàng:</strong> ${orderDetails.status === "PENDING" ? "Chờ xác nhận" : "Đã xác nhận"}</p>
-          </div>
-        </div>
-        
-        <table class="invoice-table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Sản phẩm</th>
-              <th>Đơn giá</th>
-              <th>Số lượng</th>
-              <th class="amount">Thành tiền</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${cartItems
-            .map((item, index) => {
-                const product = products.find(p => p.productId === item.productId) || {
-                    productName: "Sản phẩm không tồn tại",
-                    salePrice: 0
-                }
-                const salePrice = typeof product.salePrice === "number" && product.salePrice > 0 ? product.salePrice : 0
-                return `
+            const salePrice = typeof product.salePrice === "number" && product.salePrice > 0 ? product.salePrice : 0
+            return `
               <tr>
                 <td>${index + 1}</td>
                 <td>${product.productName}</td>
@@ -646,37 +647,37 @@ const CheckoutPage = () => {
                 <td class="amount">${formatCurrency(salePrice * item.quantity)}</td>
               </tr>
             `
-            })
-            .join("")}
-          </tbody>
-        </table>
-        
-        <div class="invoice-total">
-          <div class="invoice-total-row">
-            <div class="label">Tổng tiền hàng:</div>
-            <div class="value">${formatCurrency(calculateSummary().subtotal)}</div>
-          </div>
-          <div class="invoice-total-row">
-            <div class="label">Phí vận chuyển:</div>
-            <div class="value">${formatCurrency(calculateSummary().shipping)}</div>
-          </div>
-          <div class="invoice-total-row final">
-            <div class="label">Tổng thanh toán:</div>
-            <div class="value">${formatCurrency(calculateSummary().total)}</div>
-          </div>
-        </div>
-        
-        <div class="invoice-footer">
-          <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
-          <p>Mọi thắc mắc xin vui lòng liên hệ: tranngochung19112004@gmail.com | 0393465113</p>
-        </div>
-        
-        <div class="close-btn">
-          <button onclick="window.close()">Đóng</button>
-        </div>
-      </body>
-      </html>
-    `
+        })
+        .join("")}
+    </tbody>
+</table>
+
+<div class="invoice-total">
+    <div class="invoice-total-row">
+        <div class="label">Tổng tiền hàng:</div>
+        <div class="value">${formatCurrency(calculateSummary().subtotal)}</div>
+    </div>
+    <div class="invoice-total-row">
+        <div class="label">Phí vận chuyển:</div>
+        <div class="value">${formatCurrency(calculateSummary().shipping)}</div>
+    </div>
+    <div class="invoice-total-row final">
+        <div class="label">Tổng thanh toán:</div>
+        <div class="value">${formatCurrency(calculateSummary().total)}</div>
+    </div>
+</div>
+
+<div class="invoice-footer">
+    <p>Cảm ơn quý khách đã mua hàng tại cửa hàng chúng tôi!</p>
+    <p>Mọi thắc mắc xin vui lòng liên hệ: tranngochung19112004@gmail.com | 0393465113</p>
+</div>
+
+<div class="close-btn">
+    <button onclick="window.close()">Đóng</button>
+</div>
+</body>
+</html>
+`
 
         printWindow.document.open()
         printWindow.document.write(invoiceHtml)
@@ -786,12 +787,12 @@ const CheckoutPage = () => {
             {notification && (
                 <div
                     className={`fixed top-20 right-4 z-50 p-4 rounded-md shadow-lg max-w-md flex items-center justify-between ${
-                        notification.type === "success"
-                            ? "bg-green-50 text-green-800 border border-green-200"
-                            : notification.type === "info"
-                                ? "bg-blue-50 text-blue-800 border border-blue-200"
-                                : "bg-red-50 text-red-800 border border-red-200"
-                    }`}
+    notification.type === "success"
+        ? "bg-green-50 text-green-800 border border-green-200"
+        : notification.type === "info"
+            ? "bg-blue-50 text-blue-800 border border-blue-200"
+            : "bg-red-50 text-red-800 border border-red-200"
+}`}
                 >
                     <div className="flex items-center">
                         {notification.type === "success" ? (
