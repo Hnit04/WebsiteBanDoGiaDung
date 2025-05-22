@@ -8,7 +8,6 @@ import AboutPage from './pages/AboutPage.jsx';
 import ProductModal from './components/ProductModal.jsx';
 import CartSidebar from './components/CartSidebar.jsx';
 import CategorySection from './components/CategorySection.jsx';
-import ChatPopup from './components/ChatPopup.jsx';
 import { setupDarkMode } from './assets/js/utils.js';
 
 export default function App() {
@@ -17,9 +16,20 @@ export default function App() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
 
-    // Thiết lập Dark Mode khi ứng dụng được mount
+    // Thiết lập Dark Mode và Tidio khi ứng dụng được mount
     useEffect(() => {
         setupDarkMode();
+
+        // Tải script Tidio
+        const tidioScript = document.createElement('script');
+        tidioScript.src = '//code.tidio.co/oek0xpxbub3krtatwn3wohlnaubgqq9t.js';
+        tidioScript.async = true;
+        document.body.appendChild(tidioScript);
+
+        // Dọn dẹp khi component unmount
+        return () => {
+            document.body.removeChild(tidioScript);
+        };
     }, []);
 
     const handleProductClick = (product) => {
@@ -64,8 +74,6 @@ export default function App() {
                 isOpen={isCartOpen}
                 onClose={() => setIsCartOpen(false)}
             />
-
-            <ChatPopup />
         </div>
     );
 }

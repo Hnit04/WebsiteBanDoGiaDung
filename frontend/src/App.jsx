@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
 import ProductModal from './components/ProductModal.jsx';
 import CartSidebar from './components/CartSidebar.jsx';
-import ChatPopup from './components/ChatPopup.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
@@ -15,17 +13,17 @@ import Contact from './pages/Contact.jsx';
 import HomePageAdmin from './pages/HomePageAdmin.jsx';
 import UserLayout from './components/UserLayout.jsx';
 import AdminLayout from './components/AdminLayout.jsx';
-import CartPage from './pages/CartPage.jsx'
+import CartPage from './pages/CartPage.jsx';
 import { setupDarkMode } from './assets/js/utils.jsx';
 import { getCart } from './assets/js/cartManager.jsx';
-import { getUserFromLocalStorage } from "./assets/js/userData"
+import { getUserFromLocalStorage } from "./assets/js/userData";
 import CheckoutPage from "@/pages/CheckoutPage.jsx";
 import ProfilePage from "@/pages/ProfilePage.jsx";
 import ProductsAdminPage from "@/pages/ProductsAdminPage.jsx";
-import OrderAdminPage from "@/pages/OrderAdminPage.jsx"
+import OrderAdminPage from "@/pages/OrderAdminPage.jsx";
 import CustomerAdminPage from "@/pages/CustomerAdminPage.jsx";
-import Statistical from "@/pages/Statistical.jsx"
-import Transport from "@/pages/Transport.jsx"
+import Statistical from "@/pages/Statistical.jsx";
+import Transport from "@/pages/Transport.jsx";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage.jsx";
 
 export default function App() {
@@ -36,8 +34,10 @@ export default function App() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        // Thiết lập Dark Mode
         setupDarkMode();
 
+        // Cập nhật số lượng sản phẩm trong giỏ hàng
         const updateTotalItems = () => {
             const cart = getCart();
             const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -47,13 +47,21 @@ export default function App() {
         updateTotalItems();
         window.addEventListener('storage', updateTotalItems);
 
+        // Tải script Tidio
+        const tidioScript = document.createElement('script');
+        tidioScript.src = '//code.tidio.co/oek0xpxbub3krtatwn3wohlnaubgqq9t.js';
+        tidioScript.async = true;
+        document.body.appendChild(tidioScript);
+
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 500);
 
+        // Dọn dẹp khi component unmount
         return () => {
             window.removeEventListener('storage', updateTotalItems);
             clearTimeout(timer);
+            document.body.removeChild(tidioScript); // Xóa script khi component unmount
         };
     }, []);
 
@@ -139,7 +147,6 @@ export default function App() {
                     isOpen={isCartOpen}
                     onClose={() => setIsCartOpen(false)}
                 />
-                <ChatPopup />
             </Router>
         </div>
     );
