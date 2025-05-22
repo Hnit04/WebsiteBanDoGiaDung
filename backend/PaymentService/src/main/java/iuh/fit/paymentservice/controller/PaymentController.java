@@ -5,6 +5,10 @@ import iuh.fit.paymentservice.dto.request.CreateSepayPaymentRequest;
 import iuh.fit.paymentservice.dto.request.SepayWebhookRequest;
 import iuh.fit.paymentservice.dto.response.PaymentResponse;
 import iuh.fit.paymentservice.dto.response.WebhookResponse;
+import iuh.fit.paymentservice.mapper.PaymentMapper;
+import iuh.fit.paymentservice.model.Payment;
+import iuh.fit.paymentservice.repository.PaymentRepository;
+
 import iuh.fit.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +19,14 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
+    private final PaymentMapper paymentMapper;
 
     @Autowired
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
         this.paymentService = paymentService;
+        this.paymentRepository = paymentRepository;
+        this.paymentMapper = paymentMapper;
     }
 
     @PostMapping
@@ -45,11 +53,18 @@ public class PaymentController {
         }
     }
 
+    @GetMapping("/{paymentId}")
+    public ResponseEntity<PaymentResponse> getPaymentStatus(@PathVariable String paymentId) {
+        Payment payment = paymentRepository.findByPaymentId(paymentId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch: " + paymentId));
+        return ResponseEntity.ok(paymentMapper.toPaymentResponse(payment));
+    }
+
     private String extractPaymentId(String content, String description) {
         if (content != null && !content.isEmpty()) {
             String[] parts = content.split("\\.");
             if (parts.length >= 4 && parts[3].matches("[0-9a-f]{24}")) {
-                return parts[3]; // Lấy paymentId: 682e9cfb6923542153c93aaa
+                return parts[3]; // Lấy paymentId: 682ea25022310d3f0b8873f7
             }
         }
         if (description != null && !description.isEmpty()) {
