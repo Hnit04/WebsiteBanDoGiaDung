@@ -62,8 +62,6 @@ export default function CustomerPage() {
                 err.response?.data?.message ||
                 "Không thể tải dữ liệu khách hàng. Vui lòng thử lại."
             )
-        } finally {
-            setIsLoading(false)
         }
     }
 
