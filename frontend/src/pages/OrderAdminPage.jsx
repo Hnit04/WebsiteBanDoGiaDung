@@ -85,7 +85,7 @@ export default function OrdersAdminPage() {
 
             // Process orders
             const processedOrders = ordersData.map((order) => {
-                const user = usersData.find((u) => u.email === order.userId) || {
+                const user = usersData.find((u) => u.userId === order.userId) || {
                     username: "Không xác định",
                     email: "N/A",
                 }
@@ -103,7 +103,7 @@ export default function OrdersAdminPage() {
 
                 return {
                     ...order,
-                    userFullName: user.username,
+                    username: user.username,
                     userEmail: user.email,
                     details,
                 }
@@ -202,6 +202,7 @@ export default function OrdersAdminPage() {
             }
             return new Date(b.deliveryDate) - new Date(a.deliveryDate)
         }
+        console.log((order))
 
         if (sortConfig.key === "totalAmount") {
             return sortConfig.direction === "asc"
@@ -710,6 +711,7 @@ export default function OrdersAdminPage() {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                     {sortedOrders.length > 0 ? (
                                         sortedOrders.map((order) => (
+
                                             <tr
                                                 key={order._id}
                                                 className={`hover:bg-indigo-50 cursor-pointer transition-colors ${

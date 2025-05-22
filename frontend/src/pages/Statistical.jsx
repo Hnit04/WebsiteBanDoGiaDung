@@ -250,7 +250,7 @@ const Statistical = () => {
                     const orderDate = new Date(order.deliveryDate)
                     return (
                         order.status === "PAYMENT_SUCCESS" &&
-                        order.userId === user.email &&
+                        order.userId === user.userId &&
                         orderDate.getMonth() === topCustomersTime.month &&
                         orderDate.getFullYear() === topCustomersTime.year
                     )
@@ -296,7 +296,7 @@ const Statistical = () => {
                     const details = order.orderDetails || []
                     return details
                         .filter((detail) => detail.productId === product.productId)
-                        .map((detail) => detail.quantity * detail.unitPrice)
+                        .map((detail) => detail.subtotal)
                 })
                 .reduce((sum, revenue) => sum + revenue, 0)
             return {
