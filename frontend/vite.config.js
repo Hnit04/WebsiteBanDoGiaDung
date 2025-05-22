@@ -18,7 +18,7 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: 'https://websitebandogiadung.onrender.com/',
+        target: 'https://websitebandogiadung-dqzs.onrender.com/',
         changeOrigin: true,
         ws: true, // Kích hoạt proxy WebSocket
         secure: false,
