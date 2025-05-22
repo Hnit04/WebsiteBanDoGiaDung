@@ -60,7 +60,7 @@ public class PaymentService {
         validateOrder(request.getOrderId(), request.getAmount());
 
         Payment payment = new Payment();
-        payment.setPaymentId(new ObjectId().toString()); // Tạo paymentId rõ ràng
+        payment.setPaymentId(new ObjectId().toString());
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId(request.getPaymentMethodId());
         payment.setAmount(request.getAmount());
@@ -79,7 +79,7 @@ public class PaymentService {
         validateOrder(request.getOrderId(), request.getAmount());
 
         Payment payment = new Payment();
-        payment.setPaymentId(new ObjectId().toString()); // Tạo paymentId rõ ràng
+        payment.setPaymentId(new ObjectId().toString());
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMethodId("sepay-qr");
         payment.setAmount(request.getAmount());
@@ -88,7 +88,7 @@ public class PaymentService {
 
         String qrCodeUrl = String.format("%s?acc=%s&bank=%s&amount=%s&des=%s",
                 sepayQrUrl, request.getBankAccountNumber(), request.getBankCode(),
-                request.getAmount(), payment.getPaymentId()); // Dùng paymentId thay vì orderId
+                request.getAmount(), payment.getPaymentId());
         payment.setQrCodeUrl(qrCodeUrl);
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -105,7 +105,6 @@ public class PaymentService {
         Payment payment = paymentRepository.findByPaymentId(paymentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch: " + paymentId));
 
-        // Kiểm tra số tiền
         if (Math.abs(payment.getAmount() - amount) > 0.01) {
             logger.error("Số tiền không khớp: {} != {}", amount, payment.getAmount());
             throw new RuntimeException("Số tiền giao dịch không khớp");
@@ -123,8 +122,8 @@ public class PaymentService {
         messagingTemplate.convertAndSend("/topic/transactions",
                 new TransactionUpdate(paymentId, status, payment.getQrCodeUrl()));
 
-        if (status.equals("SUCCESS")) {
-            sendNotification(payment.getOrderId(), getUserIdFromOrder(payment.getOrderId()));
+        if (status.equals("COMPLETED")) {
+            // sendNotification(payment.getOrderId(), getUserIdFromOrder(payment.getOrderId()));
         }
 
         return paymentMapper.toPaymentResponse(updatedPayment);
@@ -139,7 +138,6 @@ public class PaymentService {
             logger.error("Đơn hàng không tồn tại: {}", orderId);
             throw new RuntimeException("Invalid order");
         }
-        // Sửa phí ship
         if (order.getTotalAmount() + 1000 != amount) {
             logger.error("Số tiền không khớp. Expected: {}, Provided: {}", order.getTotalAmount() + 1000, amount);
             throw new RuntimeException("Invalid amount");

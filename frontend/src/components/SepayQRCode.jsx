@@ -1,3 +1,4 @@
+
 // SepayQRCode.jsx
 import { useState, useEffect } from "react"
 import { Stomp } from "@stomp/stompjs"
@@ -12,15 +13,16 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
     const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || "https://websitebandogiadung.onrender.com/ws"
 
     useEffect(() => {
-        // Kết nối WebSocket
         const socket = new SockJS(WEBSOCKET_URL)
         const stompClient = Stomp.over(socket)
         stompClient.connect({}, () => {
+            console.log("WebSocket connected")
             stompClient.subscribe("/topic/transactions", message => {
+                console.log("WebSocket message:", message.body)
                 const data = JSON.parse(message.body)
                 if (data.paymentId === paymentId) {
                     setStatus(data.status)
-                    if (data.status === "SUCCESS") {
+                    if (data.status === "COMPLETED") {
                         onSuccess()
                     } else if (data.status === "FAILED" || data.status === "EXPIRED") {
                         toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
@@ -32,7 +34,6 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
             toast.error("Lỗi kết nối WebSocket")
         })
 
-        // Polling dự phòng
         const pollingInterval = setInterval(async () => {
             try {
                 const response = await fetch(`${BASE_API_URL}/api/payments/${paymentId}`)
@@ -40,7 +41,7 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
                 const data = await response.json()
                 if (data.status !== status) {
                     setStatus(data.status)
-                    if (data.status === "SUCCESS") {
+                    if (data.status === "COMPLETED") {
                         onSuccess()
                     } else if (data.status === "FAILED" || data.status === "EXPIRED") {
                         toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
@@ -51,7 +52,6 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
             }
         }, 5000)
 
-        // Đếm ngược thời gian
         const timer = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
@@ -63,7 +63,6 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
             })
         }, 1000)
 
-        // Nhắc nhở khi thời gian còn dưới 30 giây
         if (timeLeft <= 30 && status === "PENDING") {
             toast("Vui lòng hoàn tất thanh toán trong 30 giây!", { icon: "⏰" })
         }
@@ -90,13 +89,13 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
                 {status === "PENDING" && (
                     <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></div>
                 )}
-                {status === "SUCCESS" && <CheckCircle size={24} className="text-green-500 mr-2" />}
+                {status === "COMPLETED" && <CheckCircle size={24} className="text-green-500 mr-2" />}
                 {(status === "FAILED" || status === "EXPIRED") && (
                     <AlertTriangle size={24} className="text-red-500 mr-2" />
                 )}
                 <span className="text-gray-800">
                     {status === "PENDING" && "Đang chờ thanh toán..."}
-                    {status === "SUCCESS" && "Thanh toán thành công!"}
+                    {status === "COMPLETED" && "Thanh toán thành công!"}
                     {status === "FAILED" && "Thanh toán thất bại"}
                     {status === "EXPIRED" && "Giao dịch đã hết hạn"}
                 </span>
