@@ -9,10 +9,10 @@ import { Pagination } from "swiper/modules"
 import { Link } from "react-router-dom"
 
 // Import images
-import img1 from "../assets/img.png"
-import img2 from "../assets/img.png"
-import img3 from "../assets/img.png"
-import img4 from "../assets/img.png"
+import img1 from "../../public/img.png"
+import img2 from "../../public/img.png"
+import img3 from "../../public/img.png"
+import img4 from "../../public/img.png"
 import api from "@/services/api.js";
 
 const HomePage = () => {
@@ -163,7 +163,7 @@ const HomePage = () => {
                                                 />
                                                 <h3 className="text-lg font-semibold mb-2">{product.productName}</h3>
                                                 <p className="text-gray-600 text-sm mb-2">{product.description.slice(0, 60)}...</p>
-                                                <div className="text-blue-600 font-bold text-lg">{product.originalPrice.toLocaleString("vi-VN")}₫</div>
+                                                <div className="text-blue-600 font-bold text-lg">{product.salePrice.toLocaleString("vi-VN")}₫</div>
                                             </div>
                                         </div>
                                         {product.quantityInStock === 0 && (

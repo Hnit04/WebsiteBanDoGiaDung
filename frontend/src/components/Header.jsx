@@ -23,7 +23,7 @@ const Header = () => {
         if (loggedInUser) {
             setUser(loggedInUser)
             setIsLoggedIn(true)
-            fetchCartCount(loggedInUser.email)
+            fetchCartCount(loggedInUser.userId)
         } else {
             setUser(null)
             setIsLoggedIn(false)
@@ -35,7 +35,7 @@ const Header = () => {
         const handleCartUpdated = () => {
             const loggedInUser = getUserFromLocalStorage()
             if (loggedInUser) {
-                fetchCartCount(loggedInUser.email)
+                fetchCartCount(loggedInUser.userId)
             }
         }
 
@@ -69,11 +69,12 @@ const Header = () => {
         }
     }, [isUserMenuOpen])
 
-    const fetchCartCount = async (email) => {
+    const fetchCartCount = async (userId) => {
         try {
-            const response = await api.get(`/carts/user/${email}`)
+            const response = await api.get(`/carts/user/${userId}`)
             if (response.data && response.data.cartItems) {
                 const totalItems = response.data.cartItems.length
+                console.log(response.data.cartItems)
                 setCartCount(totalItems)
             } else {
                 setCartCount(0)

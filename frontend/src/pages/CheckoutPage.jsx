@@ -96,7 +96,7 @@ const CheckoutPage = () => {
 
     const navigate = useNavigate()
     const location = useLocation()
-    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung-dqzs.onrender.com"
+    const BASE_API_URL =  "https://websitebandogiadung-dqzs.onrender.com"
 
     // Fetch cart items and products
     useEffect(() => {
@@ -999,13 +999,7 @@ const CheckoutPage = () => {
                                                             salePrice * item.quantity
                                                         )}
                                                     </p>
-                                                    {isDiscounted && (
-                                                        <p className="text-sm text-gray-500 line-through">
-                                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                                originalPrice * item.quantity
-                                                            )}
-                                                        </p>
-                                                    )}
+
                                                 </div>
                                             </div>
                                         </div>

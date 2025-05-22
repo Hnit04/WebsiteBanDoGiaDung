@@ -229,7 +229,7 @@ const ProductDetailPage = () => {
 
                     <div className="space-y-2">
                         <div className="flex items-baseline space-x-4">
-                            <span className="text-3xl font-bold text-indigo-600">{product.originalPrice.toLocaleString("vi-VN")}₫</span>
+                            <span className="text-3xl font-bold text-indigo-600">{product.salePrice.toLocaleString("vi-VN")}₫</span>
                         </div>
                         <p className="text-sm text-green-600 font-semibold">✓ Còn hàng: {product.quantityInStock} sản phẩm</p>
                         {isInCart && (
