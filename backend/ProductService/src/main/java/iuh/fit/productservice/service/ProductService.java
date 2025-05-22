@@ -76,9 +76,6 @@ public class ProductService {
     public ProductResponse saveProduct(CreateProductRequest request) {
         logger.info("Saving product: {}", request.getProductName());
 
-        if (request.getSalePrice() > request.getOriginalPrice()) {
-            throw new IllegalArgumentException("Sale price cannot be greater than original price");
-        }
 
         if (!categoryRepository.existsById(request.getCategoryId())) {
             throw new IllegalArgumentException("Category not found with id: " + request.getCategoryId());
