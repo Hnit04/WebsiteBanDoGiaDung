@@ -46,8 +46,6 @@ export default function CustomerPage() {
     // Fetch customers
     const fetchCustomers = async () => {
         try {
-            setIsLoading(true)
-            setError(null)
 
             const response = await api.get("/users")
             const usersData = Array.isArray(response.data) ? response.data : []
@@ -64,8 +62,6 @@ export default function CustomerPage() {
                 err.response?.data?.message ||
                 "Không thể tải dữ liệu khách hàng. Vui lòng thử lại."
             )
-        } finally {
-            setIsLoading(false)
         }
     }
 
