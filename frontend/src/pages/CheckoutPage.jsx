@@ -335,7 +335,7 @@ const CheckoutPage = () => {
                 })
             }
 
-            setOrderSuccess(sepayPayment.orderId)
+            setOrderSuccess(sepayPayment.paymentId)
             setIsSepayModalOpen(false)
             toast.success("Đặt hàng thành công!")
             await showOrderDetails(sepayPayment.orderId)
