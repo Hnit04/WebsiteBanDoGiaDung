@@ -46,8 +46,6 @@ export default function CustomerPage() {
     // Fetch customers
     const fetchCustomers = async () => {
         try {
-            setIsLoading(true)
-            setError(null)
 
             const response = await api.get("/users")
             const usersData = Array.isArray(response.data) ? response.data : []
