@@ -14,37 +14,37 @@ spring:
     gateway:
       routes:
         - id: product-service-route
-          uri: https://websitebandogiadung-products.onrender.com/api/products/
+          uri: https://websitebandogiadung-productservice.onrender.com/api/products/
           predicates:
             - Path=/api/products/**,/api/products/categories/**,/api/categories/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: user-service-route
-          uri: https://websitebandogiadung-users.onrender.com/api/users
+          uri: https://websitebandogiadung-userservice.onrender.com/api/users
           predicates:
             - Path=/api/users/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: order-service-route
-          uri: https://websitebandogiadung-order.onrender.com/api/orders
+          uri: https://websitebandogiadung-orderservice.onrender.com/api/orders
           predicates:
             - Path=/api/orders/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: cart-service-route
-          uri: https://websitebandogiadung-cart.onrender.com/api/carts/items
+          uri: https://websitebandogiadung-cartservice.onrender.com/api/carts/items
           predicates:
             - Path=/api/carts/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: notification-service-route
-          uri: https://websitebandogiadung-notification.onrender.com/api/notifications
+          uri: https://websitebandogiadung-notificationservice-wqtk.onrender.com/api/notifications
           predicates:
             - Path=/api/notifications/**
           # Xóa filter RemoveRequestHeader=Authorization
 
         - id: payment-service-route
-          uri: https://websitebandogiadung-payment.onrender.com/api/payments
+          uri: https://websitebandogiadung-paymentservice.onrender.com/api/payments
           predicates:
             - Path=/api/payments/**
           # Xóa filter RemoveRequestHeader=Authorization

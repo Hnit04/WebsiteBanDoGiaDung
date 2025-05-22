@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Tạo instance axios với cấu hình cơ bản
 const api = axios.create({
-    baseURL: "https://websitebandogiadung.onrender.com/api/", // Xóa khoảng trắng thừa
+    baseURL: "https://websitebandogiadung-dqzs.onrender.com/api/", // Xóa khoảng trắng thừa
     withCredentials: true, // Gửi cookie nếu cần, phù hợp với backend
 });
 
