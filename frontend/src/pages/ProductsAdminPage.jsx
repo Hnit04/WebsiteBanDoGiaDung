@@ -369,17 +369,43 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategor
         setCategoryError(null)
     }
 
-    const handleChange = (e) => {
+    const uploadImageToCloudinary = async (file) => {
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("upload_preset", "uploadAnh")
+
+        try {
+            const response = await fetch("https://api.cloudinary.com/v1_1/disdu197t/image/upload", {
+                method: "POST",
+                body: formData,
+            })
+            const data = await response.json()
+            if (!response.ok) {
+                throw new Error(data.error?.message || "Không thể tải ảnh lên Cloudinary")
+            }
+            return data.url
+        } catch (err) {
+            throw new Error(err.message || "Không thể tải ảnh lên Cloudinary")
+        }
+    }
+
+    const handleChange = async (e) => {
         const { name, value, type, checked, files } = e.target
-        if (type === "file" && files) {
-            const fileList = Array.from(files)
-            const fileName = fileList.length > 0 ? fileList[0].name : ""
-            const newImageUrl = fileName ? `img/${fileName}` : ""
-            setProduct((prev) => ({
-                ...prev,
-                imageUrl: newImageUrl,
-            }))
-            setImagePreviews(fileName ? [`img/${fileName}`] : [])
+        if (type === "file" && files && files.length > 0) {
+            try {
+                setLoading(true)
+                const file = files[0]
+                const cloudinaryUrl = await uploadImageToCloudinary(file)
+                setProduct((prev) => ({
+                    ...prev,
+                    imageUrl: cloudinaryUrl,
+                }))
+                setImagePreviews([cloudinaryUrl])
+            } catch (err) {
+                setError(err.message)
+            } finally {
+                setLoading(false)
+            }
         } else {
             setProduct((prev) => ({
                 ...prev,
@@ -418,7 +444,7 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategor
 
     const calculateSalePrice = (originalPrice) => {
         if (!originalPrice || isNaN(originalPrice)) return 0
-        return Number.parseFloat(originalPrice) * 1.1 // Giá bán = Giá gốc + 10%
+        return Number.parseFloat(originalPrice) * 1.1
     }
 
     const handleSubmit = async () => {
@@ -451,8 +477,8 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategor
             const productData = {
                 productName: product.productName,
                 description: product.description || null,
-                originalPrice: salePrice, // Giá bán (originalPrice) gửi lên backend
-                salePrice: Number.parseFloat(product.originalPrice), // Giá gốc (salePrice) gửi lên backend
+                originalPrice: salePrice,
+                salePrice: Number.parseFloat(product.originalPrice),
                 quantityInStock: Number.parseInt(product.quantityInStock, 10),
                 categoryId: product.categoryId,
                 imageUrl: product.imageUrl || null,
@@ -672,22 +698,6 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategor
                                         required
                                     />
                                 </div>
-                                {/*<div className="space-y-2">*/}
-                                {/*    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>*/}
-                                {/*    <div className="flex items-center space-x-2">*/}
-                                {/*        <input*/}
-                                {/*            type="checkbox"*/}
-                                {/*            name="show"*/}
-                                {/*            id="show"*/}
-                                {/*            checked={product.show}*/}
-                                {/*            onChange={handleChange}*/}
-                                {/*            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"*/}
-                                {/*        />*/}
-                                {/*        <label htmlFor="show" className="text-sm text-gray-700">*/}
-                                {/*            Hiển thị sản phẩm*/}
-                                {/*        </label>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
                             </div>
                         </div>
                     )}
@@ -733,7 +743,7 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategor
                                         <div className="grid grid-cols-2 gap-4 w-full">
                                             {imagePreviews.map((preview, index) => (
                                                 <div key={index} className="relative">
-                                                    <img src={"/" + preview} alt={`Preview ${index + 1}`} className="max-h-32 mx-auto object-contain" />
+                                                    <img src={preview} alt={`Preview ${index + 1}`} className="max-h-32 mx-auto object-contain" />
                                                     {index === 0 && (
                                                         <span className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded">
                                                             Ảnh chính
@@ -800,7 +810,7 @@ function AddProductModal({ isOpen, onClose, onAddProduct, categories, setCategor
                                             {imagePreviews.map((preview, index) => (
                                                 <img
                                                     key={index}
-                                                    src={"/" + preview}
+                                                    src={preview}
                                                     alt={`Preview ${index + 1}`}
                                                     className="h-32 object-contain"
                                                 />
@@ -931,7 +941,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
             setFormData({
                 productId: product.productId || "",
                 productName: product.productName || "",
-                originalPrice: product.salePrice || "", // Lấy salePrice làm giá gốc trong giao diện
+                originalPrice: product.salePrice || "",
                 description: product.description || "",
                 imageUrl: product.imageUrl || "",
                 categoryId: product.categoryId || "",
@@ -942,17 +952,43 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
         }
     }, [product])
 
-    const handleChange = (e) => {
+    const uploadImageToCloudinary = async (file) => {
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("upload_preset", "uploadAnh")
+
+        try {
+            const response = await fetch("https://api.cloudinary.com/v1_1/disdu197t/image/upload", {
+                method: "POST",
+                body: formData,
+            })
+            const data = await response.json()
+            if (!response.ok) {
+                throw new Error(data.error?.message || "Không thể tải ảnh lên Cloudinary")
+            }
+            return data.url
+        } catch (err) {
+            throw new Error(err.message || "Không thể tải ảnh lên Cloudinary")
+        }
+    }
+
+    const handleChange = async (e) => {
         const { name, value, type, checked, files } = e.target
-        if (type === "file" && files) {
-            const fileList = Array.from(files)
-            const fileName = fileList.length > 0 ? fileList[0].name : ""
-            const newImageUrl = fileName ? `img/${fileName}` : ""
-            setFormData((prev) => ({
-                ...prev,
-                imageUrl: newImageUrl,
-            }))
-            setImagePreviews(fileName ? [`img/${fileName}`] : [])
+        if (type === "file" && files && files.length > 0) {
+            try {
+                setLoading(true)
+                const file = files[0]
+                const cloudinaryUrl = await uploadImageToCloudinary(file)
+                setFormData((prev) => ({
+                    ...prev,
+                    imageUrl: cloudinaryUrl,
+                }))
+                setImagePreviews([cloudinaryUrl])
+            } catch (err) {
+                setError(err.message)
+            } finally {
+                setLoading(false)
+            }
         } else {
             setFormData((prev) => ({
                 ...prev,
@@ -991,7 +1027,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
 
     const calculateSalePrice = (originalPrice) => {
         if (!originalPrice || isNaN(originalPrice)) return 0
-        return Number.parseFloat(originalPrice) * 1.1 // Giá bán = Giá gốc + 10%
+        return Number.parseFloat(originalPrice) * 1.1
     }
 
     const handleSubmit = async () => {
@@ -1024,8 +1060,8 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
             const updatedData = {
                 productName: formData.productName,
                 description: formData.description || null,
-                originalPrice: salePrice, // Giá bán (originalPrice) gửi lên backend
-                salePrice: Number.parseFloat(formData.originalPrice), // Giá gốc (salePrice) gửi lên backend
+                originalPrice: salePrice,
+                salePrice: Number.parseFloat(formData.originalPrice),
                 quantityInStock: Number.parseInt(formData.quantityInStock, 10),
                 categoryId: formData.categoryId,
                 imageUrl: formData.imageUrl || null,
@@ -1245,22 +1281,6 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         required
                                     />
                                 </div>
-                                {/*<div className="space-y-2">*/}
-                                {/*    <label className="flex items-center text-sm font-medium text-gray-700">Trạng thái</label>*/}
-                                {/*    <div className="flex items-center space-x-2">*/}
-                                {/*        <input*/}
-                                {/*            type="checkbox"*/}
-                                {/*            name="show"*/}
-                                {/*            id="show"*/}
-                                {/*            checked={formData.show}*/}
-                                {/*            onChange={handleChange}*/}
-                                {/*            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"*/}
-                                {/*        />*/}
-                                {/*        <label htmlFor="show" className="text-sm text-gray-700">*/}
-                                {/*            Hiển thị sản phẩm*/}
-                                {/*        </label>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
                             </div>
                         </div>
                     )}
@@ -1306,7 +1326,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                         <div className="grid grid-cols-2 gap-4 w-full">
                                             {imagePreviews.map((preview, index) => (
                                                 <div key={index} className="relative">
-                                                    <img src={"/" + preview} alt={`Preview ${index + 1}`} className="max-h-32 mx-auto object-contain" />
+                                                    <img src={preview} alt={`Preview ${index + 1}`} className="max-h-32 mx-auto object-contain" />
                                                     {index === 0 && (
                                                         <span className="absolute top-1 left-1 bg-indigo-600 text-white text-xs px-2 py-1 rounded">
                                                             Ảnh chính
@@ -1373,7 +1393,7 @@ function UpdateProductModal({ isOpen, onClose, product, onUpdateProduct, categor
                                             {imagePreviews.map((preview, index) => (
                                                 <img
                                                     key={index}
-                                                    src={"/" + preview}
+                                                    src={preview}
                                                     alt={`Preview ${index + 1}`}
                                                     className="h-32 object-contain"
                                                 />
