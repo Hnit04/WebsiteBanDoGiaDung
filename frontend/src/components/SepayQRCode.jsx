@@ -1,96 +1,111 @@
-
 // SepayQRCode.jsx
-import { useState, useEffect } from "react"
-import { Stomp } from "@stomp/stompjs"
-import SockJS from "sockjs-client"
-import { CheckCircle, AlertTriangle } from "lucide-react"
-import toast from "react-hot-toast"
+import { useState, useEffect } from "react";
+import { Stomp } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import { CheckCircle, AlertTriangle } from "lucide-react";
+import toast from "react-hot-toast";
 
 const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSuccess }) => {
-    const [status, setStatus] = useState("PENDING")
-    const [timeLeft, setTimeLeft] = useState(transactionTimeout || 300)
-    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung.onrender.com"
-    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || "https://websitebandogiadung.onrender.com/ws"
+    const [status, setStatus] = useState("PENDING");
+    const [timeLeft, setTimeLeft] = useState(transactionTimeout || 300);
+    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung.onrender.com";
+    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || "https://websitebandogiadung.onrender.com/ws";
 
     useEffect(() => {
-        const socket = new SockJS(WEBSOCKET_URL)
-        const stompClient = Stomp.over(socket)
-        let isConnected = false
+        console.log("Initializing SepayQRCode for paymentId:", paymentId);
+        const socket = new SockJS(WEBSOCKET_URL);
+        const stompClient = Stomp.over(socket);
+        let isConnected = false;
 
         stompClient.connect(
             {},
             () => {
-                console.log("WebSocket connected")
-                isConnected = true
+                console.log("WebSocket connected");
+                isConnected = true;
                 stompClient.subscribe("/topic/transactions", message => {
-                    console.log("WebSocket message:", message.body)
-                    const data = JSON.parse(message.body)
-                    if (data.paymentId === paymentId) {
-                        setStatus(data.status)
-                        if (data.status === "COMPLETED") {
-                            setTimeLeft(0) // Dừng timer
-                            onSuccess()
-                        } else if (data.status === "FAILED" || data.status === "EXPIRED") {
-                            setTimeLeft(0) // Dừng timer
-                            toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
+                    console.log("WebSocket raw message:", message);
+                    console.log("WebSocket message body:", message.body);
+                    try {
+                        const data = JSON.parse(message.body);
+                        console.log("Parsed WebSocket data:", data);
+                        if (data.paymentId === paymentId) {
+                            console.log("Matched paymentId, updating status to:", data.status);
+                            setStatus(data.status);
+                            if (data.status === "COMPLETED") {
+                                console.log("Calling onSuccess for paymentId:", paymentId);
+                                setTimeLeft(0);
+                                onSuccess();
+                            } else if (data.status === "FAILED" || data.status === "EXPIRED") {
+                                setTimeLeft(0);
+                                toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`);
+                            }
+                        } else {
+                            console.log("PaymentId mismatch:", data.paymentId, "vs", paymentId);
                         }
+                    } catch (err) {
+                        console.error("Error parsing WebSocket message:", err);
                     }
-                })
+                });
             },
             error => {
-                console.error("WebSocket error:", error)
-                toast.error("Lỗi kết nối WebSocket")
+                console.error("WebSocket error:", error);
+                toast.error("Lỗi kết nối WebSocket");
             }
-        )
+        );
 
         const pollingInterval = setInterval(async () => {
             try {
-                const response = await fetch(`${BASE_API_URL}/api/payments/${paymentId}`)
-                if (!response.ok) throw new Error("Không thể kiểm tra trạng thái giao dịch")
-                const data = await response.json()
+                console.log("Polling for paymentId:", paymentId);
+                const response = await fetch(`${BASE_API_URL}/api/payments/${paymentId}`);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                console.log("Polling received data:", data);
                 if (data.status !== status) {
-                    console.log("Polling received status:", data.status)
-                    setStatus(data.status)
+                    console.log("Polling updating status to:", data.status);
+                    setStatus(data.status);
                     if (data.status === "COMPLETED") {
-                        setTimeLeft(0) // Dừng timer
-                        onSuccess()
+                        console.log("Calling onSuccess for paymentId:", paymentId);
+                        setTimeLeft(0);
+                        onSuccess();
                     } else if (data.status === "FAILED" || data.status === "EXPIRED") {
-                        setTimeLeft(0) // Dừng timer
-                        toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
+                        setTimeLeft(0);
+                        toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`);
                     }
                 }
             } catch (err) {
-                console.error("Lỗi khi kiểm tra trạng thái giao dịch:", err)
+                console.error("Lỗi khi kiểm tra trạng thái giao dịch:", err);
             }
-        }, 2000) // Giảm từ 5000ms xuống 2000ms
+        }, 2000);
 
         const timer = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1 || status !== "PENDING") {
                     if (prev <= 1 && status === "PENDING") {
-                        setStatus("EXPIRED")
-                        toast.error("Giao dịch đã hết hạn")
+                        setStatus("EXPIRED");
+                        toast.error("Giao dịch đã hết hạn");
                     }
-                    return 0
+                    clearInterval(timer); // Dừng timer khi status không phải PENDING
+                    return 0;
                 }
-                return prev - 1
-            })
-        }, 1000)
+                return prev - 1;
+            });
+        }, 1000);
 
         if (timeLeft <= 30 && status === "PENDING") {
-            toast("Vui lòng hoàn tất thanh toán trong 30 giây!", { icon: "⏰" })
+            toast("Vui lòng hoàn tất thanh toán trong 30 giây!", { icon: "⏰" });
         }
 
         return () => {
+            console.log("Cleaning up for paymentId:", paymentId);
             if (isConnected) {
                 stompClient.disconnect(() => {
-                    console.log("WebSocket disconnected")
-                })
+                    console.log("WebSocket disconnected");
+                });
             }
-            clearInterval(pollingInterval)
-            clearInterval(timer)
-        }
-    }, [paymentId, status, timeLeft, onSuccess])
+            clearInterval(pollingInterval);
+            clearInterval(timer);
+        };
+    }, [paymentId, status, timeLeft, onSuccess]);
 
     return (
         <div className="text-center">
@@ -119,7 +134,7 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
                 </span>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default SepayQRCode
+export default SepayQRCode;
