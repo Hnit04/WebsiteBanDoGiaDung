@@ -54,7 +54,7 @@ export default function CustomerPage() {
             // Lọc chỉ lấy user có role là CUSTOMER và sắp xếp từ dưới lên theo _id
             const filteredCustomers = usersData
                 .filter((user) => user.role === "CUSTOMER")
-                .sort((a, b) => b._id.localeCompare(a._id)) // Sắp xếp giảm dần theo _id
+                .sort((a, b) => b.username.localeCompare(a.username))
             setCustomers(filteredCustomers)
         } catch (err) {
             console.error("Lỗi khi tải dữ liệu khách hàng:", err)
