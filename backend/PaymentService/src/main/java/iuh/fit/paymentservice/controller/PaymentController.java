@@ -41,30 +41,30 @@ public class PaymentController {
             PaymentResponse updatedPayment = paymentService.updatePaymentStatus(paymentId, status, request.getTransferAmount());
             return ResponseEntity.ok().body(new WebhookResponse(true, "Webhook nhận và xử lý thành công"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new WebhookResponse(false, "Lỗi xử lý webhook: " + e.getMessage()));
+            return ResponseEntity.status(400).body(new WebhookResponse(false, "Lỗi xử lý webhook: " + e.getMessage()));
         }
     }
 
     private String extractPaymentId(String content, String description) {
-        String regex = "THT\\d+";
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-
-        // Kiểm tra trường content
-        if (content != null) {
-            java.util.regex.Matcher matcher = pattern.matcher(content);
-            if (matcher.find()) {
-                return matcher.group();
-            }
+        // Tách chuỗi content hoặc description theo dấu gạch ngang
+        String[] parts = null;
+        if (content != null && !content.isEmpty()) {
+            parts = content.split("-");
+        } else if (description != null && !description.isEmpty()) {
+            parts = description.split("-");
         }
 
-        // Kiểm tra trường description
-        if (description != null) {
-            java.util.regex.Matcher matcher = pattern.matcher(description);
-            if (matcher.find()) {
-                return matcher.group();
-            }
+        // Kiểm tra định dạng
+        if (parts == null || parts.length < 2) {
+            throw new RuntimeException("Không tìm thấy paymentId trong webhook: Định dạng content hoặc description không hợp lệ");
         }
 
-        throw new RuntimeException("Không tìm thấy paymentId trong webhook");
+        // Lấy phần thứ hai làm paymentId
+        String paymentId = parts[1].trim();
+        if (paymentId.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy paymentId trong webhook: paymentId rỗng");
+        }
+
+        return paymentId;
     }
 }

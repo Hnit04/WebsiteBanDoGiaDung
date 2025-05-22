@@ -2,6 +2,8 @@ package iuh.fit.paymentservice.repository;
 
 import iuh.fit.paymentservice.model.Payment;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.Optional;
 
 public interface PaymentRepository extends MongoRepository<Payment, String> {
+    Optional<Payment> findByPaymentId(String paymentId);
 }
