@@ -46,22 +46,18 @@ public class PaymentController {
     }
 
     private String extractPaymentId(String content, String description) {
-        String[] parts = null;
         if (content != null && !content.isEmpty()) {
-            parts = content.split("-");
-        } else if (description != null && !description.isEmpty()) {
-            parts = description.split("-");
+            String[] parts = content.split("\\.");
+            if (parts.length >= 4 && parts[3].matches("[0-9a-f]{24}")) {
+                return parts[3]; // Lấy paymentId: 682e9cfb6923542153c93aaa
+            }
         }
-
-        if (parts == null || parts.length < 2) {
-            throw new RuntimeException("Không tìm thấy paymentId trong webhook: Định dạng content hoặc description không hợp lệ");
+        if (description != null && !description.isEmpty()) {
+            String[] parts = description.split("PaymentID: ");
+            if (parts.length > 1) {
+                return parts[1].trim();
+            }
         }
-
-        String paymentId = parts[1].trim();
-        if (paymentId.isEmpty()) {
-            throw new RuntimeException("Không tìm thấy paymentId trong webhook: paymentId rỗng");
-        }
-
-        return paymentId;
+        throw new RuntimeException("Không tìm thấy paymentId trong webhook: Định dạng content hoặc description không hợp lệ");
     }
 }
