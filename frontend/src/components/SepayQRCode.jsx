@@ -15,24 +15,33 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
     useEffect(() => {
         const socket = new SockJS(WEBSOCKET_URL)
         const stompClient = Stomp.over(socket)
-        stompClient.connect({}, () => {
-            console.log("WebSocket connected")
-            stompClient.subscribe("/topic/transactions", message => {
-                console.log("WebSocket message:", message.body)
-                const data = JSON.parse(message.body)
-                if (data.paymentId === paymentId) {
-                    setStatus(data.status)
-                    if (data.status === "COMPLETED") {
-                        onSuccess()
-                    } else if (data.status === "FAILED" || data.status === "EXPIRED") {
-                        toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
+        let isConnected = false
+
+        stompClient.connect(
+            {},
+            () => {
+                console.log("WebSocket connected")
+                isConnected = true
+                stompClient.subscribe("/topic/transactions", message => {
+                    console.log("WebSocket message:", message.body)
+                    const data = JSON.parse(message.body)
+                    if (data.paymentId === paymentId) {
+                        setStatus(data.status)
+                        if (data.status === "COMPLETED") {
+                            setTimeLeft(0) // Dừng timer
+                            onSuccess()
+                        } else if (data.status === "FAILED" || data.status === "EXPIRED") {
+                            setTimeLeft(0) // Dừng timer
+                            toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
+                        }
                     }
-                }
-            })
-        }, error => {
-            console.error("Lỗi WebSocket:", error)
-            toast.error("Lỗi kết nối WebSocket")
-        })
+                })
+            },
+            error => {
+                console.error("WebSocket error:", error)
+                toast.error("Lỗi kết nối WebSocket")
+            }
+        )
 
         const pollingInterval = setInterval(async () => {
             try {
@@ -40,23 +49,28 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
                 if (!response.ok) throw new Error("Không thể kiểm tra trạng thái giao dịch")
                 const data = await response.json()
                 if (data.status !== status) {
+                    console.log("Polling received status:", data.status)
                     setStatus(data.status)
                     if (data.status === "COMPLETED") {
+                        setTimeLeft(0) // Dừng timer
                         onSuccess()
                     } else if (data.status === "FAILED" || data.status === "EXPIRED") {
+                        setTimeLeft(0) // Dừng timer
                         toast.error(`Giao dịch ${data.status === "FAILED" ? "thất bại" : "hết hạn"}`)
                     }
                 }
             } catch (err) {
                 console.error("Lỗi khi kiểm tra trạng thái giao dịch:", err)
             }
-        }, 5000)
+        }, 2000) // Giảm từ 5000ms xuống 2000ms
 
         const timer = setInterval(() => {
             setTimeLeft(prev => {
-                if (prev <= 1) {
-                    setStatus("EXPIRED")
-                    toast.error("Giao dịch đã hết hạn")
+                if (prev <= 1 || status !== "PENDING") {
+                    if (prev <= 1 && status === "PENDING") {
+                        setStatus("EXPIRED")
+                        toast.error("Giao dịch đã hết hạn")
+                    }
                     return 0
                 }
                 return prev - 1
@@ -68,7 +82,11 @@ const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSucce
         }
 
         return () => {
-            stompClient.disconnect()
+            if (isConnected) {
+                stompClient.disconnect(() => {
+                    console.log("WebSocket disconnected")
+                })
+            }
             clearInterval(pollingInterval)
             clearInterval(timer)
         }
