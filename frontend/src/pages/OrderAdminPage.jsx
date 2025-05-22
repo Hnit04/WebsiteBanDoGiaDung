@@ -85,7 +85,7 @@ export default function OrdersAdminPage() {
 
             // Process orders
             const processedOrders = ordersData.map((order) => {
-                const user = usersData.find((u) => u.userId === order.userId) || {
+                const user = usersData.find((u) => u.email === order.userId) || {
                     username: "Không xác định",
                     email: "N/A",
                 }
@@ -103,7 +103,7 @@ export default function OrdersAdminPage() {
 
                 return {
                     ...order,
-                    username: user.username,
+                    userFullName: user.username,
                     userEmail: user.email,
                     details,
                 }
@@ -202,7 +202,6 @@ export default function OrdersAdminPage() {
             }
             return new Date(b.deliveryDate) - new Date(a.deliveryDate)
         }
-        console.log((order))
 
         if (sortConfig.key === "totalAmount") {
             return sortConfig.direction === "asc"
@@ -413,11 +412,11 @@ export default function OrdersAdminPage() {
           </div>
           <div class="invoice-total-row">
             <div class="label">Phí vận chuyển:</div>
-            <div class="value">${formatCurrency(1000)}</div>
+            <div class="value">${formatCurrency(30000)}</div>
           </div>
           <div class="invoice-total-row final">
             <div class="label">Tổng thanh toán:</div>
-            <div class="value">${formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+1000)}</div>
+            <div class="value">${formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+30000)}</div>
           </div>
         </div>
         <div class="invoice-footer">
@@ -711,7 +710,6 @@ export default function OrdersAdminPage() {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                     {sortedOrders.length > 0 ? (
                                         sortedOrders.map((order) => (
-
                                             <tr
                                                 key={order._id}
                                                 className={`hover:bg-indigo-50 cursor-pointer transition-colors ${
@@ -877,11 +875,11 @@ export default function OrdersAdminPage() {
                                             </div>
                                             <div className="flex justify-between mb-2">
                                                 <span className="text-sm text-gray-600">Phí vận chuyển:</span>
-                                                <span className="text-sm font-medium">{formatCurrency(1000)}</span>
+                                                <span className="text-sm font-medium">{formatCurrency(30000)}</span>
                                             </div>
                                             <div className="flex justify-between font-medium text-lg mt-2 pt-2 border-t border-gray-200">
                                                 <span>Tổng cộng:</span>
-                                                <span className="text-indigo-600">{formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+1000)}</span>
+                                                <span className="text-indigo-600">{formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+30000)}</span>
                                             </div>
                                             <div className="flex justify-center pt-4 mt-4 border-t border-gray-200">
                                                 <button
