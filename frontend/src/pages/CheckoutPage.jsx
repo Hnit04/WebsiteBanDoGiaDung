@@ -337,7 +337,7 @@ const CheckoutPage = () => {
             setOrderSuccess(sepayPayment.paymentId)
             setIsSepayModalOpen(false)
             toast.success("Đặt hàng thành công!")
-            await showOrderDetails(sepayPayment.paymentId)
+            await showOrderDetails(sepayPayment.orderId)
         } catch (err) {
             console.error("Lỗi khi xử lý đơn hàng SEPay:", err)
             toast.error(err.message || "Không thể hoàn tất thanh toán. Vui lòng thử lại.")
@@ -609,7 +609,7 @@ const CheckoutPage = () => {
 <div class="invoice-info">
     <div class="invoice-info-block">
         <h4>Thông tin khách hàng</h4>
-        <p><strong>Khách hàng:</strong> ${user.fullName}</p>
+        <p><strong>Khách hàng:</strong> ${user.username}</p>
         <p><strong>Email:</strong> ${user.email}</p>
         <p><strong>Địa chỉ giao hàng:</strong> ${orderDetails.deliveryAddress}</p>
     </div>
