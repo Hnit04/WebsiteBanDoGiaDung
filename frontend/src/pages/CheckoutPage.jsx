@@ -262,6 +262,7 @@ const CheckoutPage = () => {
                 bankAccountNumber: process.env.REACT_APP_BANK_ACCOUNT || "0326829327",
                 bankCode: process.env.REACT_APP_BANK_CODE || "MBBank",
                 description: `Thanh toán đơn hàng ${orderId}`,
+
                 customerEmail: user?.email || "user@example.com"
             }
 
@@ -334,7 +335,7 @@ const CheckoutPage = () => {
                 })
             }
 
-            setOrderSuccess(sepayPayment.paymentId)
+            setOrderSuccess(sepayPayment.orderId)
             setIsSepayModalOpen(false)
             toast.success("Đặt hàng thành công!")
             await showOrderDetails(sepayPayment.orderId)
