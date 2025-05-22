@@ -336,7 +336,7 @@ const ProductDetailPage = () => {
                             >
                                 <div className="aspect-square relative overflow-hidden bg-gray-100">
                                     <img
-                                        src={"/" + item.imageUrl}
+                                        src={ item.imageUrl}
                                         alt={item.productName}
                                         className="m-5 h-80 mx-auto object-contain transition-transform duration-300"
                                     />
