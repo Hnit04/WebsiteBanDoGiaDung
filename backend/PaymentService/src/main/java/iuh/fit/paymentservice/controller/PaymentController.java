@@ -37,7 +37,7 @@ public class PaymentController {
     public ResponseEntity<WebhookResponse> handleWebhook(@RequestBody SepayWebhookRequest request) {
         try {
             String paymentId = extractPaymentId(request.getContent(), request.getDescription());
-            String status = request.getTransferType().equals("in") ? "SUCCESS" : "PENDING";
+            String status = request.getTransferType().equals("in") ? "COMPLETED" : "PENDING";
             PaymentResponse updatedPayment = paymentService.updatePaymentStatus(paymentId, status, request.getTransferAmount());
             return ResponseEntity.ok().body(new WebhookResponse(true, "Webhook nhận và xử lý thành công"));
         } catch (Exception e) {
@@ -46,7 +46,6 @@ public class PaymentController {
     }
 
     private String extractPaymentId(String content, String description) {
-        // Tách chuỗi content hoặc description theo dấu gạch ngang
         String[] parts = null;
         if (content != null && !content.isEmpty()) {
             parts = content.split("-");
@@ -54,12 +53,10 @@ public class PaymentController {
             parts = description.split("-");
         }
 
-        // Kiểm tra định dạng
         if (parts == null || parts.length < 2) {
             throw new RuntimeException("Không tìm thấy paymentId trong webhook: Định dạng content hoặc description không hợp lệ");
         }
 
-        // Lấy phần thứ hai làm paymentId
         String paymentId = parts[1].trim();
         if (paymentId.isEmpty()) {
             throw new RuntimeException("Không tìm thấy paymentId trong webhook: paymentId rỗng");
