@@ -70,7 +70,7 @@ public class OrderService {
             orderDetail.setProductId(detail.getProductId());
             orderDetail.setQuantity(detail.getQuantity());
 
-            String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + detail.getProductId();
+            String productUrl = "https://websitebandogiadung-dqzs.onrender.com/api/products/" + detail.getProductId();
             logger.debug("Calling Product Service at: {}", productUrl);
             try {
                 ResponseEntity<ProductResponse> response = restTemplate.getForEntity(productUrl, ProductResponse.class);
@@ -118,7 +118,7 @@ public class OrderService {
         // Gọi Payment Service chỉ khi không phải SEPay
         if (!request.getPaymentMethodId().equals("sepay-qr")) {
             try {
-                String paymentUrl = "https://websitebandogiadung.onrender.com/api/payments";
+                String paymentUrl = "https://websitebandogiadung-dqzs.onrender.com/api/payments";
                 logger.info("Initiating payment request to: {}", paymentUrl);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -236,7 +236,7 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
 
         // Validate product
-        String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + request.getProductId();
+        String productUrl = "https://websitebandogiadung-dqzs.onrender.com/api/products/" + request.getProductId();
         logger.debug("Validating product at: {}", productUrl);
         ProductResponse product = null;
         try {
