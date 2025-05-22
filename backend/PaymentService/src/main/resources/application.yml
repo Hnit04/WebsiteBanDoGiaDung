@@ -50,14 +50,14 @@ app:
     enabled: false
   services:
     order:
-      url: https://websitebandogiadung.onrender.com/api/orders
+      url: https://websitebandogiadung-dqzs.onrender.com/api/orders
     product:
-      url: https://websitebandogiadung.onrender.com/api/products
+      url: https://websitebandogiadung-dqzs.onrender.com/api/products
 
 # Thêm trực tiếp order.service.url để giải quyết lỗi
 order:
   service:
-    url: https://websitebandogiadung.onrender.com/api/orders
+    url: https://websitebandogiadung-dqzs.onrender.com/api/orders
 
 management:
   endpoints:
