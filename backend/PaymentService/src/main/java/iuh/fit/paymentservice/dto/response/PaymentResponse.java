@@ -4,6 +4,7 @@ import iuh.fit.paymentservice.model.PaymentStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class PaymentResponse {
@@ -11,7 +12,7 @@ public class PaymentResponse {
     private String orderId;
     private String paymentMethodId;
     private double amount;
-    private LocalDate paymentDate;
+    private LocalDateTime paymentDate;
     private PaymentStatus status;
     private String qrCodeUrl; // Thêm trường qrCodeUrl
 }

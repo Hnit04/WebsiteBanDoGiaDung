@@ -46,18 +46,15 @@ public class OrderService {
         logger.info("Processing CreateOrderRequest at {}", LocalDate.now());
         logger.debug("Request details: {}", request);
 
-        // Kiểm tra orderDetails
         if (request.getOrderDetails() == null || request.getOrderDetails().isEmpty()) {
             logger.warn("No orderDetails provided in request at {}", LocalDate.now());
             throw new IllegalArgumentException("Chi tiết đơn hàng là bắt buộc.");
         }
 
-        // Khởi tạo và xử lý orderDetails
         List<OrderDetail> orderDetails = new ArrayList<>();
         logger.info("Processing orderDetails list: {}", request.getOrderDetails().size());
         double calculatedTotal = 0.0;
 
-        // Tạo Order trước để có orderId
         Order order = new Order();
         order.setUserId(request.getUserId());
         order.setPromotionId(request.getPromotionId());
@@ -73,7 +70,6 @@ public class OrderService {
             orderDetail.setProductId(detail.getProductId());
             orderDetail.setQuantity(detail.getQuantity());
 
-            // Gọi Product Service để lấy unitPrice
             String productUrl = "https://websitebandogiadung.onrender.com/api/products/" + detail.getProductId();
             logger.debug("Calling Product Service at: {}", productUrl);
             try {
@@ -97,72 +93,69 @@ public class OrderService {
 
             orderDetail.setSubtotal(orderDetail.getQuantity() * orderDetail.getUnitPrice());
             calculatedTotal += orderDetail.getSubtotal();
-            // Gán orderId cho orderDetail (sẽ được cập nhật sau khi lưu order)
             orderDetails.add(orderDetail);
             logger.debug("Created OrderDetail: {}", orderDetail);
         }
 
-        order.setTotalAmount(calculatedTotal);
+        order.setTotalAmount(calculatedTotal); // Không bao gồm phí ship
         order.setOrderDetails(orderDetails);
 
         logger.debug("Order before save: {}", order);
 
-        // Lưu Order
         Order savedOrder;
         try {
             savedOrder = orderRepository.save(order);
             logger.info("Order saved successfully with ID: {}", savedOrder.getOrderId());
-            // Gán orderId cho tất cả orderDetails sau khi có orderId
             for (OrderDetail detail : savedOrder.getOrderDetails()) {
                 detail.setOrderId(savedOrder.getOrderId());
             }
-            // Lưu lại để cập nhật orderDetails
             savedOrder = orderRepository.save(savedOrder);
         } catch (Exception e) {
             logger.error("Failed to save Order: {}", e.getMessage(), e);
             throw new RuntimeException("Không thể lưu Order: " + e.getMessage());
         }
 
-        // Gọi payment-service
-        try {
-            String paymentUrl = "https://websitebandogiadung.onrender.com/api/payments";
-            logger.info("Initiating payment request to: {}", paymentUrl);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        // Gọi Payment Service chỉ khi không phải SEPay
+        if (!request.getPaymentMethodId().equals("sepay-qr")) {
+            try {
+                String paymentUrl = "https://websitebandogiadung.onrender.com/api/payments";
+                logger.info("Initiating payment request to: {}", paymentUrl);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
 
-            PaymentRequest paymentRequest = new PaymentRequest(
-                    savedOrder.getOrderId(),
-                    request.getPaymentMethodId(),
-                    savedOrder.getTotalAmount()
-            );
-            logger.debug("Payment request body: {}", paymentRequest);
-            HttpEntity<PaymentRequest> entity = new HttpEntity<>(paymentRequest, headers);
+                PaymentRequest paymentRequest = new PaymentRequest(
+                        savedOrder.getOrderId(),
+                        request.getPaymentMethodId(),
+                        savedOrder.getTotalAmount() + 1000 // Thêm phí ship
+                );
+                logger.debug("Payment request body: {}", paymentRequest);
+                HttpEntity<PaymentRequest> entity = new HttpEntity<>(paymentRequest, headers);
 
-            ResponseEntity<String> response = restTemplate.exchange(
-                    paymentUrl,
-                    HttpMethod.POST,
-                    entity,
-                    String.class
-            );
+                ResponseEntity<String> response = restTemplate.exchange(
+                        paymentUrl,
+                        HttpMethod.POST,
+                        entity,
+                        String.class
+                );
 
-            logger.info("Payment service response status: {}", response.getStatusCode());
-            logger.debug("Payment service response body: {}", response.getBody());
+                logger.info("Payment service response status: {}", response.getStatusCode());
+                logger.debug("Payment service response body: {}", response.getBody());
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                savedOrder.setStatus("PAYMENT_SUCCESS");
-            } else {
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    savedOrder.setStatus("PAYMENT_SUCCESS");
+                } else {
+                    savedOrder.setStatus("PAYMENT_FAILED");
+                    orderRepository.save(savedOrder);
+                    throw new RuntimeException("Thanh toán thất bại với trạng thái: " + response.getStatusCode());
+                }
+            } catch (Exception e) {
+                logger.error("Payment processing failed: {}", e.getMessage(), e);
                 savedOrder.setStatus("PAYMENT_FAILED");
                 orderRepository.save(savedOrder);
-                throw new RuntimeException("Thanh toán thất bại với trạng thái: " + response.getStatusCode());
+                throw new RuntimeException("Lỗi thanh toán: " + e.getMessage());
             }
-        } catch (Exception e) {
-            logger.error("Payment processing failed: {}", e.getMessage(), e);
-            savedOrder.setStatus("PAYMENT_FAILED");
-            orderRepository.save(savedOrder);
-            throw new RuntimeException("Lỗi thanh toán: " + e.getMessage());
         }
 
-        // Lưu lại Order với trạng thái đã cập nhật
         Order finalOrder = orderRepository.save(savedOrder);
         logger.info("Final order saved with status: {}, ID: {}", finalOrder.getStatus(), finalOrder.getOrderId());
         return orderMapper.toOrderResponse(finalOrder);
