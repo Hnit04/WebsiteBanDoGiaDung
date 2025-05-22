@@ -412,11 +412,11 @@ export default function OrdersAdminPage() {
           </div>
           <div class="invoice-total-row">
             <div class="label">Phí vận chuyển:</div>
-            <div class="value">${formatCurrency(30000)}</div>
+            <div class="value">${formatCurrency(1000)}</div>
           </div>
           <div class="invoice-total-row final">
             <div class="label">Tổng thanh toán:</div>
-            <div class="value">${formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+30000)}</div>
+            <div class="value">${formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+1000)}</div>
           </div>
         </div>
         <div class="invoice-footer">
@@ -875,11 +875,11 @@ export default function OrdersAdminPage() {
                                             </div>
                                             <div className="flex justify-between mb-2">
                                                 <span className="text-sm text-gray-600">Phí vận chuyển:</span>
-                                                <span className="text-sm font-medium">{formatCurrency(30000)}</span>
+                                                <span className="text-sm font-medium">{formatCurrency(1000)}</span>
                                             </div>
                                             <div className="flex justify-between font-medium text-lg mt-2 pt-2 border-t border-gray-200">
                                                 <span>Tổng cộng:</span>
-                                                <span className="text-indigo-600">{formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+30000)}</span>
+                                                <span className="text-indigo-600">{formatCurrency(selectedOrder.totalAmount+selectedOrder.totalAmount/10+1000)}</span>
                                             </div>
                                             <div className="flex justify-center pt-4 mt-4 border-t border-gray-200">
                                                 <button

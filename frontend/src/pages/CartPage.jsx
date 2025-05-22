@@ -238,7 +238,7 @@ const CartPage = () => {
     }
 
     const { totalItems, subtotal } = calculateSelectedSummary()
-    const shippingFee = 30000
+    const shippingFee = 1000
     const total = subtotal + shippingFee
 
     return (

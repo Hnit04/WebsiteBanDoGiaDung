@@ -229,7 +229,7 @@ const ProductDetailPage = () => {
 
                     <div className="space-y-2">
                         <div className="flex items-baseline space-x-4">
-                            <span className="text-3xl font-bold text-indigo-600">{product.originalPrice.toLocaleString("vi-VN")}₫</span>
+                            <span className="text-3xl font-bold text-indigo-600">{product.salePrice.toLocaleString("vi-VN")}₫</span>
                         </div>
                         <p className="text-sm text-green-600 font-semibold">✓ Còn hàng: {product.quantityInStock} sản phẩm</p>
                         {isInCart && (
@@ -336,7 +336,7 @@ const ProductDetailPage = () => {
                             >
                                 <div className="aspect-square relative overflow-hidden bg-gray-100">
                                     <img
-                                        src={"/" + item.imageUrl}
+                                        src={ item.imageUrl}
                                         alt={item.productName}
                                         className="m-5 h-80 mx-auto object-contain transition-transform duration-300"
                                     />
