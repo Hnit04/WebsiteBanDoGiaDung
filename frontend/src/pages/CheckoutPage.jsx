@@ -96,7 +96,7 @@ const CheckoutPage = () => {
 
     const navigate = useNavigate()
     const location = useLocation()
-    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung.onrender.com"
+    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung-dqzs.onrender.com"
 
     // Fetch cart items and products
     useEffect(() => {
