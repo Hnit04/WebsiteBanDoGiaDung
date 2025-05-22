@@ -8,8 +8,8 @@ import toast from "react-hot-toast";
 const SepayQRCode = ({ paymentId, qrCodeUrl, amount, transactionTimeout, onSuccess }) => {
     const [status, setStatus] = useState("PENDING");
     const [timeLeft, setTimeLeft] = useState(transactionTimeout || 300);
-    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung.onrender.com";
-    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || "https://websitebandogiadung.onrender.com/ws";
+    const BASE_API_URL = process.env.REACT_APP_API_URL || "https://websitebandogiadung-dqzs.onrender.com";
+    const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || "https://websitebandogiadung-dqzs.onrender.com/ws";
 
     useEffect(() => {
         console.log("Initializing SepayQRCode for paymentId:", paymentId);
