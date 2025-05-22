@@ -42,6 +42,7 @@ public class OrderService {
         this.restTemplate = restTemplate;
     }
 
+
     public OrderResponse createOrder(CreateOrderRequest request) {
         logger.info("Processing CreateOrderRequest at {}", LocalDate.now());
         logger.debug("Request details: {}", request);
@@ -64,40 +65,45 @@ public class OrderService {
         order.setDeliveryStatus(request.getDeliveryStatus());
         order.setDeliveryDate(request.getDeliveryDate());
 
-        for (OrderDetailRequest detail : request.getOrderDetails()) {
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrderDetailId(UUID.randomUUID().toString());
-            orderDetail.setProductId(detail.getProductId());
-            orderDetail.setQuantity(detail.getQuantity());
+        // Lưu thông tin để cập nhật tồn kho
+        List<ProductStockUpdate> stockUpdates = new ArrayList<>();
 
+        // Kiểm tra tồn kho và tạo chi tiết đơn hàng
+        for (OrderDetailRequest detail : request.getOrderDetails()) {
             String productUrl = "https://websitebandogiadung-dqzs.onrender.com/api/products/" + detail.getProductId();
             logger.debug("Calling Product Service at: {}", productUrl);
             try {
                 ResponseEntity<ProductResponse> response = restTemplate.getForEntity(productUrl, ProductResponse.class);
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                     ProductResponse product = response.getBody();
-                    if (product.getStock() >= detail.getQuantity()) {
-                        orderDetail.setUnitPrice(product.getPrice());
-                    } else {
-                        logger.warn("Hết hàng cho sản phẩm: {}, dùng giá mặc định 75.0", detail.getProductId());
-                        orderDetail.setUnitPrice(75.0);
+                    if (product.getStock() < detail.getQuantity()) {
+                        logger.warn("Insufficient stock for productId: {}, requested: {}, available: {}",
+                                detail.getProductId(), detail.getQuantity(), product.getStock());
+                        throw new RuntimeException("Sản phẩm " + detail.getProductId() + " không đủ tồn kho.");
                     }
-                } else {
-                    logger.warn("Không tìm thấy sản phẩm: {}, dùng giá mặc định 75.0", detail.getProductId());
-                    orderDetail.setUnitPrice(75.0);
-                }
-            } catch (Exception e) {
-                logger.error("Lỗi khi gọi Product Service: {}, dùng giá mặc định 75.0", e.getMessage(), e);
-                orderDetail.setUnitPrice(75.0);
-            }
+                    OrderDetail orderDetail = new OrderDetail();
+                    orderDetail.setOrderDetailId(UUID.randomUUID().toString());
+                    orderDetail.setProductId(detail.getProductId());
+                    orderDetail.setQuantity(detail.getQuantity());
+                    orderDetail.setUnitPrice(product.getPrice());
+                    orderDetail.setSubtotal(orderDetail.getQuantity() * orderDetail.getUnitPrice());
+                    calculatedTotal += orderDetail.getSubtotal();
+                    orderDetails.add(orderDetail);
+                    logger.debug("Created OrderDetail: {}", orderDetail);
 
-            orderDetail.setSubtotal(orderDetail.getQuantity() * orderDetail.getUnitPrice());
-            calculatedTotal += orderDetail.getSubtotal();
-            orderDetails.add(orderDetail);
-            logger.debug("Created OrderDetail: {}", orderDetail);
+                    // Lưu thông tin cập nhật tồn kho
+                    stockUpdates.add(new ProductStockUpdate(detail.getProductId(), product.getStock() - detail.getQuantity()));
+                } else {
+                    logger.warn("Không tìm thấy sản phẩm: {}", detail.getProductId());
+                    throw new RuntimeException("Sản phẩm không tìm thấy: " + detail.getProductId());
+                }
+            } catch (RestClientException e) {
+                logger.error("Lỗi khi gọi Product Service: {}, productId: {}", e.getMessage(), detail.getProductId(), e);
+                throw new RuntimeException("Không thể xác thực sản phẩm: " + detail.getProductId());
+            }
         }
 
-        order.setTotalAmount(calculatedTotal); // Không bao gồm phí ship
+        order.setTotalAmount(calculatedTotal);
         order.setOrderDetails(orderDetails);
 
         logger.debug("Order before save: {}", order);
@@ -113,6 +119,33 @@ public class OrderService {
         } catch (Exception e) {
             logger.error("Failed to save Order: {}", e.getMessage(), e);
             throw new RuntimeException("Không thể lưu Order: " + e.getMessage());
+        }
+
+        // Cập nhật tồn kho bằng cách gọi API updateProduct
+        try {
+            for (ProductStockUpdate stockUpdate : stockUpdates) {
+                String updateProductUrl = "https://websitebandogiadung-dqzs.onrender.com/api/products/" + stockUpdate.getProductId();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                UpdateProductRequest updateRequest = new UpdateProductRequest();
+                updateRequest.setQuantityInStock(stockUpdate.getNewStock());
+                HttpEntity<UpdateProductRequest> entity = new HttpEntity<>(updateRequest, headers);
+                logger.debug("Updating stock for productId: {}, new stock: {}", stockUpdate.getProductId(), stockUpdate.getNewStock());
+                ResponseEntity<ProductResponse> response = restTemplate.exchange(
+                        updateProductUrl,
+                        HttpMethod.PUT,
+                        entity,
+                        ProductResponse.class
+                );
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    logger.error("Failed to update stock for productId: {}, status: {}", stockUpdate.getProductId(), response.getStatusCode());
+                    throw new RuntimeException("Không thể cập nhật tồn kho cho sản phẩm: " + stockUpdate.getProductId());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Stock update failed, rolling back order: {}", e.getMessage(), e);
+            orderRepository.delete(savedOrder); // Rollback đơn hàng nếu cập nhật tồn kho thất bại
+            throw new RuntimeException("Lỗi khi cập nhật tồn kho: " + e.getMessage());
         }
 
         // Gọi Payment Service chỉ khi không phải SEPay
@@ -360,5 +393,20 @@ public class OrderService {
         private double price;  // Đổi tên để khớp với logic
         private String categoryId;  // Thêm để khớp với JSON
         private String imageUrl;  // Thêm để khớp với JSON
+    }
+    @Data
+    private static class UpdateProductRequest {
+        private String productName;
+        private String description;
+        private Double originalPrice;
+        private Double salePrice;
+        private Integer quantityInStock;
+        private String categoryId;
+        private String imageUrl;
+    }
+    @Data
+    private static class ProductStockUpdate {
+        private final String productId;
+        private final int newStock;
     }
 }
